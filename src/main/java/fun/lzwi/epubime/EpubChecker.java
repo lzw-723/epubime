@@ -6,14 +6,23 @@ import java.util.zip.ZipException;
 
 public class EpubChecker {
     public static final String MIMETYPE = "application/epub+zip";
-
+    public static final String XML_CONTAINER_PATH = "META-INF/container.xml";
     
+
+    protected static boolean checkEntryExits(File file, String path) throws ZipException, IOException{
+        Epub epub = new Epub(file);
+        return epub.getEntry(path) != null;
+    }
 
     public static boolean checkMimeType(File file) throws IOException {
 
         Epub epub = new Epub(file);
         String mimetype = new String(epub.getInputStream("mimetype").readAllBytes());
         return MIMETYPE.equals(mimetype);
+    }
+
+    public static boolean checkContainerXML(File file) throws ZipException, IOException {
+        return checkEntryExits(file, XML_CONTAINER_PATH);
     }
 
     public static boolean check(File file) throws ZipException, IOException {
