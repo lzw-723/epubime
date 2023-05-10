@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.zip.ZipException;
 
@@ -16,7 +15,7 @@ import org.junit.Test;
 public class EpubTest {
     static String path;
     static File file;
-    static Epub epub;
+    static EpubFile epub;
 
     @Test
     public void testForEach() throws ZipException, IOException {
@@ -30,7 +29,7 @@ public class EpubTest {
     public static void beforeClass() throws ZipException, IOException {
         path = EpubTest.class.getClassLoader().getResource("《坟》鲁迅.epub").getPath();
         file = new File(URLDecoder.decode(path, "utf-8"));
-        epub = new Epub(file);
+        epub = new EpubFile(file);
     }
 
     @Test

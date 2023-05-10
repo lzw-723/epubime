@@ -10,13 +10,13 @@ public class EpubChecker {
     
 
     protected static boolean checkEntryExits(File file, String path) throws ZipException, IOException{
-        Epub epub = new Epub(file);
+        EpubFile epub = new EpubFile(file);
         return epub.getEntry(path) != null;
     }
 
     public static boolean checkMimeType(File file) throws IOException {
 
-        Epub epub = new Epub(file);
+        EpubFile epub = new EpubFile(file);
         String mimetype = new String(epub.getInputStream("mimetype").readAllBytes());
         return MIMETYPE.equals(mimetype);
     }
@@ -26,7 +26,7 @@ public class EpubChecker {
     }
 
     public static boolean check(File file) throws ZipException, IOException {
-        Epub epub = new Epub(file);
+        EpubFile epub = new EpubFile(file);
         epub.forEach(e -> System.out.println(e.getName()));
         return false;
     }

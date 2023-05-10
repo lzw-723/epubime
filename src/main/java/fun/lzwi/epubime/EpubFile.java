@@ -9,21 +9,21 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-public class Epub {
+public class EpubFile {
 
     private ZipFile zipFile;
 
-    public Epub(File file) throws ZipException, IOException {
+    public EpubFile(File file) throws ZipException, IOException {
         zipFile = new ZipFile(file);
     }
 
-    public Epub(InputStream stream) {
+    public EpubFile(InputStream stream) {
     }
 
-    public Epub(String path) {
+    public EpubFile(String path) {
     }
 
-    public Epub forEach(Consumer<ZipEntry> e) {
+    public EpubFile forEach(Consumer<ZipEntry> e) {
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();

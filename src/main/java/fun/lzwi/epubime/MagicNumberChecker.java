@@ -17,7 +17,7 @@ public class MagicNumberChecker {
     }
 
     public static boolean check0(File file) throws IOException {
-        
+
         byte[] b = new byte[MAGIC_NUMBER_0.length];
         read(file, b, 0, MAGIC_NUMBER_0.length);
         for (int i = 0; i < b.length; i++) {
@@ -31,18 +31,18 @@ public class MagicNumberChecker {
     public static boolean check30(File file) throws IOException {
         byte[] b = new byte[MAGIC_NUMBER_30.length()];
         read(file, b, 30, MAGIC_NUMBER_30.length());
-            if (!new String(b).equals(MAGIC_NUMBER_30)) {
-                return false;
-            }
+        if (!new String(b).equals(MAGIC_NUMBER_30)) {
+            return false;
+        }
         return true;
     }
 
     public static boolean check38(File file) throws IOException {
         byte[] b = new byte[MAGIC_NUMBER_38.length()];
         read(file, b, 38, MAGIC_NUMBER_38.length());
-            if (!new String(b).equals(MAGIC_NUMBER_38)) {
-                return false;
-            }
+        if (!new String(b).equals(MAGIC_NUMBER_38)) {
+            return false;
+        }
         return true;
     }
 }
