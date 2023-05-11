@@ -18,9 +18,11 @@ public class EpubFile {
     }
 
     public EpubFile(InputStream stream) {
+        // TODO: 从InputStream构造
     }
 
     public EpubFile(String path) {
+        // TODO: 从path构造
     }
 
     public EpubFile forEach(Consumer<ZipEntry> e) {
