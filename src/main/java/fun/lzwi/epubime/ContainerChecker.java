@@ -27,9 +27,17 @@ public class ContainerChecker {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(file);
         Node rf = doc.getElementsByTagName("rootfile").item(0);
-        String fullPath = rf.getAttributes().getNamedItem("full-path").getNodeValue();
         String mimetype = rf.getAttributes().getNamedItem("media-type").getNodeValue();
-        return "EPUB/package.opf".equals(fullPath) && "application/oebps-package+xml".equals(mimetype);
+        return "application/oebps-package+xml".equals(mimetype);
+    }
+
+    public static String getRootFile(File file) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(file);
+        Node rf = doc.getElementsByTagName("rootfile").item(0);
+        String fullPath = rf.getAttributes().getNamedItem("full-path").getNodeValue();
+        return fullPath;
     }
 
 }

@@ -28,6 +28,6 @@ public class EpubChecker {
     public static boolean check(File file) throws ZipException, IOException {
         EpubFile epub = new EpubFile(file);
         epub.forEach(e -> System.out.println(e.getName()));
-        return false;
+        return true;
     }
 }
