@@ -6,11 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.zip.ZipException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import fun.lzwi.Util;
 
 public class EpubTest {
     static String path;
@@ -27,8 +28,7 @@ public class EpubTest {
 
     @BeforeClass
     public static void beforeClass() throws ZipException, IOException {
-        path = EpubTest.class.getClassLoader().getResource("《坟》鲁迅.epub").getPath();
-        file = new File(URLDecoder.decode(path, "utf-8"));
+        file = Util.getFile("《坟》鲁迅.epub");
         epub = new EpubFile(file);
     }
 
@@ -39,6 +39,6 @@ public class EpubTest {
 
     @Test
     public void testGetInputStream() throws IOException {
-        assertEquals(new String(epub.getInputStream("mimetype").readAllBytes()), "application/epub+zip");
+        assertEquals("application/epub+zip", new String(epub.getInputStream("mimetype").readAllBytes()));
     }
 }
