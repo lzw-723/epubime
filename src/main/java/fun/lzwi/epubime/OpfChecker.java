@@ -1,7 +1,10 @@
 package fun.lzwi.epubime;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,14 +20,18 @@ import fun.lzwi.epubime.bean.SpineItemRef;
 
 public class OpfChecker {
 
-    public static String getIdentifier(File file) throws ParserConfigurationException, SAXException, IOException {
-        String id = XmlUtils.getElementsByTagName(file, "dc:identifier").item(0).getTextContent();
+    public static String getIdentifier(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        String id = XmlUtils.getElementsByTagName(opf, "dc:identifier").item(0).getTextContent();
         return id;
     }
 
-    public static boolean checkIdentifier(File file) {
+    public static String getIdentifier(File opf) throws ParserConfigurationException, SAXException, IOException {
+        return getIdentifier(new FileInputStream(opf));
+    }
+
+    public static boolean checkIdentifier(InputStream opf) {
         try {
-            String id = getIdentifier(file);
+            String id = getIdentifier(opf);
             return id != null;
         } catch (ParserConfigurationException | SAXException | IOException e) {
             // 读取id失败
@@ -32,15 +39,24 @@ public class OpfChecker {
         return false;
     }
 
-    public static String getLanguage(File file)
+    public static boolean checkIdentifier(File opf) throws FileNotFoundException {
+        return checkIdentifier(new FileInputStream(opf));
+    }
+
+    public static String getLanguage(InputStream opf)
             throws DOMException, ParserConfigurationException, SAXException, IOException {
-        String lang = XmlUtils.getElementsByTagName(file, "dc:language").item(0).getTextContent();
+        String lang = XmlUtils.getElementsByTagName(opf, "dc:language").item(0).getTextContent();
         return lang;
     }
 
-    public static boolean checkLanguage(File file) {
+    public static String getLanguage(File opf)
+            throws DOMException, ParserConfigurationException, SAXException, IOException {
+        return getLanguage(new FileInputStream(opf));
+    }
+
+    public static boolean checkLanguage(InputStream opf) {
         try {
-            String language = getLanguage(file);
+            String language = getLanguage(opf);
             return language != null;
         } catch (DOMException | ParserConfigurationException | SAXException | IOException e) {
             // 读取language失败
@@ -48,15 +64,24 @@ public class OpfChecker {
         return false;
     }
 
-    public static String getTitle(File file)
+    public static boolean checkLanguage(File opf) throws FileNotFoundException {
+        return checkLanguage(new FileInputStream(opf));
+    }
+
+    public static String getTitle(InputStream opf)
             throws DOMException, ParserConfigurationException, SAXException, IOException {
-        String title = XmlUtils.getElementsByTagName(file, "dc:title").item(0).getTextContent();
+        String title = XmlUtils.getElementsByTagName(opf, "dc:title").item(0).getTextContent();
         return title;
     }
 
-    public static boolean checkTitle(File file) {
+    public static String getTitle(File opf)
+            throws DOMException, ParserConfigurationException, SAXException, IOException {
+        return getTitle(new FileInputStream(opf));
+    }
+
+    public static boolean checkTitle(InputStream opf) {
         try {
-            String title = getTitle(file);
+            String title = getTitle(opf);
             return title != null;
         } catch (DOMException | ParserConfigurationException | SAXException | IOException e) {
             // 读取title失败
@@ -64,14 +89,22 @@ public class OpfChecker {
         return false;
     }
 
-    public static NodeList getManifest(File file) throws ParserConfigurationException, SAXException, IOException {
-        NodeList childNodes = XmlUtils.getElementsByTagName(file, "manifest").item(0).getChildNodes();
+    public static boolean checkTitle(File opf) throws FileNotFoundException {
+        return checkTitle(new FileInputStream(opf));
+    }
+
+    public static NodeList getManifest(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        NodeList childNodes = XmlUtils.getElementsByTagName(opf, "manifest").item(0).getChildNodes();
         return childNodes;
     }
 
-    public static List<ManifestItem> getManifestItems(File file)
+    public static NodeList getManifest(File opf) throws ParserConfigurationException, SAXException, IOException {
+        return getManifest(new FileInputStream(opf));
+    }
+
+    public static List<ManifestItem> getManifestItems(InputStream opf)
             throws ParserConfigurationException, SAXException, IOException {
-        NodeList manifest = getManifest(file);
+        NodeList manifest = getManifest(opf);
         List<ManifestItem> list = new ArrayList<>();
         XmlUtils.foreachNodeList(manifest, n -> {
             if (!"item".equals(n.getNodeName()))
@@ -91,14 +124,23 @@ public class OpfChecker {
         return list;
     }
 
-    public static NodeList getSpine(File file) throws ParserConfigurationException, SAXException, IOException {
-        NodeList childNodes = XmlUtils.getElementsByTagName(file, "spine").item(0).getChildNodes();
+    public static List<ManifestItem> getManifestItems(File opf)
+            throws ParserConfigurationException, SAXException, IOException {
+        return getManifestItems(new FileInputStream(opf));
+    }
+
+    public static NodeList getSpine(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        NodeList childNodes = XmlUtils.getElementsByTagName(opf, "spine").item(0).getChildNodes();
         return childNodes;
     }
 
-    public static List<SpineItemRef> getSpineItemRefs(File file)
+    public static NodeList getSpine(File opf) throws ParserConfigurationException, SAXException, IOException {
+        return getSpine(new FileInputStream(opf));
+    }
+
+    public static List<SpineItemRef> getSpineItemRefs(InputStream opf)
             throws ParserConfigurationException, SAXException, IOException {
-        NodeList spine = getSpine(file);
+        NodeList spine = getSpine(opf);
         List<SpineItemRef> list = new ArrayList<>();
         XmlUtils.foreachNodeList(spine, n -> {
             if (!"itemref".equals(n.getNodeName()))
@@ -114,5 +156,9 @@ public class OpfChecker {
             list.add(item);
         });
         return list;
+    }
+    public static List<SpineItemRef> getSpineItemRefs(File opf)
+            throws ParserConfigurationException, SAXException, IOException {
+        return getSpineItemRefs(new FileInputStream(opf));
     }
 }

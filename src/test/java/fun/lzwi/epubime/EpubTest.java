@@ -8,8 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import fun.lzwi.Util;
 
@@ -27,7 +30,7 @@ public class EpubTest {
     }
 
     @BeforeClass
-    public static void beforeClass() throws ZipException, IOException {
+    public static void beforeClass() throws ZipException, IOException, ParserConfigurationException, SAXException {
         file = Util.getFile("《坟》鲁迅.epub");
         epub = new EpubFile(file);
     }

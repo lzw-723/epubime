@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,7 +26,7 @@ public class OpfCheckerTest {
     }
 
     @Test
-    public void testCheckIdentifier() {
+    public void testCheckIdentifier() throws FileNotFoundException {
         assertTrue("存在Id", OpfChecker.checkIdentifier(FILE));
     }
 
@@ -35,7 +36,7 @@ public class OpfCheckerTest {
     }
 
     @Test
-    public void testCheckLanguage() {
+    public void testCheckLanguage() throws FileNotFoundException {
         assertTrue("存在language", OpfChecker.checkLanguage(FILE));
     }
 
@@ -45,7 +46,7 @@ public class OpfCheckerTest {
     }
 
     @Test
-    public void testCheckTitle() {
+    public void testCheckTitle() throws FileNotFoundException {
         assertTrue("存在title", OpfChecker.checkTitle(FILE));
     }
 

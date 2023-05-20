@@ -1,7 +1,9 @@
 package fun.lzwi.epubime;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -14,12 +16,17 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XmlUtils {
-    public static NodeList getElementsByTagName(File file, String tag)
+    public static NodeList getElementsByTagName(InputStream inputStream, String tag)
             throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(file);
+        Document doc = builder.parse(inputStream);
         return doc.getElementsByTagName(tag);
+    }
+
+    public static NodeList getElementsByTagName(File file, String tag)
+            throws ParserConfigurationException, SAXException, IOException {
+        return getElementsByTagName(new FileInputStream(file), tag);
     }
 
     public static void foreachNodeList(NodeList list, Consumer<Node> consumer) {

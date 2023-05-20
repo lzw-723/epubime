@@ -9,12 +9,23 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.DOMException;
+import org.xml.sax.SAXException;
+
 public class EpubFile {
 
     private ZipFile zipFile;
+    // private ZipInputStream zip;
+    private InputStream container;
+    private InputStream opf;
 
-    public EpubFile(File file) throws ZipException, IOException {
+    public EpubFile(File file) throws ZipException, IOException, ParserConfigurationException, SAXException {
+        // zip = new ZipInputStream(new FileInputStream(file));
         zipFile = new ZipFile(file);
+        container = getInputStream("META-INF/container.xml");
+        opf = getInputStream(ContainerChecker.getRootFile(container));
     }
 
     public EpubFile(InputStream stream) {
@@ -40,5 +51,17 @@ public class EpubFile {
 
     protected InputStream getInputStream(String entry) throws IOException {
         return zipFile.getInputStream(getEntry(entry));
+    }
+
+    public String getTitle() throws DOMException, ParserConfigurationException, SAXException, IOException {
+        return OpfChecker.getTitle(opf);
+    }
+
+    public String getLanguage() throws DOMException, ParserConfigurationException, SAXException, IOException {
+        return OpfChecker.getLanguage(opf);
+    }
+
+    public String getIdentifier() throws ParserConfigurationException, SAXException, IOException {
+        return OpfChecker.getIdentifier(opf);
     }
 }
