@@ -12,10 +12,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.epubime.bean.ManifestItem;
+import fun.lzwi.epubime.bean.MetaItem;
 import fun.lzwi.epubime.bean.SpineItemRef;
 
 public class OpfReader {
@@ -93,6 +95,45 @@ public class OpfReader {
         return existTitle(new FileInputStream(opf));
     }
 
+    public static NodeList getMetaData(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        NodeList childNodes = XmlUtils.getElementsByTagName(opf, "metadata").item(0).getChildNodes();
+        return childNodes;
+    }
+
+    public static NodeList getMetaData(File opf)
+            throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+        return getMetaData(new FileInputStream(opf));
+    }
+
+    public static List<MetaItem> getMetaDataItems(InputStream opf)
+            throws ParserConfigurationException, SAXException, IOException {
+        List<MetaItem> list = new ArrayList<>();
+
+        XmlUtils.foreachNodeList(getMetaData(opf), md -> {
+            if (!md.getNodeName().equals("meta")) {
+                return;
+            }
+            NamedNodeMap attributes = md.getAttributes();
+
+            MetaItem item = new MetaItem();
+            Node property = attributes.getNamedItem("property");
+            if (property != null) {
+                item.setProperty(property.getTextContent());
+                item.setContent(md.getTextContent());
+            } else {
+                item.setName(attributes.getNamedItem("name").getTextContent());
+                item.setContent(attributes.getNamedItem("content").getTextContent());
+            }
+            list.add(item);
+        });
+        return list;
+    }
+
+    public static List<MetaItem> getMetaDataItems(File opf)
+            throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+        return getMetaDataItems(new FileInputStream(opf));
+    }
+
     public static NodeList getManifest(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
         NodeList childNodes = XmlUtils.getElementsByTagName(opf, "manifest").item(0).getChildNodes();
         return childNodes;
@@ -157,6 +198,7 @@ public class OpfReader {
         });
         return list;
     }
+
     public static List<SpineItemRef> getSpineItemRefs(File opf)
             throws ParserConfigurationException, SAXException, IOException {
         return getSpineItemRefs(new FileInputStream(opf));

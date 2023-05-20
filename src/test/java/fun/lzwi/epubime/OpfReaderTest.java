@@ -74,4 +74,16 @@ public class OpfReaderTest {
     public void testGetSpineItemRefs() throws ParserConfigurationException, SAXException, IOException {
         assertEquals("正确获取spine的itemref", 2, OpfReader.getSpineItemRefs(FILE).size());
     }
+
+    @Test
+    public void testGetMetaData()
+            throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+        assertEquals("metadata子节点数目正确", 5, XmlUtils.countChildNodes(OpfReader.getMetaData(FILE)));
+    }
+
+    @Test
+    public void testGetMetaDataItems()
+            throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+        assertEquals("正确获取metadata的meta", 2, OpfReader.getMetaDataItems(FILE).size());
+    }
 }
