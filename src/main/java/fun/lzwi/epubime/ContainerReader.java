@@ -9,14 +9,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-public class ContainerChecker {
+public class ContainerReader {
 
-    public static boolean checkContainer(File container)
+    public static boolean existContainer(File container)
             throws SAXException, IOException, ParserConfigurationException {
-        return checkContainer(new FileInputStream(container));
+        return existContainer(new FileInputStream(container));
     }
 
-    public static boolean checkContainer(InputStream container)
+    public static boolean existContainer(InputStream container)
             throws SAXException, IOException, ParserConfigurationException {
         String xmlns = XmlUtils.getElementsByTagName(container, "container").item(0).getAttributes()
                 .getNamedItem("xmlns")
@@ -24,12 +24,12 @@ public class ContainerChecker {
         return "urn:oasis:names:tc:opendocument:xmlns:container".equals(xmlns);
     }
 
-    public static boolean checkRootFiles(File container)
+    public static boolean existRootFiles(File container)
             throws ParserConfigurationException, SAXException, IOException {
-        return checkRootFiles(new FileInputStream(container));
+        return existRootFiles(new FileInputStream(container));
     }
 
-    public static boolean checkRootFiles(InputStream container)
+    public static boolean existRootFiles(InputStream container)
             throws ParserConfigurationException, SAXException, IOException {
         String mimetype = XmlUtils.getElementsByTagName(container, "rootfile").item(0).getAttributes()
                 .getNamedItem("media-type").getNodeValue();

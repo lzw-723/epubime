@@ -18,7 +18,7 @@ import org.xml.sax.SAXException;
 import fun.lzwi.epubime.bean.ManifestItem;
 import fun.lzwi.epubime.bean.SpineItemRef;
 
-public class OpfChecker {
+public class OpfReader {
 
     public static String getIdentifier(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
         String id = XmlUtils.getElementsByTagName(opf, "dc:identifier").item(0).getTextContent();
@@ -29,7 +29,7 @@ public class OpfChecker {
         return getIdentifier(new FileInputStream(opf));
     }
 
-    public static boolean checkIdentifier(InputStream opf) {
+    public static boolean existIdentifier(InputStream opf) {
         try {
             String id = getIdentifier(opf);
             return id != null;
@@ -39,8 +39,8 @@ public class OpfChecker {
         return false;
     }
 
-    public static boolean checkIdentifier(File opf) throws FileNotFoundException {
-        return checkIdentifier(new FileInputStream(opf));
+    public static boolean existIdentifier(File opf) throws FileNotFoundException {
+        return existIdentifier(new FileInputStream(opf));
     }
 
     public static String getLanguage(InputStream opf)
@@ -54,7 +54,7 @@ public class OpfChecker {
         return getLanguage(new FileInputStream(opf));
     }
 
-    public static boolean checkLanguage(InputStream opf) {
+    public static boolean existLanguage(InputStream opf) {
         try {
             String language = getLanguage(opf);
             return language != null;
@@ -64,8 +64,8 @@ public class OpfChecker {
         return false;
     }
 
-    public static boolean checkLanguage(File opf) throws FileNotFoundException {
-        return checkLanguage(new FileInputStream(opf));
+    public static boolean existLanguage(File opf) throws FileNotFoundException {
+        return existLanguage(new FileInputStream(opf));
     }
 
     public static String getTitle(InputStream opf)
@@ -79,7 +79,7 @@ public class OpfChecker {
         return getTitle(new FileInputStream(opf));
     }
 
-    public static boolean checkTitle(InputStream opf) {
+    public static boolean existTitle(InputStream opf) {
         try {
             String title = getTitle(opf);
             return title != null;
@@ -89,8 +89,8 @@ public class OpfChecker {
         return false;
     }
 
-    public static boolean checkTitle(File opf) throws FileNotFoundException {
-        return checkTitle(new FileInputStream(opf));
+    public static boolean existTitle(File opf) throws FileNotFoundException {
+        return existTitle(new FileInputStream(opf));
     }
 
     public static NodeList getManifest(InputStream opf) throws ParserConfigurationException, SAXException, IOException {

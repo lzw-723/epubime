@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class MagicNumberChecker {
+public class MagicNumberReader {
     public static final char[] MAGIC_NUMBER_0 = new char[] { 'P', 'K', 0x003, 0x004 };
     public static final String MAGIC_NUMBER_30 = "mimetype";
     public static final String MAGIC_NUMBER_38 = "application/epub+zip";

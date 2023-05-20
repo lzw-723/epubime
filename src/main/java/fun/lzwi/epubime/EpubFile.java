@@ -25,7 +25,7 @@ public class EpubFile {
         // zip = new ZipInputStream(new FileInputStream(file));
         zipFile = new ZipFile(file);
         container = getInputStream("META-INF/container.xml");
-        opf = getInputStream(ContainerChecker.getRootFile(container));
+        opf = getInputStream(ContainerReader.getRootFile(container));
     }
 
     public EpubFile(InputStream stream) {
@@ -54,14 +54,14 @@ public class EpubFile {
     }
 
     public String getTitle() throws DOMException, ParserConfigurationException, SAXException, IOException {
-        return OpfChecker.getTitle(opf);
+        return OpfReader.getTitle(opf);
     }
 
     public String getLanguage() throws DOMException, ParserConfigurationException, SAXException, IOException {
-        return OpfChecker.getLanguage(opf);
+        return OpfReader.getLanguage(opf);
     }
 
     public String getIdentifier() throws ParserConfigurationException, SAXException, IOException {
-        return OpfChecker.getIdentifier(opf);
+        return OpfReader.getIdentifier(opf);
     }
 }
