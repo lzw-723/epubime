@@ -86,4 +86,9 @@ public class OpfReaderTest {
             throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
         assertEquals("正确获取metadata的meta", 2, OpfReader.getMetaDataItems(FILE).size());
     }
+
+    @Test
+    public void testGetMetaDCs() throws ParserConfigurationException, SAXException, IOException {
+        assertEquals("正确获取metadata的dc", 3, OpfReader.getMetaDCs(FILE).size());
+    }
 }

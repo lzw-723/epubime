@@ -16,6 +16,7 @@ import fun.lzwi.Util;
 
 public class EpubFileTest {
     private static EpubFile epubFile;
+
     @Before
     public void setUp() throws ZipException, IOException, ParserConfigurationException, SAXException {
         epubFile = new EpubFile(Util.getFile("《坟》鲁迅.epub"));
@@ -37,5 +38,20 @@ public class EpubFileTest {
     public void testGetTitle() throws DOMException, ParserConfigurationException, SAXException, IOException {
         String title = epubFile.getTitle();
         assertEquals("能正确读取title", "坟", title);
+    }
+
+    @Test
+    public void testGetIdentifiers() throws DOMException, ParserConfigurationException, SAXException, IOException {
+        assertEquals("能正确读取多个id", 1, epubFile.getIdentifiers().size());
+    }
+
+    @Test
+    public void testGetLanguages() throws DOMException, ParserConfigurationException, SAXException, IOException {
+        assertEquals("能正确读取多个language", 1, epubFile.getLanguages().size());
+    }
+
+    @Test
+    public void testGetTitles() throws DOMException, ParserConfigurationException, SAXException, IOException {
+        assertEquals("能正确读取多个title", 1, epubFile.getTitles().size());
     }
 }

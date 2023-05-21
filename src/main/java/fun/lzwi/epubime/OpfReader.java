@@ -17,6 +17,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.epubime.bean.ManifestItem;
+import fun.lzwi.epubime.bean.MetaDC;
 import fun.lzwi.epubime.bean.MetaItem;
 import fun.lzwi.epubime.bean.SpineItemRef;
 
@@ -103,6 +104,27 @@ public class OpfReader {
     public static NodeList getMetaData(File opf)
             throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
         return getMetaData(new FileInputStream(opf));
+    }
+
+    public static List<MetaDC> getMetaDCs(InputStream opf)
+            throws ParserConfigurationException, SAXException, IOException {
+        List<MetaDC> list = new ArrayList<>();
+
+        XmlUtils.foreachNodeList(getMetaData(opf), md -> {
+            if (!md.getNodeName().startsWith("dc:")) {
+                return;
+            }
+            MetaDC item = new MetaDC();
+            item.setName(md.getNodeName());
+            item.setContent(md.getTextContent());
+            list.add(item);
+        });
+        return list;
+    }
+
+    public static List<MetaDC> getMetaDCs(File opf)
+            throws ParserConfigurationException, SAXException, IOException {
+        return getMetaDCs(new FileInputStream(opf));
     }
 
     public static List<MetaItem> getMetaDataItems(InputStream opf)
