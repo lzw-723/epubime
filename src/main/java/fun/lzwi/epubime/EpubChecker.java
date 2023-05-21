@@ -1,5 +1,6 @@
 package fun.lzwi.epubime;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipException;
@@ -21,7 +22,10 @@ public class EpubChecker {
     public static boolean existMimeType(File file) throws IOException, ParserConfigurationException, SAXException {
 
         EpubFile epub = new EpubFile(file);
-        String mimetype = new String(epub.getInputStream("mimetype").readAllBytes());
+        byte[] data = new byte[MIMETYPE.length()];
+        DataInputStream din = new DataInputStream(epub.getInputStream("mimetype"));
+        din.readFully(data);
+        String mimetype = new String(data);
         return MIMETYPE.equals(mimetype);
     }
 
