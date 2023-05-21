@@ -45,7 +45,7 @@ public class EpubFile {
 
     private void init() throws ParserConfigurationException, SAXException, IOException {
         InputStream opf = getInputStream(ContainerReader.getRootFile(getInputStream(container)));
-        metaDCs = OpfReader.getMetaDCs(opf);
+        metaDCs = OpfUtils.getMetaDCs(opf);
         metaDCs.stream().forEach(dc -> {
             String name = dc.getName();
             String content = dc.getContent();

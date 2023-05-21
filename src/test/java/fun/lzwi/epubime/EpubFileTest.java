@@ -12,14 +12,14 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.xml.sax.SAXException;
 
-import fun.lzwi.Util;
+import fun.lzwi.Utils;
 
 public class EpubFileTest {
     private static EpubFile epubFile;
 
     @Before
     public void setUp() throws ZipException, IOException, ParserConfigurationException, SAXException {
-        epubFile = new EpubFile(Util.getFile("《坟》鲁迅.epub"));
+        epubFile = new EpubFile(Utils.getFile("《坟》鲁迅.epub"));
     }
 
     @Test

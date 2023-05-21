@@ -13,14 +13,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import fun.lzwi.Util;
+import fun.lzwi.Utils;
 
 public class EpubCheckerTest {
     private static File file;
 
     @BeforeClass
     public static void beforeClass() {
-        file = Util.getFile("《坟》鲁迅.epub");
+        file = Utils.getFile("《坟》鲁迅.epub");
     }
 
     @Test
