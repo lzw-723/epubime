@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -90,14 +91,14 @@ public class EpubFile {
     }
 
     public List<String> getTitles() throws DOMException, ParserConfigurationException, SAXException, IOException {
-        return List.copyOf(titles);
+        return titles.stream().collect(Collectors.toList());
     }
 
     public List<String> getLanguages() throws DOMException, ParserConfigurationException, SAXException, IOException {
-        return List.copyOf(langs);
+        return langs.stream().collect(Collectors.toList());
     }
 
     public List<String> getIdentifiers() throws ParserConfigurationException, SAXException, IOException {
-        return List.copyOf(ids);
+        return ids.stream().collect(Collectors.toList());
     }
 }
