@@ -1,7 +1,9 @@
 package fun.lzwi.epubime;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,6 +20,13 @@ public class OpfReaderTest {
     @BeforeClass
     public static void beforeClass() throws ParserConfigurationException, SAXException, IOException {
         opfReader = new OpfReader(Utils.getFile("content.opf"));
+    }
+
+    @Test
+    public void testConstructors() throws ParserConfigurationException, SAXException, IOException {
+        assertNotNull(new OpfReader(Utils.getFile("content.opf")));
+        assertNotNull(new OpfReader(Utils.getFile("content.opf").getPath()));
+        assertNotNull(new OpfReader(new FileInputStream(Utils.getFile("content.opf").getPath())));
     }
 
     @Test
