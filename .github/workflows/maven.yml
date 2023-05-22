@@ -25,4 +25,5 @@ jobs:
       run: mvn -B package --file pom.xml
     - name: Check with Spotbugs
       run: mvn spotbugs:check
-
+    - name: Check with Jacoco
+      run: mvn jacoco:check
