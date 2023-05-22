@@ -23,10 +23,12 @@ public class EpubChecker {
 
         EpubFile epub = new EpubFile(file);
         byte[] data = new byte[MIMETYPE.length()];
-        DataInputStream din = new DataInputStream(epub.getInputStream("mimetype"));
-        din.readFully(data);
-        String mimetype = new String(data);
-        return MIMETYPE.equals(mimetype);
+        try (DataInputStream din = new DataInputStream(epub.getInputStream("mimetype"))) {
+            din.readFully(data);
+            String mimetype = new String(data, "utf-8");
+            return MIMETYPE.equals(mimetype);
+
+        }
     }
 
     public static boolean existContainerXML(File file)

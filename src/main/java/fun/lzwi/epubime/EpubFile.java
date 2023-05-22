@@ -21,7 +21,7 @@ import fun.lzwi.epubime.bean.MetaDC;
 public class EpubFile {
 
     private ZipFile zipFile;
-    private final String container = "META-INF/container.xml";
+    private final static String container = "META-INF/container.xml";
     private List<MetaDC> metaDCs;
 
     private List<String> titles = new ArrayList<>();
@@ -90,14 +90,14 @@ public class EpubFile {
     }
 
     public List<String> getTitles() throws DOMException, ParserConfigurationException, SAXException, IOException {
-        return titles;
+        return List.copyOf(titles);
     }
 
     public List<String> getLanguages() throws DOMException, ParserConfigurationException, SAXException, IOException {
-        return langs;
+        return List.copyOf(langs);
     }
 
     public List<String> getIdentifiers() throws ParserConfigurationException, SAXException, IOException {
-        return ids;
+        return List.copyOf(ids);
     }
 }
