@@ -9,7 +9,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.DOMException;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.Utils;
@@ -23,35 +22,35 @@ public class EpubFileTest {
     }
 
     @Test
-    public void testGetIdentifier() throws ParserConfigurationException, SAXException, IOException {
+    public void testGetIdentifier() {
         String identifier = epubFile.getIdentifier();
         assertEquals("能正确读取identifier", "https://www.7sbook.com/ebook/254.html", identifier);
     }
 
     @Test
-    public void testGetLanguage() throws DOMException, ParserConfigurationException, SAXException, IOException {
+    public void testGetLanguage() {
         String language = epubFile.getLanguage();
         assertEquals("能正确读取language", "zh", language);
     }
 
     @Test
-    public void testGetTitle() throws DOMException, ParserConfigurationException, SAXException, IOException {
+    public void testGetTitle() {
         String title = epubFile.getTitle();
         assertEquals("能正确读取title", "坟", title);
     }
 
     @Test
-    public void testGetIdentifiers() throws DOMException, ParserConfigurationException, SAXException, IOException {
+    public void testGetIdentifiers() {
         assertEquals("能正确读取多个id", 1, epubFile.getIdentifiers().size());
     }
 
     @Test
-    public void testGetLanguages() throws DOMException, ParserConfigurationException, SAXException, IOException {
+    public void testGetLanguages() {
         assertEquals("能正确读取多个language", 1, epubFile.getLanguages().size());
     }
 
     @Test
-    public void testGetTitles() throws DOMException, ParserConfigurationException, SAXException, IOException {
+    public void testGetTitles() {
         assertEquals("能正确读取多个title", 1, epubFile.getTitles().size());
     }
 }
