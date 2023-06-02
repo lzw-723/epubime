@@ -38,6 +38,17 @@ public class XmlUtils {
         }
     }
 
+    public static Node getChildNodeByTagName(Node node, String tag) {
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (tag.equals(item.getNodeName())) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public static int countChildNodes(NodeList list) {
         int count = 0;
         for (int i = 0; i < list.getLength(); i++) {

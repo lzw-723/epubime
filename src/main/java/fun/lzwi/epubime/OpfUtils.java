@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -129,30 +130,28 @@ public class OpfUtils {
         return existTitle(new FileInputStream(opf));
     }
 
-    public static NodeList getMetaData(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
-        NodeList childNodes = XmlUtils.getElementsByTagName(opf, "metadata").item(0).getChildNodes();
-        return childNodes;
+    public static Node getMetaData(Node pkg) throws ParserConfigurationException, SAXException, IOException {
+        return XmlUtils.getChildNodeByTagName(pkg, "metadata");
     }
 
-    public static NodeList getMetaData(File opf)
+    public static Node getMetaData(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        return getMetaData(getPackage(opf));
+    }
+
+    public static Node getMetaData(File opf)
             throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
         return getMetaData(new FileInputStream(opf));
     }
 
     public static List<MetaDC> getMetaDCs(InputStream opf)
             throws ParserConfigurationException, SAXException, IOException {
-        List<MetaDC> list = new ArrayList<>();
-
-        XmlUtils.foreachNodeList(getMetaData(opf), md -> {
-            if (!md.getNodeName().startsWith("dc:")) {
-                return;
-            }
-            MetaDC item = new MetaDC();
-            item.setName(md.getNodeName());
-            item.setContent(md.getTextContent());
-            list.add(item);
-        });
-        return list;
+        return getMetaDataItems(opf).stream().filter(item -> item.getName() != null && item.getName().startsWith("dc:"))
+                .map(item -> {
+                    MetaDC dc = new MetaDC();
+                    dc.setName(item.getName());
+                    dc.setContent(item.getContent());
+                    return dc;
+                }).collect(Collectors.toList());
     }
 
     public static List<MetaDC> getMetaDCs(File opf)
@@ -164,15 +163,16 @@ public class OpfUtils {
             throws ParserConfigurationException, SAXException, IOException {
         List<MetaItem> list = new ArrayList<>();
 
-        XmlUtils.foreachNodeList(getMetaData(opf), md -> {
-            if (!md.getNodeName().equals("meta")) {
-                return;
-            }
+        XmlUtils.foreachNodeList(getMetaData(opf).getChildNodes(), md -> {
+
             NamedNodeMap attributes = md.getAttributes();
 
             MetaItem item = new MetaItem();
-            Node property = attributes.getNamedItem("property");
-            if (property != null) {
+            Node property;
+            if (md.getNodeName().startsWith("dc:")) {
+                item.setName(md.getNodeName());
+                item.setContent(md.getTextContent());
+            } else if ((property = attributes.getNamedItem("property")) != null) {
                 item.setProperty(property.getTextContent());
                 item.setContent(md.getTextContent());
             } else {
@@ -189,20 +189,23 @@ public class OpfUtils {
         return getMetaDataItems(new FileInputStream(opf));
     }
 
-    public static NodeList getManifest(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
-        NodeList childNodes = XmlUtils.getElementsByTagName(opf, "manifest").item(0).getChildNodes();
-        return childNodes;
+    public static Node getManifest(Node pkg) throws ParserConfigurationException, SAXException, IOException {
+        return XmlUtils.getChildNodeByTagName(pkg, "manifest");
     }
 
-    public static NodeList getManifest(File opf) throws ParserConfigurationException, SAXException, IOException {
+    public static Node getManifest(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        return getManifest(getPackage(opf));
+    }
+
+    public static Node getManifest(File opf) throws ParserConfigurationException, SAXException, IOException {
         return getManifest(new FileInputStream(opf));
     }
 
     public static List<ManifestItem> getManifestItems(InputStream opf)
             throws ParserConfigurationException, SAXException, IOException {
-        NodeList manifest = getManifest(opf);
+        NodeList manifests = getManifest(opf).getChildNodes();
         List<ManifestItem> list = new ArrayList<>();
-        XmlUtils.foreachNodeList(manifest, n -> {
+        XmlUtils.foreachNodeList(manifests, n -> {
             if (!"item".equals(n.getNodeName()))
                 return;
 
@@ -225,20 +228,23 @@ public class OpfUtils {
         return getManifestItems(new FileInputStream(opf));
     }
 
-    public static NodeList getSpine(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
-        NodeList childNodes = XmlUtils.getElementsByTagName(opf, "spine").item(0).getChildNodes();
-        return childNodes;
+    public static Node getSpine(Node pkg) throws ParserConfigurationException, SAXException, IOException {
+        return XmlUtils.getChildNodeByTagName(pkg, "spine");
     }
 
-    public static NodeList getSpine(File opf) throws ParserConfigurationException, SAXException, IOException {
+    public static Node getSpine(InputStream opf) throws ParserConfigurationException, SAXException, IOException {
+        return getSpine(getPackage(opf));
+    }
+
+    public static Node getSpine(File opf) throws ParserConfigurationException, SAXException, IOException {
         return getSpine(new FileInputStream(opf));
     }
 
     public static List<SpineItemRef> getSpineItemRefs(InputStream opf)
             throws ParserConfigurationException, SAXException, IOException {
-        NodeList spine = getSpine(opf);
+        NodeList spines = getSpine(opf).getChildNodes();
         List<SpineItemRef> list = new ArrayList<>();
-        XmlUtils.foreachNodeList(spine, n -> {
+        XmlUtils.foreachNodeList(spines, n -> {
             if (!"itemref".equals(n.getNodeName()))
                 return;
 

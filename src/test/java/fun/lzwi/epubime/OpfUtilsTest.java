@@ -57,12 +57,12 @@ public class OpfUtilsTest {
 
     @Test
     public void testGetManifest() throws ParserConfigurationException, SAXException, IOException {
-        assertEquals("manifest子节点数目正确", 3, XmlUtils.countChildNodes(OpfUtils.getManifest(FILE)));
+        assertEquals("manifest子节点数目正确", 3, XmlUtils.countChildNodes(OpfUtils.getManifest(FILE).getChildNodes()));
     }
 
     @Test
     public void testGetSpine() throws ParserConfigurationException, SAXException, IOException {
-        assertEquals("spine子节点数目正确", 2, XmlUtils.countChildNodes(OpfUtils.getSpine(FILE)));
+        assertEquals("spine子节点数目正确", 2, XmlUtils.countChildNodes(OpfUtils.getSpine(FILE).getChildNodes()));
     }
 
     @Test
@@ -78,13 +78,13 @@ public class OpfUtilsTest {
     @Test
     public void testGetMetaData()
             throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
-        assertEquals("metadata子节点数目正确", 5, XmlUtils.countChildNodes(OpfUtils.getMetaData(FILE)));
+        assertEquals("metadata子节点数目正确", 5, XmlUtils.countChildNodes(OpfUtils.getMetaData(FILE).getChildNodes()));
     }
 
     @Test
     public void testGetMetaDataItems()
             throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
-        assertEquals("正确获取metadata的meta", 2, OpfUtils.getMetaDataItems(FILE).size());
+        assertEquals("正确获取metadata的meta", 5, OpfUtils.getMetaDataItems(FILE).size());
     }
 
     @Test
