@@ -19,5 +19,4 @@ public class MetaDC {
     public String toString() {
         return "MetaDC [name=" + name + ", content=" + content + "]";
     }
-    
 }

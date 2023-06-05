@@ -32,13 +32,8 @@ public class EpubFile {
     private List<MetaDC> metaDCs;
 
     public EpubFile(File file) throws ZipException, IOException, ParserConfigurationException, SAXException {
-        // zip = new ZipInputStream(new FileInputStream(file));
         zipFile = new ZipFile(file);
         init();
-    }
-
-    public EpubFile(InputStream stream) {
-        // TODO: 从InputStream构造
     }
 
     public EpubFile(String path) {
@@ -46,14 +41,12 @@ public class EpubFile {
         try {
             zipFile = new ZipFile(new File(path));
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         try {
             init();
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -69,15 +62,6 @@ public class EpubFile {
         titles = OpfUtils.getTitles(metaDCs);
         langs = OpfUtils.getLanguages(metaDCs);
     }
-
-    // public EpubFile forEach(Consumer<ZipEntry> e) {
-    //     Enumeration<? extends ZipEntry> entries = zipFile.entries();
-    //     while (entries.hasMoreElements()) {
-    //         ZipEntry entry = entries.nextElement();
-    //         e.accept(entry);
-    //     }
-    //     return this;
-    // }
 
     protected ZipEntry getEntry(String name) {
         return zipFile.getEntry(name);

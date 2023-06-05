@@ -16,6 +16,7 @@ import org.xml.sax.SAXException;
 import fun.lzwi.epubime.bean.ManifestItem;
 import fun.lzwi.epubime.bean.MetaDC;
 import fun.lzwi.epubime.bean.MetaItem;
+import fun.lzwi.epubime.bean.PackageInfo;
 import fun.lzwi.epubime.bean.SpineItemRef;
 
 public class OpfUtils {
@@ -29,31 +30,26 @@ public class OpfUtils {
         return null;
     }
 
-    protected static String getVersion(Node pkg) {
-        return pkg.getAttributes().getNamedItem("version").getTextContent();
+    private static String getPackageAttribute(NamedNodeMap attributes, String name) {
+        try {
+            return attributes.getNamedItem(name).getTextContent();
+        } catch (Exception e) {
+        }
+        return null;
     }
 
-    // public static String getVersion(InputStream opf) {
-    // return getVersion(getPackage(opf));
-    // }
-
-    // public static String getVersion(File opf) throws FileNotFoundException {
-    // return getVersion(new FileInputStream(opf));
-    // }
-
-    protected static String getUniqueIdentifier(Node pkg) {
-        return pkg.getAttributes()
-                .getNamedItem("unique-identifier").getTextContent();
+    protected static PackageInfo getPackageInfo(Node pkg) {
+        NamedNodeMap attributes = pkg.getAttributes();
+        PackageInfo packageInfo = new PackageInfo();
+        packageInfo.setDir(getPackageAttribute(attributes, "dir"));
+        packageInfo.setId(getPackageAttribute(attributes, "id"));
+        packageInfo.setPrefix(getPackageAttribute(attributes, "prefix"));
+        packageInfo.setUniqueIdentifier(getPackageAttribute(attributes, "unique-identifier"));
+        packageInfo.setVersion(getPackageAttribute(attributes, "version"));
+        packageInfo.setXmlLang(getPackageAttribute(attributes, "xml:lang"));
+        return packageInfo;
     }
 
-    // public static String getUniqueIdentifier(InputStream opf) {
-    // return getUniqueIdentifier(getPackage(opf));
-    // }
-
-    // public static String getUniqueIdentifier(File file) throws
-    // FileNotFoundException {
-    // return getUniqueIdentifier(new FileInputStream(file));
-    // }
     public static List<String> getIdentifiers(List<MetaDC> metaDCs) {
         return metaDCs.stream().filter(p -> p.getName().equals("dc:identifier"))
                 .map(m -> m.getContent()).collect(Collectors.toList());
@@ -63,23 +59,6 @@ public class OpfUtils {
         return getIdentifiers(metaDCs).get(0);
     }
 
-    // public static String getIdentifier(InputStream opf) {
-    // return getIdentifier(getMetaDCs(opf));
-    // }
-
-    // public static String getIdentifier(File opf) throws FileNotFoundException {
-    // return getIdentifier(new FileInputStream(opf));
-    // }
-
-    // public static boolean existIdentifier(InputStream opf) {
-    // String id = getIdentifier(opf);
-    // return id != null;
-    // }
-
-    // public static boolean existIdentifier(File opf) throws FileNotFoundException
-    // {
-    // return existIdentifier(new FileInputStream(opf));
-    // }
     public static List<String> getLanguages(List<MetaDC> metaDCs) {
         return metaDCs.stream().filter(p -> p.getName().equals("dc:language")).map(m -> m.getContent())
                 .collect(Collectors.toList());
@@ -89,22 +68,6 @@ public class OpfUtils {
         return getLanguages(metaDCs).get(0);
     }
 
-    // public static String getLanguage(InputStream opf) {
-    // return getLanguage(getMetaDCs(getPackage(opf)));
-    // }
-
-    // public static String getLanguage(File opf) throws FileNotFoundException {
-    // return getLanguage(new FileInputStream(opf));
-    // }
-
-    // public static boolean existLanguage(InputStream opf) {
-    // String language = getLanguage(opf);
-    // return language != null;
-    // }
-
-    // public static boolean existLanguage(File opf) throws FileNotFoundException {
-    // return existLanguage(new FileInputStream(opf));
-    // }
     public static List<String> getTitles(List<MetaDC> metaDCs) {
         return metaDCs.stream().filter(p -> p.getName().equals("dc:title")).map(m -> m.getContent())
                 .collect(Collectors.toList());
@@ -114,34 +77,9 @@ public class OpfUtils {
         return getTitles(metaDCs).get(0);
     }
 
-    // public static String getTitle(InputStream opf) {
-    // return getTitle(getMetaDCs(getPackage(opf)));
-    // }
-
-    // public static String getTitle(File opf) throws FileNotFoundException {
-    // return getTitle(new FileInputStream(opf));
-    // }
-
-    // public static boolean existTitle(InputStream opf) {
-    // String title = getTitle(opf);
-    // return title != null;
-    // }
-
-    // public static boolean existTitle(File opf) throws FileNotFoundException {
-    // return existTitle(new FileInputStream(opf));
-    // }
-
     public static Node getMetaData(Node pkg) {
         return XmlUtils.getChildNodeByTagName(pkg, "metadata");
     }
-
-    // public static Node getMetaData(InputStream opf) {
-    // return getMetaData(getPackage(opf));
-    // }
-
-    // public static Node getMetaData(File opf) throws FileNotFoundException {
-    // return getMetaData(new FileInputStream(opf));
-    // }
 
     public static List<MetaDC> getMetaDCs(List<MetaItem> metaItems) {
         return metaItems.stream().filter(item -> item.getName() != null && item.getName().startsWith("dc:"))
@@ -152,22 +90,6 @@ public class OpfUtils {
                     return dc;
                 }).collect(Collectors.toList());
     }
-
-    // public static List<MetaDC> getMetaDCs(InputStream opf) {
-    // return getMetaDataItems(getPackage(opf)).stream()
-    // .filter(item -> item.getName() != null && item.getName().startsWith("dc:"))
-    // .map(item -> {
-    // MetaDC dc = new MetaDC();
-    // dc.setName(item.getName());
-    // dc.setContent(item.getContent());
-    // return dc;
-    // }).collect(Collectors.toList());
-    // }
-
-    // public static List<MetaDC> getMetaDCs(File opf) throws FileNotFoundException
-    // {
-    // return getMetaDCs(new FileInputStream(opf));
-    // }
 
     public static List<MetaItem> getMetaDataItems(Node metaData) {
         List<MetaItem> list = new ArrayList<>();
@@ -193,26 +115,9 @@ public class OpfUtils {
         return list;
     }
 
-    // public static List<MetaItem> getMetaDataItems(File opf) throws
-    // FileNotFoundException {
-    // return getMetaDataItems(new FileInputStream(opf));
-    // }
-
-    // private static List<MetaItem> getMetaDataItems(InputStream opf) {
-    // return getMetaDataItems(getPackage(opf));
-    // }
-
     public static Node getManifest(Node pkg) {
         return XmlUtils.getChildNodeByTagName(pkg, "manifest");
     }
-
-    // public static Node getManifest(InputStream opf) {
-    // return getManifest(getPackage(opf));
-    // }
-
-    // public static Node getManifest(File opf) throws FileNotFoundException {
-    // return getManifest(new FileInputStream(opf));
-    // }
 
     public static List<ManifestItem> getManifestItems(Node manifest) {
         NodeList manifests = manifest.getChildNodes();
@@ -235,22 +140,9 @@ public class OpfUtils {
         return list;
     }
 
-    // public static List<ManifestItem> getManifestItems(File opf) throws
-    // FileNotFoundException {
-    // return getManifestItems(new FileInputStream(opf));
-    // }
-
     public static Node getSpine(Node pkg) {
         return XmlUtils.getChildNodeByTagName(pkg, "spine");
     }
-
-    // public static Node getSpine(InputStream opf) {
-    // return getSpine(getPackage(opf));
-    // }
-
-    // public static Node getSpine(File opf) throws FileNotFoundException {
-    // return getSpine(new FileInputStream(opf));
-    // }
 
     public static List<SpineItemRef> getSpineItemRefs(Node spine) {
         NodeList spines = spine.getChildNodes();
@@ -271,8 +163,4 @@ public class OpfUtils {
         return list;
     }
 
-    // public static List<SpineItemRef> getSpineItemRefs(File opf) throws
-    // FileNotFoundException {
-    // return getSpineItemRefs(new FileInputStream(opf));
-    // }
 }

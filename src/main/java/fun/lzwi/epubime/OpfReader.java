@@ -10,10 +10,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import fun.lzwi.epubime.bean.PackageInfo;
+
 public class OpfReader {
     private InputStream opfi;
-    private String version;
-    private String uniqueIdentifier;
+    private PackageInfo packageInfo;
 
     public OpfReader(InputStream opfi) throws ParserConfigurationException, SAXException, IOException {
         this.opfi = opfi;
@@ -21,11 +22,15 @@ public class OpfReader {
     }
 
     public String getVersion() {
-        return version;
+        return packageInfo.getVersion();
     }
 
     public String getUniqueIdentifier() {
-        return uniqueIdentifier;
+        return packageInfo.getUniqueIdentifier();
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo.clone();
     }
 
     public OpfReader(File opf) throws ParserConfigurationException, SAXException, IOException {
@@ -40,7 +45,6 @@ public class OpfReader {
 
     private void init() throws ParserConfigurationException, SAXException, IOException {
         Node pkg = OpfUtils.getPackage(opfi);
-        version = OpfUtils.getVersion(pkg);
-        uniqueIdentifier = OpfUtils.getUniqueIdentifier(pkg);
+        packageInfo = OpfUtils.getPackageInfo(pkg);
     }
 }

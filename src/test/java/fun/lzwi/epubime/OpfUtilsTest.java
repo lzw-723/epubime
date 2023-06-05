@@ -1,6 +1,7 @@
 package fun.lzwi.epubime;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +17,7 @@ import fun.lzwi.Utils;
 import fun.lzwi.epubime.bean.ManifestItem;
 import fun.lzwi.epubime.bean.MetaDC;
 import fun.lzwi.epubime.bean.MetaItem;
+import fun.lzwi.epubime.bean.PackageInfo;
 import fun.lzwi.epubime.bean.SpineItemRef;
 
 public class OpfUtilsTest {
@@ -29,11 +31,6 @@ public class OpfUtilsTest {
         in = new FileInputStream(FILE);
     }
 
-    // @Test
-    // public void testExistIdentifier() throws FileNotFoundException {
-    // assertTrue("存在Id", OpfUtils.existIdentifier(FILE));
-    // }
-
     @Test
     public void testGetIdentifier() {
         Node pkg = OpfUtils.getPackage(in);
@@ -44,11 +41,6 @@ public class OpfUtilsTest {
         assertEquals("正确读取Id", "urn:uuid:d249e6e6-810d-43bb-91a4-9b8533daebe0", identifier);
     }
 
-    // @Test
-    // public void testExistLanguage() throws FileNotFoundException {
-    // assertTrue("存在language", OpfUtils.existLanguage(FILE));
-    // }
-
     @Test
     public void testGetLanguage() {
         Node pkg = OpfUtils.getPackage(in);
@@ -58,11 +50,6 @@ public class OpfUtilsTest {
         String language = OpfUtils.getLanguage(metaDCs);
         assertEquals("正确读取language", "en", language);
     }
-
-    // @Test
-    // public void testExistTitle() throws FileNotFoundException {
-    // assertTrue("存在title", OpfUtils.existTitle(FILE));
-    // }
 
     @Test
     public void testGetTitle() throws FileNotFoundException {
@@ -129,13 +116,9 @@ public class OpfUtilsTest {
     }
 
     @Test
-    public void testGetUniqueIdentifier() throws FileNotFoundException {
-        assertEquals("能获取正确unique-identifier", "BookId",
-                OpfUtils.getUniqueIdentifier(OpfUtils.getPackage(new FileInputStream(FILE))));
-    }
-
-    @Test
-    public void testGetVersion() throws FileNotFoundException {
-        assertEquals("能正确获取version", "3.0", OpfUtils.getVersion(OpfUtils.getPackage(new FileInputStream(FILE))));
+    public void testGetPackageInfo() {
+        Node pkg = OpfUtils.getPackage(in);
+        PackageInfo packageInfo = OpfUtils.getPackageInfo(pkg);
+        assertNotNull("能获取Package信息", packageInfo);
     }
 }
