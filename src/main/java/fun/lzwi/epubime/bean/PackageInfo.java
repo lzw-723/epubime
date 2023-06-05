@@ -1,6 +1,11 @@
 package fun.lzwi.epubime.bean;
 
+import java.util.logging.Logger;
+
 public class PackageInfo implements Cloneable {
+
+    Logger logger = Logger.getLogger(PackageInfo.class.getName());
+
     // dir [optional]
     private String dir;
     // id [optional]
@@ -43,7 +48,7 @@ public class PackageInfo implements Cloneable {
             packageInfo.setXmlLang(xmlLang);
             return packageInfo;
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            logger.severe("PackageInfo克隆失败");;
         }
         return null;
     }

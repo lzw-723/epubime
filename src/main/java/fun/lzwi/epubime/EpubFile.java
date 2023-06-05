@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -19,6 +20,7 @@ import fun.lzwi.epubime.bean.MetaDC;
 import fun.lzwi.epubime.bean.MetaItem;
 
 public class EpubFile {
+    Logger logger = Logger.getLogger(EpubFile.class.getName());
 
     private ZipFile zipFile;
     private final static String container = "META-INF/container.xml";
@@ -40,16 +42,10 @@ public class EpubFile {
 
         try {
             zipFile = new ZipFile(new File(path));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
             init();
         } catch (IOException | ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Epub文件异常", e);
         }
-
     }
 
     private void init() throws IOException, ParserConfigurationException, SAXException {
