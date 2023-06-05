@@ -33,9 +33,13 @@ public class OpfReader {
         return packageInfo.clone();
     }
 
-    public OpfReader(File opf) throws ParserConfigurationException, SAXException, IOException {
-        this.opfi = new FileInputStream(opf);
-        init();
+    public OpfReader(File opf) {
+        try {
+            this.opfi = new FileInputStream(opf);
+            init();
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public OpfReader(String path) throws ParserConfigurationException, SAXException, IOException {

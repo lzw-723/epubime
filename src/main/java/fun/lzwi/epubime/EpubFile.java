@@ -3,7 +3,6 @@ package fun.lzwi.epubime;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -25,9 +24,9 @@ public class EpubFile {
     private ZipFile zipFile;
     private final static String container = "META-INF/container.xml";
 
-    private List<String> titles = new ArrayList<>();
-    private List<String> langs = new ArrayList<>();
-    private List<String> ids = new ArrayList<>();
+    private List<String> titles;
+    private List<String> langs;
+    private List<String> ids;
     private Node pkg;
     private Node metaData;
     private List<MetaItem> metaDataItems;

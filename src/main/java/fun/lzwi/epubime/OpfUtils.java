@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,8 +21,6 @@ import fun.lzwi.epubime.bean.SpineItemRef;
 
 public class OpfUtils {
 
-    private static Logger logger = Logger.getLogger(OpfUtils.class.getName());
-
     protected static Node getPackage(InputStream opf) {
         try {
             return XmlUtils.getElementsByTagName(opf, "package").item(0);
@@ -36,7 +33,7 @@ public class OpfUtils {
         try {
             return attributes.getNamedItem(name).getTextContent();
         } catch (Exception e) {
-            logger.info("package的" + name + "属性未设置");
+            LoggerUtils.from(OpfUtils.class).info("package的" + name + "属性未设置");
         }
         return null;
     }
