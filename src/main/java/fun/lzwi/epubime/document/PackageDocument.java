@@ -93,11 +93,14 @@ public class PackageDocument implements Cloneable {
     }
 
     public Spine getSpine() {
-        return spine;
+        if (spine == null) {
+            return null;
+        }
+        return spine.clone();
     }
 
     public void setSpine(Spine spine) {
-        this.spine = spine;
+        this.spine = spine.clone();
     }
 
     @Override

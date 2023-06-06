@@ -13,8 +13,10 @@ import org.xml.sax.SAXException;
 import fun.lzwi.epubime.document.PackageDocument;
 import fun.lzwi.epubime.document.section.Manifest;
 import fun.lzwi.epubime.document.section.MetaData;
+import fun.lzwi.epubime.document.section.Spine;
 import fun.lzwi.epubime.document.section.element.ManifestItem;
 import fun.lzwi.epubime.document.section.element.MetaDataItem;
+import fun.lzwi.epubime.document.section.element.SpineItemRef;
 
 public class PackageDocumentUtils {
     public static Node getPackageElement(InputStream opf) {
@@ -38,9 +40,10 @@ public class PackageDocumentUtils {
         packageDocument.setXmlLang(XmlUtils.getNodeAttribute(pkgDocEle, "xml:lang"));
 
         packageDocument.setMetaData(
-                getMetaDataSection(getMetaDataItems(XmlUtils.getChildNodeByTagName(pkgDocEle, "metadata"))));
+                getMetaDataSection(XmlUtils.getChildNodeByTagName(pkgDocEle, "metadata")));
         packageDocument.setManifest(
-                getManifestSection(getManifestItems(XmlUtils.getChildNodeByTagName(pkgDocEle, "manifest"))));
+                getManifestSection(XmlUtils.getChildNodeByTagName(pkgDocEle, "manifest")));
+        packageDocument.setSpine(getSpineSection(XmlUtils.getChildNodeByTagName(pkgDocEle, "spine")));
         return packageDocument;
     }
 
@@ -61,9 +64,9 @@ public class PackageDocumentUtils {
         return list;
     }
 
-    private static MetaData getMetaDataSection(List<MetaDataItem> metaDataItems) {
+    protected static MetaData getMetaDataSection(Node metaDataNode) {
         MetaData metaData = new MetaData();
-        metaDataItems.stream().forEach(a -> {
+        getMetaDataItems(metaDataNode).stream().forEach(a -> {
             String content = a.getContent();
             switch (a.getName()) {
                 case "dc:title":
@@ -134,9 +137,31 @@ public class PackageDocumentUtils {
         return list;
     }
 
-    private static Manifest getManifestSection(List<ManifestItem> items) {
+    protected static Manifest getManifestSection(Node manifestNode) {
         Manifest manifest = new Manifest();
-        manifest.setItems(items);
+        manifest.setId(XmlUtils.getNodeAttribute(manifestNode, "id"));
+        manifest.setItems(getManifestItems(manifestNode));
         return manifest;
+    }
+
+    private static List<SpineItemRef> getSpineItemRefs(Node spineNode) {
+        List<SpineItemRef> list = new ArrayList<>();
+        XmlUtils.foreachNodeList(spineNode.getChildNodes(), n -> {
+            SpineItemRef item = new SpineItemRef();
+            item.setId(XmlUtils.getNodeAttribute(n, "id"));
+            item.setIdref(XmlUtils.getNodeAttribute(n, "idref"));
+            item.setLinear(XmlUtils.getNodeAttribute(n, "linear"));
+            item.setProperties(XmlUtils.getNodeAttribute(n, "properties"));
+            list.add(item);
+        });
+        return list;
+    }
+
+    protected static Spine getSpineSection(Node spineNode) {
+        Spine spine = new Spine();
+        spine.setId(XmlUtils.getNodeAttribute(spineNode, "id"));
+        spine.setPageProgressionDirection(XmlUtils.getNodeAttribute(spineNode, "page-progression-direction"));
+        spine.setItemRefs(getSpineItemRefs(spineNode));
+        return spine;
     }
 }
