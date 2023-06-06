@@ -11,16 +11,20 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.epubime.document.PackageDocument;
+import fun.lzwi.epubime.document.section.Manifest;
 import fun.lzwi.epubime.document.section.MetaData;
+import fun.lzwi.epubime.document.section.element.ManifestItem;
 import fun.lzwi.epubime.document.section.element.MetaDataItem;
 
 public class PackageDocumentUtils {
     public static Node getPackageElement(InputStream opf) {
+        Node item = null;
         try {
-            return XmlUtils.getElementsByTagName(opf, "package").item(0);
+            item = XmlUtils.getElementsByTagName(opf, "package").item(0);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException("读取Package失败", e);
         }
+        return item;
     }
 
     public static PackageDocument getPackageDocument(Node pkgDocEle) {
@@ -35,6 +39,8 @@ public class PackageDocumentUtils {
 
         packageDocument.setMetaData(
                 getMetaDataSection(getMetaDataItems(XmlUtils.getChildNodeByTagName(pkgDocEle, "metadata"))));
+        packageDocument.setManifest(
+                getManifestSection(getManifestItems(XmlUtils.getChildNodeByTagName(pkgDocEle, "manifest"))));
         return packageDocument;
     }
 
@@ -113,5 +119,24 @@ public class PackageDocumentUtils {
             }
         });
         return metaData;
+    }
+
+    private static List<ManifestItem> getManifestItems(Node manifestNode) {
+        List<ManifestItem> list = new ArrayList<>();
+        XmlUtils.foreachNodeList(manifestNode.getChildNodes(), n -> {
+            ManifestItem item = new ManifestItem();
+            item.setId(XmlUtils.getNodeAttribute(n, "id"));
+            item.setHref(XmlUtils.getNodeAttribute(n, "href"));
+            item.setMediaType(XmlUtils.getNodeAttribute(n, "media-type"));
+            item.setProperties(XmlUtils.getNodeAttribute(n, "properties"));
+            list.add(item);
+        });
+        return list;
+    }
+
+    private static Manifest getManifestSection(List<ManifestItem> items) {
+        Manifest manifest = new Manifest();
+        manifest.setItems(items);
+        return manifest;
     }
 }

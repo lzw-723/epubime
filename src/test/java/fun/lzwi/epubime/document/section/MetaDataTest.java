@@ -88,4 +88,11 @@ public class MetaDataTest {
     public void testGetTypes() {
         assertEquals(metaData.getTypes().size(), 0);
     }
+
+    @Test
+    public void testClone() {
+        MetaData metaData = new MetaData();
+        assertEquals(metaData.toString(), metaData.clone().toString());
+    }
+
 }

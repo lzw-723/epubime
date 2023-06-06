@@ -71,7 +71,10 @@ public class PackageDocument implements Cloneable {
     }
 
     public MetaData getMetaData() {
-        return metaData.clone();
+        if (metaData != null) {
+            return metaData.clone();
+        }
+        return null;
     }
 
     public void setMetaData(MetaData metaData) {
@@ -79,18 +82,14 @@ public class PackageDocument implements Cloneable {
     }
 
     public Manifest getManifest() {
-        return manifest;
-    }
-
-    @Override
-    public String toString() {
-        return "PackageDocument [dir=" + dir + ", id=" + id + ", prefix=" + prefix + ", xmlLang=" + xmlLang
-                + ", uniqueIdentifier=" + uniqueIdentifier + ", version=" + version + ", metaData=" + metaData
-                + ", manifest=" + manifest + ", spine=" + spine + "]";
+        if (manifest == null) {
+            return null;
+        }
+        return manifest.clone();
     }
 
     public void setManifest(Manifest manifest) {
-        this.manifest = manifest;
+        this.manifest = manifest.clone();
     }
 
     public Spine getSpine() {
@@ -109,5 +108,12 @@ public class PackageDocument implements Cloneable {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "PackageDocument [dir=" + dir + ", id=" + id + ", prefix=" + prefix + ", xmlLang=" + xmlLang
+                + ", uniqueIdentifier=" + uniqueIdentifier + ", version=" + version + ", metaData=" + metaData
+                + ", manifest=" + manifest + ", spine=" + spine + "]";
     }
 }
