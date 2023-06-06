@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util.reader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

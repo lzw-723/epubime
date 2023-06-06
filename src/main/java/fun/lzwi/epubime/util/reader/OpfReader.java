@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util.reader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.epubime.bean.PackageInfo;
+import fun.lzwi.epubime.util.OpfUtils;
 
 public class OpfReader {
     private InputStream opfi;

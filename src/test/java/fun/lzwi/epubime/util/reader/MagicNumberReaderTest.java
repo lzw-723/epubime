@@ -1,9 +1,10 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util.reader;
 
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+
 import org.junit.Test;
 
 import fun.lzwi.Utils;

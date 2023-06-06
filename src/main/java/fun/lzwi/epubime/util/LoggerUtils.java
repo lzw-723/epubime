@@ -1,7 +1,8 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util;
 
 public class LoggerUtils {
     private static boolean enable = true;
+
     public static boolean isEnable() {
         return enable;
     }
@@ -22,9 +23,16 @@ public class LoggerUtils {
         }
 
         public void info(String msg) {
-            if (LoggerUtils.isEnable()) {
+            if (enable) {
                 logger.info(msg);
             }
         }
+
+        public void severe(String msg) {
+            if (enable) {
+                logger.severe(msg);
+            }
+        }
+
     }
 }

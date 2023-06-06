@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,5 +57,14 @@ public class XmlUtils {
             }
         }
         return count;
+    }
+
+    public static String getNodeAttribute(Node node, String name) {
+        try {
+            return node.getAttributes().getNamedItem(name).getTextContent();
+        } catch (Exception e) {
+            LoggerUtils.from(XmlUtils.class).info(node.getNodeName() + "不存在" + name + "属性");
+        }
+        return null;
     }
 }

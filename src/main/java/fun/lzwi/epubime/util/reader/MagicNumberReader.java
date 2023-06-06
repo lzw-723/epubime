@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util.reader;
 
 import java.io.File;
 import java.io.IOException;

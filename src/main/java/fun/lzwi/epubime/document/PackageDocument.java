@@ -1,9 +1,10 @@
-package fun.lzwi.epubime.bean;
+package fun.lzwi.epubime.document;
 
-import fun.lzwi.epubime.util.LoggerUtils;
+import fun.lzwi.epubime.document.section.Manifest;
+import fun.lzwi.epubime.document.section.MetaData;
+import fun.lzwi.epubime.document.section.Spine;
 
-public class PackageInfo implements Cloneable {
-
+public class PackageDocument {
     // dir [optional]
     private String dir;
     // id [optional]
@@ -16,6 +17,10 @@ public class PackageInfo implements Cloneable {
     private String uniqueIdentifier;
     // version [required]
     private String version;
+
+    private MetaData metaData;
+    private Manifest manifest;
+    private Spine spine;
 
     public String getDir() {
         return dir;
@@ -31,24 +36,6 @@ public class PackageInfo implements Cloneable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    @Override
-    public PackageInfo clone() {
-        PackageInfo packageInfo;
-        try {
-            packageInfo = (PackageInfo) super.clone();
-            packageInfo.setDir(dir);
-            packageInfo.setId(id);
-            packageInfo.setPrefix(prefix);
-            packageInfo.setUniqueIdentifier(uniqueIdentifier);
-            packageInfo.setVersion(version);
-            packageInfo.setXmlLang(xmlLang);
-            return packageInfo;
-        } catch (CloneNotSupportedException e) {
-            LoggerUtils.from(getClass()).severe("PackageInfo克隆失败");
-        }
-        return null;
     }
 
     public String getPrefix() {
@@ -79,14 +66,31 @@ public class PackageInfo implements Cloneable {
         return version;
     }
 
-    @Override
-    public String toString() {
-        return "PackageInfo [dir=" + dir + ", id=" + id + ", prefix=" + prefix + ", xmlLang=" + xmlLang
-                + ", uniqueIdentifier=" + uniqueIdentifier + ", version=" + version + "]";
-    }
-
     public void setVersion(String version) {
         this.version = version;
     }
 
+    public MetaData getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(MetaData metaData) {
+        this.metaData = metaData;
+    }
+
+    public Manifest getManifest() {
+        return manifest;
+    }
+
+    public void setManifest(Manifest manifest) {
+        this.manifest = manifest;
+    }
+
+    public Spine getSpine() {
+        return spine;
+    }
+
+    public void setSpine(Spine spine) {
+        this.spine = spine;
+    }
 }

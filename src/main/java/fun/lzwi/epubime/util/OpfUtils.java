@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ import fun.lzwi.epubime.bean.SpineItemRef;
 
 public class OpfUtils {
 
-    protected static Node getPackage(InputStream opf) {
+    public static Node getPackage(InputStream opf) {
         try {
             return XmlUtils.getElementsByTagName(opf, "package").item(0);
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -38,7 +38,7 @@ public class OpfUtils {
         return null;
     }
 
-    protected static PackageInfo getPackageInfo(Node pkg) {
+    public static PackageInfo getPackageInfo(Node pkg) {
         NamedNodeMap attributes = pkg.getAttributes();
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.setDir(getPackageAttribute(attributes, "dir"));

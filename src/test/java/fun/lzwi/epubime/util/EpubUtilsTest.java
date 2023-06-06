@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 
 import fun.lzwi.Utils;
 
-public class EpubCheckerTest {
+public class EpubUtilsTest {
     private static File file;
 
     @BeforeClass
@@ -25,17 +25,17 @@ public class EpubCheckerTest {
 
     @Test
     public void testExistContainerXML() throws ZipException, IOException, ParserConfigurationException, SAXException {
-        assertTrue("存在container.xml", EpubChecker.existContainerXML(file));
+        assertTrue("存在container.xml", EpubUtils.existContainerXML(file));
     }
 
     @Test
     public void testExistEntry() throws ZipException, IOException, ParserConfigurationException, SAXException {
-        assertFalse(EpubChecker.existEntry(file, "test"));
+        assertFalse(EpubUtils.existEntry(file, "test"));
     }
 
     @Test
     public void testExistMimeType() throws IOException, ParserConfigurationException, SAXException {
-        assertTrue("存在mimetype文件", EpubChecker.existMimeType(file));
+        assertTrue("存在mimetype文件", EpubUtils.existMimeType(file));
     }
 
 }

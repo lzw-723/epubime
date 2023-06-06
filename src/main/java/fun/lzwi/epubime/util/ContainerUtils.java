@@ -1,4 +1,4 @@
-package fun.lzwi.epubime;
+package fun.lzwi.epubime.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-public class ContainerReader {
+public class ContainerUtils {
 
     public static boolean existContainer(File container)
             throws SAXException, IOException, ParserConfigurationException {
