@@ -4,7 +4,7 @@ import fun.lzwi.epubime.document.section.Manifest;
 import fun.lzwi.epubime.document.section.MetaData;
 import fun.lzwi.epubime.document.section.Spine;
 
-public class PackageDocument {
+public class PackageDocument implements Cloneable {
     // dir [optional]
     private String dir;
     // id [optional]
@@ -71,15 +71,22 @@ public class PackageDocument {
     }
 
     public MetaData getMetaData() {
-        return metaData;
+        return metaData.clone();
     }
 
     public void setMetaData(MetaData metaData) {
-        this.metaData = metaData;
+        this.metaData = metaData.clone();
     }
 
     public Manifest getManifest() {
         return manifest;
+    }
+
+    @Override
+    public String toString() {
+        return "PackageDocument [dir=" + dir + ", id=" + id + ", prefix=" + prefix + ", xmlLang=" + xmlLang
+                + ", uniqueIdentifier=" + uniqueIdentifier + ", version=" + version + ", metaData=" + metaData
+                + ", manifest=" + manifest + ", spine=" + spine + "]";
     }
 
     public void setManifest(Manifest manifest) {
@@ -92,5 +99,15 @@ public class PackageDocument {
 
     public void setSpine(Spine spine) {
         this.spine = spine;
+    }
+
+    @Override
+    public PackageDocument clone() {
+        try {
+            return (PackageDocument) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

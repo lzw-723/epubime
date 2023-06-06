@@ -21,7 +21,7 @@ public class EpubFile {
     private PackageDocument packageDocument;
 
     public PackageDocument getPackageDocument() {
-        return packageDocument;
+        return (PackageDocument) packageDocument.clone();
     }
 
     public EpubFile(File file) throws ZipException, IOException, ParserConfigurationException, SAXException {

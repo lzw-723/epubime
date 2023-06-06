@@ -8,7 +8,7 @@ import fun.lzwi.epubime.util.ListUtils;
 /*
  * https://www.w3.org/TR/epub-33/#sec-pkg-metadata
  */
-public class MetaData {
+public class MetaData implements Cloneable {
     // dc:
     // 1 and more
     List<String> identifiers = new ArrayList<>();
@@ -146,5 +146,24 @@ public class MetaData {
 
     public void addType(String type) {
         types.add(type);
+    }
+
+    @Override
+    public MetaData clone() {
+        try {
+            return (MetaData) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "MetaData [identifiers=" + identifiers + ", titles=" + titles + ", languages=" + languages
+                + ", contributors=" + contributors + ", coverages=" + coverages + ", creators=" + creators + ", dates="
+                + dates + ", descriptions=" + descriptions + ", formats=" + formats + ", publishers=" + publishers
+                + ", relations=" + relations + ", rights=" + rights + ", sources=" + sources + ", subjects=" + subjects
+                + ", types=" + types + "]";
     }
 }
