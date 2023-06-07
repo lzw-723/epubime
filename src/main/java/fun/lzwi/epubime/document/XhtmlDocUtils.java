@@ -14,7 +14,7 @@ public class XhtmlDocUtils {
 
     protected static String getBody(Document doc) {
         Node body = XmlUtils.getChildNodeByTagName(doc.getDocumentElement(), "body");
-        return body.getTextContent();
+        return XmlUtils.getNodeContent(body);
     }
 
     // TODO: plainText

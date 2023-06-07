@@ -15,7 +15,12 @@ import fun.lzwi.epubime.document.section.element.Ol;
 import fun.lzwi.epubime.util.XmlUtils;
 
 public class NavigationDocUtils {
-    protected static Node getBody(Document doc) {
+    // protected static String getBody(Document doc) {
+    //     Node body = getBodyNode(doc);
+    //     return XmlUtils.getNodeContent(body);
+    // }
+
+    private static Node getBodyNode(Document doc) {
         return XmlUtils.getChildNodeByTagName(doc.getDocumentElement(), "body");
     }
 
@@ -25,10 +30,10 @@ public class NavigationDocUtils {
     // return navigationDocument;
     // }
 
-    protected static List<Nav> getNavs(Node body) {
+    protected static List<Nav> getNavs(Document doc) {
         List<Nav> navs = new ArrayList<>();
 
-        XmlUtils.foreachNodeList(body.getChildNodes(), n -> {
+        XmlUtils.foreachNodeList(getBodyNode(doc).getChildNodes(), n -> {
             if (n.getNodeName().equals("nav")) {
                 Nav nav = new Nav();
                 nav.setEpubType(XmlUtils.getNodeAttribute(n, "epub:type"));

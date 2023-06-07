@@ -4,11 +4,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -70,6 +76,20 @@ public class XmlUtils {
             return node.getAttributes().getNamedItem(name).getTextContent();
         } catch (Exception e) {
             LoggerUtils.from(XmlUtils.class).info(node.getNodeName() + "不存在" + name + "属性");
+        }
+        return null;
+    }
+
+    public static String getNodeContent(Node node) {
+        TransformerFactory tf = TransformerFactory.newInstance();
+        try {
+            Transformer transformer = tf.newTransformer();
+            StringWriter stringWriter = new StringWriter();
+            // FIXME: javax.xml.transform.TransformerException: 没有说明名称空间前缀
+            transformer.transform(new DOMSource(node), new StreamResult(stringWriter));
+            return stringWriter.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+        } catch (TransformerException e) {
+            e.printStackTrace();
         }
         return null;
     }

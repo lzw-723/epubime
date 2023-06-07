@@ -7,7 +7,6 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.epubime.document.section.Nav;
@@ -25,9 +24,8 @@ public class NavigationDocReader {
         NavigationDocument navigationDocument = new NavigationDocument();
         Document document = XmlUtils.getDocument(in);
         navigationDocument.setTitle(XhtmlDocUtils.getTitle(document));
-        Node body = NavigationDocUtils.getBody(document);
-        navigationDocument.setBody(body.getTextContent());
-        List<Nav> navs = NavigationDocUtils.getNavs(body);
+        navigationDocument.setBody(XhtmlDocUtils.getBody(document));
+        List<Nav> navs = NavigationDocUtils.getNavs(document);
         navigationDocument.setNavs(navs);
         return navigationDocument;
     }
