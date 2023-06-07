@@ -5,7 +5,7 @@ import java.util.List;
 
 import fun.lzwi.epubime.util.ListUtils;
 
-public abstract class HtmlTag {
+public class HtmlTag {
     private String name;
     private List<HtmlTag> children = new ArrayList<>();
 

@@ -16,12 +16,18 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XmlUtils {
-    public static NodeList getElementsByTagName(InputStream inputStream, String tag)
-            throws ParserConfigurationException, SAXException, IOException {
+
+    public static Document getDocument(InputStream inputStream)
+            throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(inputStream);
-        return doc.getElementsByTagName(tag);
+        return doc;
+    }
+
+    public static NodeList getElementsByTagName(InputStream inputStream, String tag)
+            throws ParserConfigurationException, SAXException, IOException {
+        return getDocument(inputStream).getElementsByTagName(tag);
     }
 
     public static NodeList getElementsByTagName(File file, String tag)

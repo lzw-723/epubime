@@ -9,7 +9,7 @@ import fun.lzwi.epubime.util.ListUtils;
 /*
  * https://www.w3.org/TR/epub-33/#sec-nav-content-req
  */
-public class NavigationDocument {
+public class NavigationDocument extends AbstractXhtml {
     private List<Nav> navs = new ArrayList<>();
 
     public List<Nav> getNavs() {
