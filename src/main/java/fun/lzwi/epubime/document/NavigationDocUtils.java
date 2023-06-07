@@ -1,40 +1,31 @@
-package fun.lzwi.epubime.util;
+package fun.lzwi.epubime.document;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import fun.lzwi.epubime.document.NavigationDocument;
 import fun.lzwi.epubime.document.section.Nav;
 import fun.lzwi.epubime.document.section.element.A;
 import fun.lzwi.epubime.document.section.element.H;
 import fun.lzwi.epubime.document.section.element.HtmlTag;
 import fun.lzwi.epubime.document.section.element.Li;
 import fun.lzwi.epubime.document.section.element.Ol;
+import fun.lzwi.epubime.util.XmlUtils;
 
-public class NavigationDocumentUtils {
-    public static Node getBody(InputStream doc) {
-        try {
-            return XmlUtils.getElementsByTagName(doc, "body").item(0);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+public class NavigationDocUtils {
+    protected static Node getBody(Document doc) {
+        return XmlUtils.getChildNodeByTagName(doc.getDocumentElement(), "body");
     }
 
-    public static NavigationDocument getDocument(Node body) {
-        NavigationDocument navigationDocument = new NavigationDocument();
-        navigationDocument.setNavs(getNavs(body));
-        return navigationDocument;
-    }
+    // public static NavigationDocument getDocument(Node body) {
+    // NavigationDocument navigationDocument = new NavigationDocument();
+    // navigationDocument.setNavs(getNavs(body));
+    // return navigationDocument;
+    // }
 
-    private static List<Nav> getNavs(Node body) {
+    protected static List<Nav> getNavs(Node body) {
         List<Nav> navs = new ArrayList<>();
 
         XmlUtils.foreachNodeList(body.getChildNodes(), n -> {
