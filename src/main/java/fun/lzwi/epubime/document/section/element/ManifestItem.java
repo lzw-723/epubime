@@ -30,6 +30,10 @@ public class ManifestItem {
         this.fallback = fallback;
     }
 
+    /**
+     * 相对路径（相对PackageDocument）
+     * @return String href
+     */
     public String getHref() {
         return href;
     }

@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 
 import fun.lzwi.Utils;
 import fun.lzwi.epubime.document.PackageDocument;
+import fun.lzwi.epubime.document.PackageDocumentUtils;
 
 public class PackageDocumentUtilsTest {
     private InputStream opf;

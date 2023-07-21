@@ -1,4 +1,4 @@
-package fun.lzwi.epubime.util;
+package fun.lzwi.epubime.document;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,13 +10,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import fun.lzwi.epubime.document.PackageDocument;
 import fun.lzwi.epubime.document.section.Manifest;
 import fun.lzwi.epubime.document.section.MetaData;
 import fun.lzwi.epubime.document.section.Spine;
 import fun.lzwi.epubime.document.section.element.ManifestItem;
 import fun.lzwi.epubime.document.section.element.MetaDataItem;
 import fun.lzwi.epubime.document.section.element.SpineItemRef;
+import fun.lzwi.epubime.util.XmlUtils;
 
 public class PackageDocumentUtils {
     public static Node getPackageElement(InputStream opf) {

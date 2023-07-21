@@ -10,43 +10,42 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import fun.lzwi.epubime.document.PackageDocument;
-import fun.lzwi.epubime.util.ContainerUtils;
-import fun.lzwi.epubime.util.PackageDocumentUtils;
-
 public class EpubFile {
     private ZipFile zipFile;
-    private final static String container = "META-INF/container.xml";
+    protected final static String CONTAINER_PATH = "META-INF/container.xml";
 
-    private PackageDocument packageDocument;
+    // private PackageDocument packageDocument;
 
-    public PackageDocument getPackageDocument() {
-        return (PackageDocument) packageDocument.clone();
-    }
+    // public PackageDocument getPackageDocument() throws IOException, ParserConfigurationException, SAXException {
+    //     if (packageDocument ==null) {
+    //         init();
+    //     }
+    //     return (PackageDocument) packageDocument.clone();
+    // }
 
     public EpubFile(File file) throws ZipException, IOException, ParserConfigurationException, SAXException {
         zipFile = new ZipFile(file);
-        init();
+        // init();
     }
 
-    public EpubFile(String path) {
+    // public EpubFile(String path) {
 
-        try {
-            zipFile = new ZipFile(new File(path));
-            init();
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            throw new RuntimeException("Epub文件异常", e);
-        }
-    }
+    //     try {
+    //         zipFile = new ZipFile(new File(path));
+    //         // init();
+    //     } catch (IOException | ParserConfigurationException | SAXException e) {
+    //         throw new RuntimeException("Epub文件异常", e);
+    //     }
+    // }
 
-    private void init() throws IOException, ParserConfigurationException, SAXException {
-        InputStream opf = getInputStream(
-                ContainerUtils.getRootFile(getInputStream(container)));
-        packageDocument = PackageDocumentUtils
-                .getPackageDocument(PackageDocumentUtils.getPackageElement(opf));
-    }
+    // private void init() throws IOException, ParserConfigurationException, SAXException {
+    //     InputStream opf = getInputStream(
+    //             ContainerUtils.getRootFile(getInputStream(container)));
+    //     packageDocument = PackageDocumentUtils
+    //             .getPackageDocument(PackageDocumentUtils.getPackageElement(opf));
+    // }
 
-    private InputStream getInputStream(String entry) throws IOException {
+    protected InputStream getInputStream(String entry) throws IOException {
         return zipFile.getInputStream(zipFile.getEntry(entry));
     }
 
