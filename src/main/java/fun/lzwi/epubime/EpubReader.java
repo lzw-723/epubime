@@ -23,23 +23,34 @@ public class EpubReader {
     }
 
     public Epub read() throws ParserConfigurationException, SAXException, IOException {
+        Epub epub = new Epub();
         String opf = ContainerUtils.getRootFile(file.getInputStream(EpubFile.CONTAINER_PATH));
         PackageDocument packageDocument = new PackageDocumentReader(file.getInputStream(opf)).read();
-        String nav = packageDocument.getManifest().getItems().stream().filter(i -> "nav".equals(i.getProperties()))
-                .findFirst().get().getHref();
-
-        String parent = "";
-        Path dir = Paths.get(opf).getParent();
-        if (dir != null) {
-            parent = dir.toString();
-        }
-
-        NavigationDocReader navigationDocReader = new NavigationDocReader(file.getInputStream(parent + "/" + nav));
-        NavigationDocument navigationDocument = navigationDocReader.read();
-
-        Epub epub = new Epub();
         epub.setPackageDocument(packageDocument);
-        epub.setNavigationDocument(navigationDocument);
+        packageDocument.getManifest().getItems().stream().filter(i -> "nav".equals(i.getProperties()))
+                .findFirst().ifPresent(nav -> {
+
+                    String parent = "";
+                    Path dir = Paths.get(opf).getParent();
+                    if (dir != null) {
+                        parent = dir.toString();
+                    }
+
+                    NavigationDocReader navigationDocReader;
+                    try {
+                        navigationDocReader = new NavigationDocReader(
+                                file.getInputStream(parent + "/" + nav.getHref()));
+                                NavigationDocument navigationDocument = navigationDocReader.read();
+                                epub.setNavigationDocument(navigationDocument);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (SAXException e) {
+                        e.printStackTrace();
+                    } catch (ParserConfigurationException e) {
+                        e.printStackTrace();
+                    }
+                });
+
         return epub;
     }
 }
