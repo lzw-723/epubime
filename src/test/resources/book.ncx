@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en" dir="ltr">
+	<head>
+		<meta name="dtb:uid" content="https://www.7sbook.com/ebook/254.html" />
+		<meta name="dtb:depth" content="3" />
+		<meta name="dtb:totalPageCount" content="0" />
+		<meta name="dtb:maxPageNumber" content="0" />
+	</head>
+
+	<docTitle>
+		<text>坟</text>
+	</docTitle>
+
+	<docAuthor>
+		<text>鲁迅</text>
+	</docAuthor>
+
+	<navMap>
+		<navPoint id="chapter1" playOrder="1">
+			<navLabel>
+				<text>关于本书</text>
+			</navLabel>
+			<content src="Notices.html" />
+		</navPoint>
+		<navPoint id="ref_toc" playOrder="2">
+			<navLabel>
+				<text>目录</text>
+			</navLabel>
+			<content src="TOC.xhtml" />
+		</navPoint>
+		<navPoint id="chapter2" playOrder="3">
+			<navLabel>
+				<text>题记</text>
+			</navLabel>
+			<content src="Chapter19082.html" />
+		</navPoint>
+		<navPoint id="chapter3" playOrder="4">
+			<navLabel>
+				<text>人之历史</text>
+			</navLabel>
+			<content src="Chapter19083.html" />
+		</navPoint>
+		<navPoint id="chapter4" playOrder="5">
+			<navLabel>
+				<text>科学史教篇</text>
+			</navLabel>
+			<content src="Chapter19084.html" />
+		</navPoint>
+		<navPoint id="chapter5" playOrder="6">
+			<navLabel>
+				<text>文化偏至论</text>
+			</navLabel>
+			<content src="Chapter19085.html" />
+		</navPoint>
+		<navPoint id="chapter6" playOrder="7">
+			<navLabel>
+				<text>摩罗诗力说</text>
+			</navLabel>
+			<content src="Chapter19086.html" />
+		</navPoint>
+		<navPoint id="chapter7" playOrder="8">
+			<navLabel>
+				<text>我之节烈观</text>
+			</navLabel>
+			<content src="Chapter19087.html" />
+		</navPoint>
+		<navPoint id="chapter8" playOrder="9">
+			<navLabel>
+				<text>我们现在怎样做父亲</text>
+			</navLabel>
+			<content src="Chapter19088.html" />
+		</navPoint>
+		<navPoint id="chapter9" playOrder="10">
+			<navLabel>
+				<text>宋民间之所谓小说及其后来</text>
+			</navLabel>
+			<content src="Chapter19089.html" />
+		</navPoint>
+		<navPoint id="chapter10" playOrder="11">
+			<navLabel>
+				<text>娜拉走后怎样</text>
+			</navLabel>
+			<content src="Chapter19090.html" />
+		</navPoint>
+		<navPoint id="chapter11" playOrder="12">
+			<navLabel>
+				<text>未有天才之前</text>
+			</navLabel>
+			<content src="Chapter19091.html" />
+		</navPoint>
+		<navPoint id="chapter12" playOrder="13">
+			<navLabel>
+				<text>论雷峰塔的倒掉</text>
+			</navLabel>
+			<content src="Chapter19092.html" />
+		</navPoint>
+		<navPoint id="chapter13" playOrder="14">
+			<navLabel>
+				<text>说胡须</text>
+			</navLabel>
+			<content src="Chapter19093.html" />
+		</navPoint>
+		<navPoint id="chapter14" playOrder="15">
+			<navLabel>
+				<text>论照相之类</text>
+			</navLabel>
+			<content src="Chapter19094.html" />
+		</navPoint>
+		<navPoint id="chapter15" playOrder="16">
+			<navLabel>
+				<text>再论雷峰塔的倒掉</text>
+			</navLabel>
+			<content src="Chapter19095.html" />
+		</navPoint>
+		<navPoint id="chapter16" playOrder="17">
+			<navLabel>
+				<text>看镜有感</text>
+			</navLabel>
+			<content src="Chapter19096.html" />
+		</navPoint>
+		<navPoint id="chapter17" playOrder="18">
+			<navLabel>
+				<text>春末闲谈</text>
+			</navLabel>
+			<content src="Chapter19097.html" />
+		</navPoint>
+		<navPoint id="chapter18" playOrder="19">
+			<navLabel>
+				<text>灯下漫笔</text>
+			</navLabel>
+			<content src="Chapter19098.html" />
+		</navPoint>
+		<navPoint id="chapter19" playOrder="20">
+			<navLabel>
+				<text>杂忆</text>
+			</navLabel>
+			<content src="Chapter19099.html" />
+		</navPoint>
+		<navPoint id="chapter20" playOrder="21">
+			<navLabel>
+				<text>论“他妈的！”</text>
+			</navLabel>
+			<content src="Chapter19100.html" />
+		</navPoint>
+		<navPoint id="chapter21" playOrder="22">
+			<navLabel>
+				<text>论睁了眼看</text>
+			</navLabel>
+			<content src="Chapter19101.html" />
+		</navPoint>
+		<navPoint id="chapter22" playOrder="23">
+			<navLabel>
+				<text>从胡须说到牙齿</text>
+			</navLabel>
+			<content src="Chapter19102.html" />
+		</navPoint>
+		<navPoint id="chapter23" playOrder="24">
+			<navLabel>
+				<text>坚壁清野主义</text>
+			</navLabel>
+			<content src="Chapter19103.html" />
+		</navPoint>
+		<navPoint id="chapter24" playOrder="25">
+			<navLabel>
+				<text>寡妇主义</text>
+			</navLabel>
+			<content src="Chapter19104.html" />
+		</navPoint>
+		<navPoint id="chapter25" playOrder="26">
+			<navLabel>
+				<text>论“费厄泼赖”应该缓行</text>
+			</navLabel>
+			<content src="Chapter19105.html" />
+		</navPoint>
+		<navPoint id="chapter26" playOrder="27">
+			<navLabel>
+				<text>写在“坟”后面</text>
+			</navLabel>
+			<content src="Chapter19106.html" />
+		</navPoint>
+				<navPoint id="ref-1" playOrder="28">
+					<navLabel>
+						<text>CoverPage</text>
+					</navLabel>
+					<content src="CoverPage.xhtml" />
+				</navPoint>
+	</navMap>
+</ncx>
