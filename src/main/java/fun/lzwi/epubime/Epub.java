@@ -7,7 +7,7 @@ import fun.lzwi.epubime.document.PackageDocument;
 public class Epub {
     private PackageDocument packageDocument;
     private NavigationDocument navigationDocument;
-    private fun.lzwi.epubime.document.NCX NCX;
+    private NCX ncx;
 
     public PackageDocument getPackageDocument() {
         if (packageDocument == null) {
@@ -32,10 +32,13 @@ public class Epub {
     }
 
     public void setNCX(NCX ncx) {
-        this.NCX = ncx;
+        this.ncx = ncx.clone();
     }
 
     public NCX getNCX() {
-        return NCX;
+        if (ncx == null) {
+            return null;
+        }
+        return ncx.clone();
     }
 }
