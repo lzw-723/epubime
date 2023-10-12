@@ -33,7 +33,7 @@ public class NCXUtilsTest {
     public void testGetDocAuthor() {
         assertEquals("鲁迅", NCXUtils.getDocAuthor(ncxElement));
     }
-    
+
     @Test
     public void testGetDocTitle() {
         assertEquals("坟", NCXUtils.getDocTitle(ncxElement));
@@ -43,7 +43,7 @@ public class NCXUtilsTest {
     public void testGetHead() {
         assertEquals(4, NCXUtils.getHead(ncxElement).size());
     }
-    
+
     @Test
     public void testGetNavMap() {
         assertEquals(28, NCXUtils.getNavMap(ncxElement).size());

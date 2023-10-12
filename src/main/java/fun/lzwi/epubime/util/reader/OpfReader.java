@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -44,7 +45,7 @@ public class OpfReader {
     }
 
     public OpfReader(String path) throws ParserConfigurationException, SAXException, IOException {
-        this.opfi = new FileInputStream(new File(path));
+        this.opfi = Files.newInputStream(new File(path).toPath());
         init();
     }
 

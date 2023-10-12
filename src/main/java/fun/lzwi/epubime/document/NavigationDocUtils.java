@@ -74,7 +74,7 @@ public class NavigationDocUtils {
                     }
                     break;
             }
-            if (tags != null) {
+            if (tag != null) {
                 tags.add(tag);
             }
         });

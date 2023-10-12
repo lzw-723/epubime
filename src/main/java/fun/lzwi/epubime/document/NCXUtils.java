@@ -37,6 +37,9 @@ public class NCXUtils {
     }
 
     private static String getText(Node node) {
+        if (node == null) {
+            return null;
+        }
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node n = childNodes.item(i);

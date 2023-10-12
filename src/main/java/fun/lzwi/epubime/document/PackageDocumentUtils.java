@@ -20,13 +20,12 @@ import fun.lzwi.epubime.util.XmlUtils;
 
 public class PackageDocumentUtils {
     public static Node getPackageElement(InputStream opf) {
-        Node item = null;
         try {
-            item = XmlUtils.getElementsByTagName(opf, "package").item(0);
+            Node item = XmlUtils.getElementsByTagName(opf, "package").item(0);
+            return item;
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException("读取Package失败", e);
         }
-        return item;
     }
 
     public static PackageDocument getPackageDocument(Node pkgDocEle) {
@@ -66,7 +65,7 @@ public class PackageDocumentUtils {
 
     protected static MetaData getMetaDataSection(Node metaDataNode) {
         MetaData metaData = new MetaData();
-        getMetaDataItems(metaDataNode).stream().forEach(a -> {
+        getMetaDataItems(metaDataNode).forEach(a -> {
             String content = a.getContent();
             switch (a.getName()) {
                 case "dc:title":

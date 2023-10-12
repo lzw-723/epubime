@@ -3,15 +3,10 @@ package fun.lzwi.epubime;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 public class EpubFile {
-    private ZipFile zipFile;
+    private final ZipFile zipFile;
     protected final static String CONTAINER_PATH = "META-INF/container.xml";
 
     // private PackageDocument packageDocument;
@@ -23,7 +18,7 @@ public class EpubFile {
     //     return (PackageDocument) packageDocument.clone();
     // }
 
-    public EpubFile(File file) throws ZipException, IOException, ParserConfigurationException, SAXException {
+    public EpubFile(File file) throws IOException {
         zipFile = new ZipFile(file);
         // init();
     }

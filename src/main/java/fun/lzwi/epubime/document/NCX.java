@@ -8,6 +8,7 @@ import java.util.Map;
 import fun.lzwi.epubime.document.section.NavPoint;
 
 // epub 2.0
+// https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#TOC2.4.1
 public class NCX {
     private Map<String, String> head = new HashMap<>();
     private String docTitle;
