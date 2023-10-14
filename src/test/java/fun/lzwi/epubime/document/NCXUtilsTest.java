@@ -48,4 +48,9 @@ public class NCXUtilsTest {
     public void testGetNavMap() {
         assertEquals(28, NCXUtils.getNavMap(ncxElement).size());
     }
+
+    @Test
+    public void testGetNavPoint() {
+        assertEquals("关于本书", NCXUtils.getNavMap(ncxElement).get(0).getNavLabel());
+    }
 }

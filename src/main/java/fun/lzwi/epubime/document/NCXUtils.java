@@ -66,7 +66,7 @@ public class NCXUtils {
         navPoint.setPlayOrder(Integer.parseInt(XmlUtils.getNodeAttribute(navPointNode, "playOrder")));
         XmlUtils.foreachNodeList(navPointNode.getChildNodes(), n -> {
             if ("navLabel".equals(n.getNodeName())) {
-                navPoint.setNavLabel(n.getTextContent());
+                navPoint.setNavLabel(getText(n));
             } else if ("content".equals(n.getNodeName())) {
                 navPoint.setContent(XmlUtils.getNodeAttribute(n, "src"));
             }
