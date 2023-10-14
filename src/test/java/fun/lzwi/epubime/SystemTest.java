@@ -18,6 +18,9 @@ public class SystemTest {
         // src\test\resources\epub
         // 此目录存放收集自互联网的epub文件，可能涉及版权问题，故不上传
         File dir = Utils.getFile("epub");
+        if (dir == null) {
+            return;
+        }
         for (File file : dir.listFiles()) {
             if (file.getName().endsWith(".epub")) {
                 testBook(file);
