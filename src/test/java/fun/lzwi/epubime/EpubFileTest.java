@@ -1,18 +1,13 @@
 package fun.lzwi.epubime;
 
-import java.io.IOException;
-import java.util.zip.ZipException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.junit.Before;
-import org.xml.sax.SAXException;
-
 import fun.lzwi.Utils;
+import org.junit.Before;
+
+import java.io.IOException;
 
 public class EpubFileTest {
     @Before
-    public void setUp() throws ZipException, IOException, ParserConfigurationException, SAXException {
+    public void setUp() throws IOException {
         new EpubFile(Utils.getFile("《坟》鲁迅.epub"));
     }
 

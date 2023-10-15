@@ -1,7 +1,7 @@
 package fun.lzwi.epubime.document.section;
 
 /**
- * @see fun.lzwi.epubime.document.NCX.java
+ * @see fun.lzwi.epubime.document.NCX
  */
 public class NavPoint {
     private String id;

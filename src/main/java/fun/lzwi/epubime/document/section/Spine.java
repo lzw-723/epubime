@@ -15,7 +15,7 @@ public class Spine implements Cloneable {
     // [optional]
     private String pageProgressionDirection;
     // itemref [1 or more]
-    private List<SpineItemRef> itemRefs = new ArrayList<>();
+    private final List<SpineItemRef> itemRefs = new ArrayList<>();
 
     public String getId() {
         return id;

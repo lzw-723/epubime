@@ -1,22 +1,20 @@
 package fun.lzwi.epubime.document;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
+import fun.lzwi.Utils;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import fun.lzwi.Utils;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static org.junit.Assert.assertEquals;
 
 public class ContentDocReaderTest {
     @Test
     public void testRead() throws SAXException, IOException, ParserConfigurationException {
-        ContentDocReader contentDocReader = new ContentDocReader(new FileInputStream(Utils.getFile("section1.xhtml")));
+        ContentDocReader contentDocReader = new ContentDocReader(Files.newInputStream(Utils.getFile("section1.xhtml").toPath()));
         ContentDocument contentDocument = contentDocReader.read();
-        assertTrue(contentDocument.getTitle().equals("第一章"));
+        assertEquals("第一章", contentDocument.getTitle());
     }
 }

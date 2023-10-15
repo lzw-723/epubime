@@ -1,10 +1,8 @@
 package fun.lzwi.epubime.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class PackageInfoTest {
     @Test
@@ -18,7 +16,7 @@ public class PackageInfoTest {
     @Test
     public void testToString() {
         PackageInfo packageInfo = new PackageInfo();
-        assertTrue(packageInfo.toString().length() > 0);
+        assertFalse(packageInfo.toString().isEmpty());
 
     }
 }

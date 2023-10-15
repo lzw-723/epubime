@@ -13,7 +13,7 @@ import fun.lzwi.epubime.document.section.Nav;
 import fun.lzwi.epubime.util.XmlUtils;
 
 public class NavigationDocReader {
-    private InputStream in;
+    private final InputStream in;
 
     public NavigationDocReader(InputStream in) {
         super();

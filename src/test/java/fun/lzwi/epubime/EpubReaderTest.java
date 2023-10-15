@@ -1,27 +1,24 @@
 package fun.lzwi.epubime;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.util.zip.ZipException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
+import fun.lzwi.Utils;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import fun.lzwi.Utils;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 public class EpubReaderTest {
     @Test
-    public void testRead() throws ZipException, IOException, ParserConfigurationException, SAXException {
+    public void testRead() throws IOException, ParserConfigurationException, SAXException {
         EpubReader reader = new EpubReader(new EpubFile(Utils.getFile("《坟》鲁迅.epub")));
         Epub epub = reader.read();
         assertNotNull(epub);
     }
 
     @Test
-    public void testRead2() throws ZipException, IOException, ParserConfigurationException, SAXException {
+    public void testRead2() throws IOException, ParserConfigurationException, SAXException {
         EpubReader reader = new EpubReader(new EpubFile(Utils.getFile("《坟》鲁迅.epub")));
         Epub epub = reader.read();
         assertNotNull(epub);

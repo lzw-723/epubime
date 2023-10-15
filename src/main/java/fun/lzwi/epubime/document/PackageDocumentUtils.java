@@ -21,8 +21,7 @@ import fun.lzwi.epubime.util.XmlUtils;
 public class PackageDocumentUtils {
     public static Node getPackageElement(InputStream opf) {
         try {
-            Node item = XmlUtils.getElementsByTagName(opf, "package").item(0);
-            return item;
+            return XmlUtils.getElementsByTagName(opf, "package").item(0);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException("读取Package失败", e);
         }

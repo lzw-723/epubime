@@ -3,10 +3,8 @@ package fun.lzwi.epubime.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.junit.Before;
@@ -26,9 +24,9 @@ public class OpfUtilsTest {
     InputStream in;
 
     @Before
-    public void before() throws FileNotFoundException {
+    public void before() throws IOException {
         FILE = Utils.getFile("content.opf");
-        in = new FileInputStream(FILE);
+        in = Files.newInputStream(FILE.toPath());
     }
 
     @Test
@@ -52,7 +50,7 @@ public class OpfUtilsTest {
     }
 
     @Test
-    public void testGetTitle() throws FileNotFoundException {
+    public void testGetTitle() {
         Node pkg = OpfUtils.getPackage(in);
         Node metaData = OpfUtils.getMetaData(pkg);
         List<MetaItem> metaDataItems = OpfUtils.getMetaDataItems(metaData);

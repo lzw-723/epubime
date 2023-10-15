@@ -10,7 +10,7 @@ import fun.lzwi.epubime.util.ListUtils;
  * https://www.w3.org/TR/epub-33/#sec-nav-content-req
  */
 public class NavigationDocument extends AbstractXhtml implements Cloneable {
-    private List<Nav> navs = new ArrayList<>();
+    private final List<Nav> navs = new ArrayList<>();
 
     public List<Nav> getNavs() {
         return ListUtils.copy(navs);

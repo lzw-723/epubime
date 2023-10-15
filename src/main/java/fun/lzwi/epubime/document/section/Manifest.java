@@ -17,7 +17,7 @@ public class Manifest implements Cloneable {
         this.id = id;
     }
 
-    private List<ManifestItem> items = new ArrayList<>();
+    private final List<ManifestItem> items = new ArrayList<>();
 
     public List<ManifestItem> getItems() {
         return ListUtils.copy(items);

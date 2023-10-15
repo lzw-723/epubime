@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -21,7 +22,7 @@ public class SystemTest {
         if (dir == null) {
             return;
         }
-        for (File file : dir.listFiles()) {
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
             if (file.getName().endsWith(".epub")) {
                 testBook(file);
             }

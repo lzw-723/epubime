@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 import fun.lzwi.epubime.document.section.NavPoint;
 
 public class NCXReader {
-    private InputStream in;
+    private final InputStream in;
 
     /**
      * @param in

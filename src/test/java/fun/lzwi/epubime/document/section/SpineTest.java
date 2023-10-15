@@ -8,7 +8,7 @@ public class SpineTest {
 
     @Test
     public void testTrue() {
-        assertNotNull(new Spine());
+        new Spine();
     }
 
 }

@@ -3,6 +3,7 @@ package fun.lzwi.epubime.util.reader;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 
 public class MagicNumberReader {
     private static final char[] MAGIC_NUMBER_0 = new char[] { 'P', 'K', 0x003, 0x004 };
@@ -33,18 +34,12 @@ public class MagicNumberReader {
     public static boolean check30(File file) throws IOException {
         byte[] b = new byte[MAGIC_NUMBER_30.length()];
         read(file, b, 30, MAGIC_NUMBER_30.length());
-        if (!new String(b, "utf-8").equals(MAGIC_NUMBER_30)) {
-            return false;
-        }
-        return true;
+        return new String(b, StandardCharsets.UTF_8).equals(MAGIC_NUMBER_30);
     }
 
     public static boolean check38(File file) throws IOException {
         byte[] b = new byte[MAGIC_NUMBER_38.length()];
         read(file, b, 38, MAGIC_NUMBER_38.length());
-        if (!new String(b, "utf-8").equals(MAGIC_NUMBER_38)) {
-            return false;
-        }
-        return true;
+        return new String(b, StandardCharsets.UTF_8).equals(MAGIC_NUMBER_38);
     }
 }

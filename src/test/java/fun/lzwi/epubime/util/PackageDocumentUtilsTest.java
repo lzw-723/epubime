@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class PackageDocumentUtilsTest {
     private InputStream opf;
 
     @Before
-    public void setUp() throws FileNotFoundException {
+    public void setUp() throws FileNotFoundException, UnsupportedEncodingException {
         opf = new FileInputStream(Utils.getFile("content.opf"));
     }
 

@@ -1,40 +1,36 @@
 package fun.lzwi.epubime.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import fun.lzwi.Utils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipException;
+import java.io.UnsupportedEncodingException;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import fun.lzwi.Utils;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class EpubUtilsTest {
     private static File file;
 
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws UnsupportedEncodingException {
         file = Utils.getFile("《坟》鲁迅.epub");
     }
 
     @Test
-    public void testExistContainerXML() throws ZipException, IOException, ParserConfigurationException, SAXException {
+    public void testExistContainerXML() throws IOException {
         assertTrue("存在container.xml", EpubUtils.existContainerXML(file));
     }
 
     @Test
-    public void testExistEntry() throws ZipException, IOException, ParserConfigurationException, SAXException {
+    public void testExistEntry() throws IOException {
         assertFalse(EpubUtils.existEntry(file, "test"));
     }
 
     @Test
-    public void testExistMimeType() throws IOException, ParserConfigurationException, SAXException {
+    public void testExistMimeType() throws IOException {
         assertTrue("存在mimetype文件", EpubUtils.existMimeType(file));
     }
 

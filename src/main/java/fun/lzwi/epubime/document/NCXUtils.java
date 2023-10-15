@@ -18,8 +18,7 @@ import fun.lzwi.epubime.util.XmlUtils;
 
 public class NCXUtils {
     public static Node getNcxElement(InputStream in) throws ParserConfigurationException, SAXException, IOException {
-        Node ncx = XmlUtils.getElementsByTagName(in, "ncx").item(0);
-        return ncx;
+        return XmlUtils.getElementsByTagName(in, "ncx").item(0);
     }
 
     public static Map<String, String> getHead(Node ncx) {

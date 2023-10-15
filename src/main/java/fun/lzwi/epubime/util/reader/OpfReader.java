@@ -37,7 +37,7 @@ public class OpfReader {
 
     public OpfReader(File opf) {
         try {
-            this.opfi = new FileInputStream(opf);
+            this.opfi = Files.newInputStream(opf.toPath());
             init();
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();

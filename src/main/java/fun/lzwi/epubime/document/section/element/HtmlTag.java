@@ -7,7 +7,7 @@ import fun.lzwi.epubime.util.ListUtils;
 
 public class HtmlTag {
     private String name;
-    private List<HtmlTag> children = new ArrayList<>();
+    private final List<HtmlTag> children = new ArrayList<>();
 
     protected String getName() {
         return name;

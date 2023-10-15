@@ -1,22 +1,20 @@
 package fun.lzwi.epubime.document;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
+import fun.lzwi.Utils;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import fun.lzwi.Utils;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static org.junit.Assert.assertEquals;
 
 public class NavigationDocReaderTest {
     @Test
     public void testRead() throws SAXException, IOException, ParserConfigurationException {
-        NavigationDocReader navigationDocReader = new NavigationDocReader(new FileInputStream(Utils.getFile("nav.xhtml")));
+        NavigationDocReader navigationDocReader = new NavigationDocReader(Files.newInputStream(Utils.getFile("nav.xhtml").toPath()));
         NavigationDocument navigationDocument = navigationDocReader.read();
-        assertTrue(navigationDocument.getNavs().size() == 2);
+        assertEquals(2, navigationDocument.getNavs().size());
     }
 }

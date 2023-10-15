@@ -52,7 +52,7 @@ public class OpfUtils {
 
     public static List<String> getIdentifiers(List<MetaDC> metaDCs) {
         return metaDCs.stream().filter(p -> p.getName().equals("dc:identifier"))
-                .map(m -> m.getContent()).collect(Collectors.toList());
+                .map(MetaDC::getContent).collect(Collectors.toList());
     }
 
     public static String getIdentifier(List<MetaDC> metaDCs) {
@@ -60,7 +60,7 @@ public class OpfUtils {
     }
 
     public static List<String> getLanguages(List<MetaDC> metaDCs) {
-        return metaDCs.stream().filter(p -> p.getName().equals("dc:language")).map(m -> m.getContent())
+        return metaDCs.stream().filter(p -> p.getName().equals("dc:language")).map(MetaDC::getContent)
                 .collect(Collectors.toList());
     }
 
@@ -69,7 +69,7 @@ public class OpfUtils {
     }
 
     public static List<String> getTitles(List<MetaDC> metaDCs) {
-        return metaDCs.stream().filter(p -> p.getName().equals("dc:title")).map(m -> m.getContent())
+        return metaDCs.stream().filter(p -> p.getName().equals("dc:title")).map(MetaDC::getContent)
                 .collect(Collectors.toList());
     }
 

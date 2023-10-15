@@ -8,6 +8,6 @@ public class MetaDataItemTest {
 
     @Test
     public void testToString() {
-        assumeTrue(new MetaDataItem().toString().length() > 0);
+        assumeTrue(!new MetaDataItem().toString().isEmpty());
     }
 }

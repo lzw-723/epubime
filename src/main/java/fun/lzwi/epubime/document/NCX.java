@@ -10,7 +10,7 @@ import fun.lzwi.epubime.document.section.NavPoint;
 // epub 2.0
 // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#TOC2.4.1
 public class NCX implements Cloneable {
-    private Map<String, String> head = new HashMap<>();
+    private final Map<String, String> head = new HashMap<>();
     private String docTitle;
     private String docAuthor;
 
@@ -23,7 +23,7 @@ public class NCX implements Cloneable {
         }
     }
 
-    private List<NavPoint> navMap = new ArrayList<>();
+    private final List<NavPoint> navMap = new ArrayList<>();
     /**
      * @return the head
      */

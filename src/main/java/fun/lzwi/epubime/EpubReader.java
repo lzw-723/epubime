@@ -18,7 +18,7 @@ import fun.lzwi.epubime.document.section.element.ManifestItem;
 import fun.lzwi.epubime.util.ContainerUtils;
 
 public class EpubReader {
-    private EpubFile file;
+    private final EpubFile file;
 
     public EpubReader(EpubFile file) {
         super();
@@ -32,7 +32,7 @@ public class EpubReader {
         Path path = Paths.get(opf).getParent();
         String parent = "";
         if (path != null) {
-            parent = path.toString() + "/";
+            parent = path + "/";
         }
         PackageDocument packageDocument = new PackageDocumentReader(file.getInputStream(opf)).read();
         epub.setPackageDocument(packageDocument);

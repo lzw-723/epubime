@@ -1,11 +1,9 @@
 package fun.lzwi.epubime.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.function.Consumer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,11 +13,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.util.function.Consumer;
 
 public class XmlUtils {
 
@@ -27,8 +26,7 @@ public class XmlUtils {
             throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(inputStream);
-        return doc;
+        return builder.parse(inputStream);
     }
 
     public static NodeList getElementsByTagName(InputStream inputStream, String tag)
@@ -38,7 +36,7 @@ public class XmlUtils {
 
     public static NodeList getElementsByTagName(File file, String tag)
             throws ParserConfigurationException, SAXException, IOException {
-        return getElementsByTagName(new FileInputStream(file), tag);
+        return getElementsByTagName(Files.newInputStream(file.toPath()), tag);
     }
 
     public static void foreachNodeList(NodeList list, Consumer<Node> consumer) {

@@ -3,7 +3,7 @@ package fun.lzwi.epubime.document;
 import java.io.InputStream;
 
 public class PackageDocumentReader {
-    private InputStream in;
+    private final InputStream in;
 
     public PackageDocumentReader(InputStream in) {
         super();
@@ -11,7 +11,6 @@ public class PackageDocumentReader {
     }
 
     public PackageDocument read(){
-        PackageDocument packageDocument = PackageDocumentUtils.getPackageDocument(PackageDocumentUtils.getPackageElement(in));
-        return packageDocument;
+        return PackageDocumentUtils.getPackageDocument(PackageDocumentUtils.getPackageElement(in));
     }
 }

@@ -8,7 +8,7 @@ public class EpubFactoryTest {
 
     @Test
     public void testEpubFactory() {
-        assertNotNull(new EpubFactory());
+        new EpubFactory();
     }
     
 }

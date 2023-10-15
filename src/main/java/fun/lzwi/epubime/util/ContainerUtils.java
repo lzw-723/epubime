@@ -1,19 +1,18 @@
 package fun.lzwi.epubime.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 public class ContainerUtils {
 
     public static boolean existContainer(File container)
             throws SAXException, IOException, ParserConfigurationException {
-        return existContainer(new FileInputStream(container));
+        return existContainer(Files.newInputStream(container.toPath()));
     }
 
     public static boolean existContainer(InputStream container)
@@ -26,7 +25,7 @@ public class ContainerUtils {
 
     public static boolean existRootFiles(File container)
             throws ParserConfigurationException, SAXException, IOException {
-        return existRootFiles(new FileInputStream(container));
+        return existRootFiles(Files.newInputStream(container.toPath()));
     }
 
     public static boolean existRootFiles(InputStream container)
@@ -37,13 +36,12 @@ public class ContainerUtils {
     }
 
     public static String getRootFile(File container) throws ParserConfigurationException, SAXException, IOException {
-        return getRootFile(new FileInputStream(container));
+        return getRootFile(Files.newInputStream(container.toPath()));
     }
 
     public static String getRootFile(InputStream container)
             throws ParserConfigurationException, SAXException, IOException {
-        String fullPath = XmlUtils.getElementsByTagName(container, "rootfile").item(0).getAttributes()
+        return XmlUtils.getElementsByTagName(container, "rootfile").item(0).getAttributes()
                 .getNamedItem("full-path").getNodeValue();
-        return fullPath;
     }
 }

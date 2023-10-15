@@ -11,7 +11,7 @@ import org.xml.sax.SAXException;
 import fun.lzwi.epubime.util.XmlUtils;
 
 public class ContentDocReader {
-    private InputStream in;
+    private final InputStream in;
 
     public ContentDocReader(InputStream in) {
         super();

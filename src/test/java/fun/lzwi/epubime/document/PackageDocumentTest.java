@@ -25,7 +25,7 @@ public class PackageDocumentTest {
     @Test
     public void testGetManifest() {
         Manifest manifest = packageDocument.getManifest();
-        assertNull(manifest);;
+        assertNull(manifest);
     }
 
     @Test
