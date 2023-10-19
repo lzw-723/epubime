@@ -1,19 +1,30 @@
 package fun.lzwi.epubime.document.section;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import fun.lzwi.epubime.document.section.element.HtmlTag;
+import fun.lzwi.epubime.document.section.element.NavItem;
 
 /*
  * https://www.w3.org/TR/epub-33/#sec-nav-def-model
  */
-public class Nav extends HtmlTag {
+public class Nav {
     // toc page-list landmarks
     private String epubType;
+    private final List<NavItem> items = new ArrayList<>();
 
-    public Nav() {
-        super();
-        setName("nav");
+    /**
+     * @return the items
+     */
+    public List<NavItem> getItems() {
+        return items;
+    }
+
+    /**
+     * @param items the items to set
+     */
+    public void setItems(List<NavItem> items) {
+        this.items.addAll(items);
     }
 
     public String getEpubType() {
@@ -24,18 +35,4 @@ public class Nav extends HtmlTag {
         this.epubType = epubType;
     }
 
-    @Override
-    public String getName() {
-        return super.getName();
-    }
-
-    @Override
-    public List<HtmlTag> getChildren() {
-        return super.getChildren();
-    }
-
-    @Override
-    public void setChildren(List<HtmlTag> children) {
-        super.setChildren(children);
-    }
 }

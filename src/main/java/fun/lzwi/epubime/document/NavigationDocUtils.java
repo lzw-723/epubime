@@ -5,30 +5,17 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import fun.lzwi.epubime.document.section.Nav;
-import fun.lzwi.epubime.document.section.element.A;
-import fun.lzwi.epubime.document.section.element.H;
-import fun.lzwi.epubime.document.section.element.HtmlTag;
-import fun.lzwi.epubime.document.section.element.Li;
-import fun.lzwi.epubime.document.section.element.Ol;
+import fun.lzwi.epubime.document.section.element.NavItem;
 import fun.lzwi.epubime.util.XmlUtils;
 
 public class NavigationDocUtils {
-    // protected static String getBody(Document doc) {
-    //     Node body = getBodyNode(doc);
-    //     return XmlUtils.getNodeContent(body);
-    // }
 
     private static Node getBodyNode(Document doc) {
         return XmlUtils.getChildNodeByTagName(doc.getDocumentElement(), "body");
     }
-
-    // public static NavigationDocument getDocument(Node body) {
-    // NavigationDocument navigationDocument = new NavigationDocument();
-    // navigationDocument.setNavs(getNavs(body));
-    // return navigationDocument;
-    // }
 
     protected static List<Nav> getNavs(Document doc) {
         List<Nav> navs = new ArrayList<>();
@@ -37,47 +24,52 @@ public class NavigationDocUtils {
             if (n.getNodeName().equals("nav")) {
                 Nav nav = new Nav();
                 nav.setEpubType(XmlUtils.getNodeAttribute(n, "epub:type"));
-                nav.setChildren(getHtmlTags(n));
+                Node l = XmlUtils.getChildNodeByTagName(n, "ol");
+                if (l != null) {
+                    nav.setItems(getNavItems(l));
+                }
+                else if ((l = XmlUtils.getChildNodeByTagName(n, "ul")) != null) {
+                    nav.setItems(getNavItems(l));
+                }
                 navs.add(nav);
             }
         });
         return navs;
     }
 
-    private static List<HtmlTag> getHtmlTags(Node node) {
-        List<HtmlTag> tags = new ArrayList<>();
-        XmlUtils.foreachNodeList(node.getChildNodes(), n -> {
-            HtmlTag tag = null;
+    protected static List<NavItem> getNavItems(NodeList list) {
+        List<NavItem> items = new ArrayList<>();
+        XmlUtils.foreachNodeList(list, n -> {
             String nodeName = n.getNodeName();
-            switch (nodeName) {
-                case "ol":
-                    Ol ol = new Ol();
-                    ol.setChildren(getHtmlTags(n));
-                    tag = ol;
-                    break;
-                case "li":
-                    Li li = new Li();
-                    li.setChildren(getHtmlTags(n));
-                    tag = li;
-                    break;
-                case "a":
-                    A a = new A();
-                    a.setHref(XmlUtils.getNodeAttribute(n, "href"));
-                    tag = a;
-                    break;
-
-                default:
-                    if (nodeName.startsWith("h")) {
-                        H h = new H();
-                        h.setName(nodeName);
-                        tag = h;
-                    }
-                    break;
-            }
-            if (tag != null) {
-                tags.add(tag);
+            NavItem item;
+            if (nodeName.equals("li") && (item = getNavItem(n)) != null) {
+                items.add(item);
             }
         });
-        return tags;
+        return items;
+    }
+
+    protected static List<NavItem> getNavItems(Node node) {
+        return getNavItems(node.getChildNodes());
+    }
+
+    /**
+     * 
+     * @param node 一个包含a的li
+     * @return NavItem
+     */
+    protected static NavItem getNavItem(Node node) {
+        NavItem item = new NavItem();
+        Node a = XmlUtils.getChildNodeByTagName(node, "a");
+        if (a != null) {
+            item.setHref(XmlUtils.getNodeAttribute(a, "href"));
+            item.setTitle(a.getTextContent());
+        }
+        Node ol = XmlUtils.getChildNodeByTagName(node, "ol");
+        if (ol != null) {
+            item.setChildren(getNavItems(ol));
+        }
+        ;
+        return item;
     }
 }

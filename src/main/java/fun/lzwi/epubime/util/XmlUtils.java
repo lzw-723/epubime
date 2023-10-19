@@ -29,6 +29,15 @@ public class XmlUtils {
         return builder.parse(inputStream);
     }
 
+    /**
+     * 获取指定名字的Node的列表，浅层搜索，不递归
+     * @param inputStream
+     * @param tag
+     * @return NodeList
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
     public static NodeList getElementsByTagName(InputStream inputStream, String tag)
             throws ParserConfigurationException, SAXException, IOException {
         return getDocument(inputStream).getElementsByTagName(tag);
@@ -48,6 +57,12 @@ public class XmlUtils {
         }
     }
 
+    /**
+     * 获取指定标签名的第一个子节点
+     * @param node 节点
+     * @param tag 标签名
+     * @return 子节点
+     */
     public static Node getChildNodeByTagName(Node node, String tag) {
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
