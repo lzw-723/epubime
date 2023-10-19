@@ -37,6 +37,7 @@ public class EpubReader {
         PackageDocument packageDocument = new PackageDocumentReader(file.getInputStream(opf)).read();
         epub.setPackageDocument(packageDocument);
         String version = packageDocument.getVersion();
+        // 仅epub3
         if (EpubConstants.EPUB_VERSION_3.equals(version)) {
             ManifestItem nav = packageDocument.getManifest().getItems().stream()
                     .filter(i -> "nav".equals(i.getProperties())).findFirst().get();
@@ -45,12 +46,14 @@ public class EpubReader {
             NavigationDocument navigationDocument;
             navigationDocument = navigationDocReader.read();
             epub.setNavigationDocument(navigationDocument);
-        } else if (EpubConstants.EPUB_VERSION_2.equals(version)) {
-            // ncx文件要求
-            // Key NCX Requirements
-            // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#TOC2.4.1.2
-            ManifestItem ncx = packageDocument.getManifest().getItems().stream()
-                    .filter(i -> EpubConstants.EPUB_2_NCX_MediaType.equals(i.getMediaType())).findFirst().get();
+        }
+        // 部分epub3也兼容ncx
+        // ncx文件要求
+        // Key NCX Requirements
+        // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#TOC2.4.1.2
+        ManifestItem ncx = packageDocument.getManifest().getItems().stream()
+                .filter(i -> EpubConstants.EPUB_2_NCX_MediaType.equals(i.getMediaType())).findFirst().get();
+        if (ncx != null) {
             NCXReader reader = new NCXReader(file.getInputStream(parent + ncx.getHref()));
             NCX nav = reader.read();
             epub.setNCX(nav);
