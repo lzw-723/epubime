@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fun.lzwi.epubime.document.section.element.NavItem;
+import fun.lzwi.epubime.util.ListUtils;
 
 /*
  * https://www.w3.org/TR/epub-33/#sec-nav-def-model
@@ -17,7 +18,7 @@ public class Nav {
      * @return the items
      */
     public List<NavItem> getItems() {
-        return items;
+        return ListUtils.copy(items);
     }
 
     /**

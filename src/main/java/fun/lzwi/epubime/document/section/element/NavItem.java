@@ -3,6 +3,8 @@ package fun.lzwi.epubime.document.section.element;
 import java.util.ArrayList;
 import java.util.List;
 
+import fun.lzwi.epubime.util.ListUtils;
+
 public class NavItem {
     private String title;
     private String href;
@@ -47,6 +49,6 @@ public class NavItem {
      * @return the children
      */
     public List<NavItem> getChildren() {
-        return children;
+        return ListUtils.copy(children);
     }
 }
