@@ -8,6 +8,9 @@ import java.util.zip.ZipFile;
 public class EpubFile {
     private final ZipFile zipFile;
 
+    public EpubFile(String name) throws IOException {
+        zipFile = new ZipFile(name);
+    }
 
     public EpubFile(File file) throws IOException {
         zipFile = new ZipFile(file);

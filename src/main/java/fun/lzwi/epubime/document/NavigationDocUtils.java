@@ -27,8 +27,7 @@ public class NavigationDocUtils {
                 Node l = XmlUtils.getChildNodeByTagName(n, "ol");
                 if (l != null) {
                     nav.setItems(getNavItems(l));
-                }
-                else if ((l = XmlUtils.getChildNodeByTagName(n, "ul")) != null) {
+                } else if ((l = XmlUtils.getChildNodeByTagName(n, "ul")) != null) {
                     nav.setItems(getNavItems(l));
                 }
                 navs.add(nav);
@@ -41,8 +40,8 @@ public class NavigationDocUtils {
         List<NavItem> items = new ArrayList<>();
         XmlUtils.foreachNodeList(list, n -> {
             String nodeName = n.getNodeName();
-            NavItem item;
-            if (nodeName.equals("li") && (item = getNavItem(n)) != null) {
+            if (nodeName.equals("li")) {
+                NavItem item = getNavItem(n);
                 items.add(item);
             }
         });
@@ -69,7 +68,6 @@ public class NavigationDocUtils {
         if (ol != null) {
             item.setChildren(getNavItems(ol));
         }
-        ;
         return item;
     }
 }
