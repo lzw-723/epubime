@@ -1,6 +1,7 @@
 package fun.lzwi.epubime;
 
 public interface EpubConstants {
+    String CONTAINER = "META-INF/container.xml";
     String EPUB_VERSION_2 = "2.0";
     // Key NCX Requirements
     // ncx文件要求

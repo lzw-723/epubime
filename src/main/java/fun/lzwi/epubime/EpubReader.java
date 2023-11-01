@@ -27,7 +27,7 @@ public class EpubReader {
 
     public Epub read() throws ParserConfigurationException, SAXException, IOException {
         Epub epub = new Epub();
-        String opf = ContainerUtils.getRootFile(file.getInputStream(EpubFile.CONTAINER_PATH));
+        String opf = ContainerUtils.getRootFile(file.getInputStream(EpubConstants.CONTAINER));
         // FUCK NP - NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE
         Path path = Paths.get(opf).getParent();
         String parent = "";
