@@ -1,6 +1,7 @@
 package fun.lzwi.epubime;
 
 public interface EpubConstants {
+    String MIMETYPE = "application/epub+zip";
     String CONTAINER = "META-INF/container.xml";
     String EPUB_VERSION_2 = "2.0";
     // Key NCX Requirements

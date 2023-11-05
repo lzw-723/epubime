@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipFile;
 
+import fun.lzwi.epubime.EpubConstants;
+
 public class EpubUtils {
-    public static final String MIMETYPE = "application/epub+zip";
-    public static final String XML_CONTAINER_PATH = "META-INF/container.xml";
 
     protected static boolean existEntry(File file, String path)
             throws IOException {
@@ -20,11 +20,11 @@ public class EpubUtils {
     public static boolean existMimeType(File file) throws IOException {
 
         try (ZipFile epub = new ZipFile(file)) {
-            byte[] data = new byte[MIMETYPE.length()];
+            byte[] data = new byte[EpubConstants.MIMETYPE.length()];
             try (DataInputStream din = new DataInputStream(epub.getInputStream(epub.getEntry("mimetype")))) {
                 din.readFully(data);
                 String mimetype = new String(data, StandardCharsets.UTF_8);
-                return MIMETYPE.equals(mimetype);
+                return EpubConstants.MIMETYPE.equals(mimetype);
 
             }
         }
@@ -32,7 +32,7 @@ public class EpubUtils {
 
     public static boolean existContainerXML(File file)
             throws IOException {
-        return existEntry(file, XML_CONTAINER_PATH);
+        return existEntry(file, EpubConstants.CONTAINER);
     }
 
 }

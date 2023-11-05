@@ -4,15 +4,56 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
+import fun.lzwi.epubime.util.EntryPathUtils;
+
 public class Resource {
     private EpubFile epubFile;
+    private String base;
     private String href;
+
+    /**
+     * @return the epubFile
+     */
+    public EpubFile getEpubFile() {
+        return epubFile;
+    }
+
+    /**
+     * @param epubFile the epubFile to set
+     */
+    public void setEpubFile(EpubFile epubFile) {
+        this.epubFile = epubFile;
+    }
+
+    /**
+     * @return the base
+     */
+    public String getBase() {
+        return base;
+    }
+
+    /**
+     * @param base the base to set
+     */
+    public void setBase(String base) {
+        this.base = base;
+    }
 
     /**
      * @param epubFile
      */
     public Resource(EpubFile epubFile) {
         this.epubFile = epubFile;
+    }
+
+    /**
+     * @param parent
+     */
+    public Resource(Resource parent, String child) {
+        this.epubFile = parent.getEpubFile();
+        this.base = parent.getParent();
+        this.href = child;
+
     }
 
     /**
@@ -29,8 +70,24 @@ public class Resource {
         this.href = href;
     }
 
+    protected String getPath() {
+        try {
+            return EntryPathUtils.parse(base, href);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    protected String getParent() {
+        try {
+            return EntryPathUtils.parent(getPath());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public InputStream getInputStream() throws IOException {
         Objects.requireNonNull(href);
-        return epubFile.getInputStream(href);
+        return epubFile.getInputStream(getPath());
     }
 }
