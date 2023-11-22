@@ -1,20 +1,22 @@
 package fun.lzwi.epubime.document;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import fun.lzwi.epubime.document.section.Manifest;
+import fun.lzwi.Utils;
 
 public class PackageDocumentTest {
     PackageDocument packageDocument;
 
     @Before
-    public void setUp() {
-        packageDocument = new PackageDocument();
+    public void setUp() throws UnsupportedEncodingException, IOException {
+        packageDocument = new PackageDocumentReader(Files.newInputStream(Utils.getFile("content.opf").toPath())).read();
     }
 
     @Test
@@ -24,15 +26,16 @@ public class PackageDocumentTest {
 
     @Test
     public void testGetManifest() {
-        Manifest manifest = packageDocument.getManifest();
-        assertNull(manifest);
+        assertEquals(packageDocument.getManifest().getItems().size(), 3);
     }
 
     @Test
-    public void testSetManifest() {
-        Manifest manifest = new Manifest();
-        packageDocument.setManifest(manifest);
-        assertNotNull(packageDocument.getManifest());
+    public void testGetMetaData() {
+        assertEquals(packageDocument.getMetaData().getMeta().size(), 2);
+    }
 
+    @Test
+    public void testGetSpine() {
+        assertEquals(packageDocument.getSpine().getItemRefs().size(), 2);
     }
 }

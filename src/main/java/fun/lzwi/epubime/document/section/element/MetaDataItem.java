@@ -5,6 +5,23 @@ package fun.lzwi.epubime.document.section.element;
  */
 public class MetaDataItem {
     // Element Name
+    private String elementName;
+
+    /**
+     * @return the elementName
+     */
+    public String getElementName() {
+        return elementName;
+    }
+
+    /**
+     * @param elementName the elementName to set
+     */
+    public void setElementName(String elementName) {
+        this.elementName = elementName;
+    }
+
+    // attribute name
     private String name;
     // Attributes
     private String property;
@@ -14,48 +31,63 @@ public class MetaDataItem {
     private String refines;
     // Content Model
     private String content;
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getProperty() {
         return property;
     }
+
     public void setProperty(String property) {
         this.property = property;
     }
+
     public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
+
     public String getDir() {
         return dir;
     }
+
     public void setDir(String dir) {
         this.dir = dir;
     }
+
     public String getXmlLang() {
         return xmlLang;
     }
+
     public void setXmlLang(String xmlLang) {
         this.xmlLang = xmlLang;
     }
+
     public String getRefines() {
         return refines;
     }
+
     public void setRefines(String refines) {
         this.refines = refines;
     }
+
     public String getContent() {
         return content;
     }
+
     public void setContent(String content) {
         this.content = content;
     }
+
     @Override
     public String toString() {
         return "MetaDataItem [name=" + name + ", property=" + property + ", id=" + id + ", dir=" + dir + ", xmlLang="

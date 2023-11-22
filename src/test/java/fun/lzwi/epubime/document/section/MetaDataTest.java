@@ -3,16 +3,25 @@ package fun.lzwi.epubime.document.section;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import fun.lzwi.Utils;
+import fun.lzwi.epubime.document.PackageDocument;
+import fun.lzwi.epubime.document.PackageDocumentReader;
 
 public class MetaDataTest {
 
     private MetaData metaData;
 
     @Before
-    public void setUp() {
-        metaData = new MetaData();
+    public void setUp() throws UnsupportedEncodingException, IOException {
+        PackageDocument packageDocument = new PackageDocumentReader(Files.newInputStream(Utils.getFile("content.opf").toPath())).read();
+        metaData = packageDocument.getMetaData();
     }
 
     @Test
@@ -47,12 +56,12 @@ public class MetaDataTest {
 
     @Test
     public void testGetIdentifiers() {
-        assertEquals(metaData.getDc().getIdentifiers().size(), 0);
+        assertEquals(metaData.getDc().getIdentifiers().size(), 1);
     }
 
     @Test
     public void testGetLanguages() {
-        assertEquals(metaData.getDc().getLanguages().size(), 0);
+        assertEquals(metaData.getDc().getLanguages().size(), 1);
     }
 
     @Test
@@ -82,7 +91,7 @@ public class MetaDataTest {
 
     @Test
     public void testGetTitles() {
-        assertEquals(metaData.getDc().getTitles().size(), 0);
+        assertEquals(metaData.getDc().getTitles().size(), 1);
     }
 
     @Test
@@ -94,6 +103,16 @@ public class MetaDataTest {
     public void testClone() {
         MetaData metaData = new MetaData();
         assertNotEquals(metaData, metaData.clone());
+    }
+
+    @Test
+    public void testGetMeta() {
+        int size = metaData.getMeta().size();
+        assertEquals(2, size);
+    }
+    @Test
+    public void testGetMeta2() {
+        assertEquals("1.9.30", metaData.getMeta().get("Sigil version"));
     }
 
 }

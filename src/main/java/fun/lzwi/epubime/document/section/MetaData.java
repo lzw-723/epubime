@@ -14,6 +14,8 @@ public class MetaData implements Cloneable {
     // dc:
     private DC dc = new DC();
 
+    private Meta meta = new Meta();
+
     /**
      * @return the dc
      */
@@ -21,16 +23,45 @@ public class MetaData implements Cloneable {
         return dc.clone();
     }
 
-    // meta
-    // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2
-    // https://www.w3.org/TR/epub-33/#sec-meta-elem
-    Map<String, String> metas = new HashMap<>();
+    /**
+     * @return the meta
+     */
+    public Meta getMeta() {
+        return meta.clone();
+    }
 
     /**
-     * @return the metas
+     * Meta
      */
-    public Map<String, String> getMetas() {
-        return new HashMap<>(metas);
+    public static class Meta implements Cloneable {
+        // meta
+        // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2
+        // https://www.w3.org/TR/epub-33/#sec-meta-elem
+        Map<String, String> items = new HashMap<>();
+
+        public int size() {
+            return items.size();
+        }
+
+        public void put(String name, String content) {
+            items.put(name, content);
+        }
+
+        public String get(String name) {
+            return items.get(name);
+        }
+
+        @Override
+        protected Meta clone(){
+            try {
+                return (Meta) super.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
     }
 
     /**

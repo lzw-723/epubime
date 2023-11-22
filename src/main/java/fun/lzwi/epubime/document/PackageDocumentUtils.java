@@ -51,10 +51,12 @@ public class PackageDocumentUtils {
 
         XmlUtils.foreachNodeList(metaDataNode.getChildNodes(), md -> {
             MetaDataItem item = new MetaDataItem();
-            item.setName(md.getNodeName());
+            item.setElementName(md.getNodeName());
             // NOTE: node's content attribute or text content
             item.setContent(XmlUtils.getNodeAttribute(md, "content") != null ? XmlUtils.getNodeAttribute(md, "content")
                     : md.getTextContent());
+            // NOTE: Attribute name
+            item.setName(XmlUtils.getNodeAttribute(md, "name"));
             item.setDir(XmlUtils.getNodeAttribute(md, "dir"));
             item.setId(XmlUtils.getNodeAttribute(md, "id"));
             item.setProperty(XmlUtils.getNodeAttribute(md, "property"));
@@ -70,7 +72,7 @@ public class PackageDocumentUtils {
         getMetaDataItems(metaDataNode).forEach(a -> {
             String content = a.getContent();
             DC dc = metaData.getDc();
-            switch (a.getName()) {
+            switch (a.getElementName()) {
                 case "dc:title":
                     dc.addTitle(content);
                     break;
@@ -118,7 +120,7 @@ public class PackageDocumentUtils {
                     break;
                 case "meta":
                     // NOTE: 处理meta
-                    metaData.getMetas().put(a.getName(), a.getContent());
+                    metaData.getMeta().put(a.getName(), a.getContent());
                     break;
                 default:
                     break;
