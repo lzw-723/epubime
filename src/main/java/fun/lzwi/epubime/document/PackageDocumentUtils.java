@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 
 import fun.lzwi.epubime.document.section.Manifest;
 import fun.lzwi.epubime.document.section.MetaData;
+import fun.lzwi.epubime.document.section.MetaData.DC;
 import fun.lzwi.epubime.document.section.Spine;
 import fun.lzwi.epubime.document.section.element.ManifestItem;
 import fun.lzwi.epubime.document.section.element.MetaDataItem;
@@ -51,7 +52,9 @@ public class PackageDocumentUtils {
         XmlUtils.foreachNodeList(metaDataNode.getChildNodes(), md -> {
             MetaDataItem item = new MetaDataItem();
             item.setName(md.getNodeName());
-            item.setContent(md.getTextContent());
+            // NOTE: node's content attribute or text content
+            item.setContent(XmlUtils.getNodeAttribute(md, "content") != null ? XmlUtils.getNodeAttribute(md, "content")
+                    : md.getTextContent());
             item.setDir(XmlUtils.getNodeAttribute(md, "dir"));
             item.setId(XmlUtils.getNodeAttribute(md, "id"));
             item.setProperty(XmlUtils.getNodeAttribute(md, "property"));
@@ -66,55 +69,56 @@ public class PackageDocumentUtils {
         MetaData metaData = new MetaData();
         getMetaDataItems(metaDataNode).forEach(a -> {
             String content = a.getContent();
+            DC dc = metaData.getDc();
             switch (a.getName()) {
                 case "dc:title":
-                    metaData.addTitle(content);
+                    dc.addTitle(content);
                     break;
                 case "dc:identifier":
-                    metaData.addIdentifier(content);
+                    dc.addIdentifier(content);
                     break;
                 case "dc:language":
-                    metaData.addLanguage(content);
+                    dc.addLanguage(content);
                     break;
                 case "dc:contributor":
-                    metaData.addContributor(content);
+                    dc.addContributor(content);
                     break;
                 case "dc:coverage":
-                    metaData.addCoverage(content);
+                    dc.addCoverage(content);
                     break;
                 case "dc:creator":
-                    metaData.addCreator(content);
+                    dc.addCreator(content);
                     break;
                 case "dc:date":
-                    metaData.addDate(content);
+                    dc.addDate(content);
                     break;
                 case "dc:description":
-                    metaData.addDescription(content);
+                    dc.addDescription(content);
                     break;
                 case "dc:format":
-                    metaData.addFormat(content);
+                    dc.addFormat(content);
                     break;
                 case "dc:publisher":
-                    metaData.addPublisher(content);
+                    dc.addPublisher(content);
                     break;
                 case "dc:relation":
-                    metaData.addRelation(content);
+                    dc.addRelation(content);
                     break;
                 case "dc:right":
-                    metaData.addRight(content);
+                    dc.addRight(content);
                     break;
                 case "dc:source":
-                    metaData.addSource(content);
+                    dc.addSource(content);
                     break;
                 case "dc:subject":
-                    metaData.addSubject(content);
+                    dc.addSubject(content);
                     break;
                 case "dc:type":
-                    metaData.addType(content);
+                    dc.addType(content);
                     break;
                 case "meta":
-                    // TODO: 处理meta
-                    
+                    // NOTE: 处理meta
+                    metaData.getMetas().put(a.getName(), a.getContent());
                     break;
                 default:
                     break;

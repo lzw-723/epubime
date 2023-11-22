@@ -32,6 +32,10 @@ public class Manifest implements Cloneable {
         items.add(item);
     }
 
+    public ManifestItem getItemById(String id) {
+        return items.stream().filter(f -> id.equals(f.getId())).findFirst().get();
+    }
+
     @Override
     public Manifest clone() {
         try {
