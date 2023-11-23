@@ -13,7 +13,7 @@ public class Utils {
 
         URL resource = Utils.class.getClassLoader().getResource(path);
         if (resource != null) {
-            return new File(URLDecoder.decode(resource.getPath(), StandardCharsets.UTF_8));
+            return new File(URLDecoder.decode(resource.getPath(), StandardCharsets.UTF_8.toString()));
         }
         LoggerUtils.from(Utils.class).error(String.format("路径%s异常", path));
         return null;
