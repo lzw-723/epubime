@@ -46,6 +46,10 @@ public class Spine implements Cloneable {
         itemRefs.add(itemRef);
     }
 
+    public int size() {
+        return itemRefs.size();
+    }
+
     @Override
     public Spine clone() {
         try {

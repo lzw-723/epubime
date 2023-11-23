@@ -45,4 +45,8 @@ public class Manifest implements Cloneable {
         }
         return null;
     }
+
+    public int size() {
+        return items.size();
+    }
 }

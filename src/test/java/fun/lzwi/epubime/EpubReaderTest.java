@@ -16,11 +16,4 @@ public class EpubReaderTest {
         Epub epub = reader.read();
         assertNotNull(epub);
     }
-
-    @Test
-    public void testRead2() throws IOException, ParserConfigurationException, SAXException {
-        EpubReader reader = new EpubReader(new EpubFile(Utils.getFile("《坟》鲁迅.epub")));
-        Epub epub = reader.read();
-        assertNotNull(epub);
-    }
 }

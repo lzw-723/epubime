@@ -9,11 +9,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Node;
 
 import fun.lzwi.Utils;
-import fun.lzwi.epubime.document.PackageDocument;
-import fun.lzwi.epubime.document.PackageDocumentUtils;
+import fun.lzwi.epubime.document.PackageDocumentReader;
 import fun.lzwi.epubime.document.section.element.ManifestItem;
 
 public class ManifestTest {
@@ -23,9 +21,8 @@ public class ManifestTest {
     @Before
     public void setUp() throws FileNotFoundException, UnsupportedEncodingException {
         InputStream opf = new FileInputStream(Utils.getFile("content.opf"));
-        Node packageElement = PackageDocumentUtils.getPackageElement(opf);
-        PackageDocument packageDocument = PackageDocumentUtils.getPackageDocument(packageElement);
-        manifest = packageDocument.getManifest();
+        manifest = new PackageDocumentReader(opf).read().getManifest();
+
     }
 
     @Test

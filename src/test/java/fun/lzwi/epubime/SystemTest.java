@@ -32,6 +32,6 @@ public class SystemTest {
     public void testBook(File file) throws IOException, ParserConfigurationException, SAXException {
         EpubReader reader = new EpubReader(new EpubFile(file));
         Epub epub = reader.read();
-        assertNotNull(String.format("读取：%s失败", file.getName()), epub);
+        assertNotNull(String.format("读取%s失败", file.getName()), epub);
     }
 }

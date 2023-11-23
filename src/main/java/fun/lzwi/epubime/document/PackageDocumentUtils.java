@@ -20,7 +20,7 @@ import fun.lzwi.epubime.document.section.element.SpineItemRef;
 import fun.lzwi.epubime.util.XmlUtils;
 
 public class PackageDocumentUtils {
-    public static Node getPackageElement(InputStream opf) {
+    protected static Node getPackageElement(InputStream opf) {
         try {
             return XmlUtils.getElementsByTagName(opf, "package").item(0);
         } catch (ParserConfigurationException | SAXException | IOException e) {
