@@ -35,18 +35,10 @@ public class PackageInfo implements Cloneable {
 
     @Override
     public PackageInfo clone() {
-        PackageInfo packageInfo;
         try {
-            packageInfo = (PackageInfo) super.clone();
-            packageInfo.setDir(dir);
-            packageInfo.setId(id);
-            packageInfo.setPrefix(prefix);
-            packageInfo.setUniqueIdentifier(uniqueIdentifier);
-            packageInfo.setVersion(version);
-            packageInfo.setXmlLang(xmlLang);
-            return packageInfo;
+            return (PackageInfo) super.clone();
         } catch (CloneNotSupportedException e) {
-            LoggerUtils.from(getClass()).severe("PackageInfo克隆失败");
+            LoggerUtils.from(getClass()).error("PackageInfo克隆失败");
         }
         return null;
     }

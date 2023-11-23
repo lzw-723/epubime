@@ -93,17 +93,17 @@ public class XmlUtils {
         return null;
     }
 
-    public static String getNodeContent(Node node) {
-        TransformerFactory tf = TransformerFactory.newInstance();
-        try {
-            Transformer transformer = tf.newTransformer();
-            StringWriter stringWriter = new StringWriter();
-            // FIXME: javax.xml.transform.TransformerException: 没有说明名称空间前缀
-            transformer.transform(new DOMSource(node), new StreamResult(stringWriter));
-            return stringWriter.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    // public static String getNodeContent(Node node) {
+    //     TransformerFactory tf = TransformerFactory.newInstance();
+    //     try {
+    //         Transformer transformer = tf.newTransformer();
+    //         StringWriter stringWriter = new StringWriter();
+    //         // FIXME: javax.xml.transform.TransformerException: 没有说明名称空间前缀
+    //         transformer.transform(new DOMSource(node), new StreamResult(stringWriter));
+    //         return stringWriter.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+    //     } catch (TransformerException e) {
+    //         e.printStackTrace();
+    //     }
+    //     return null;
+    // }
 }

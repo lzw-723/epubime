@@ -5,6 +5,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class LoggerUtilsTest {
+    static {
+        LoggerUtils.setEnable(true);
+    }
+
     @Test
     public void testFrom() {
         LoggerUtils.from(getClass()).info("此信息只显示一次");
@@ -15,6 +19,7 @@ public class LoggerUtilsTest {
     public void testSetEnable() {
         LoggerUtils.setEnable(false);
         LoggerUtils.from(getClass()).info("此信息只显示一次");
-        assertTrue(true);
+        LoggerUtils.setEnable(true);
+
     }
 }

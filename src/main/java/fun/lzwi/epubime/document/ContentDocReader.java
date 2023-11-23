@@ -22,7 +22,7 @@ public class ContentDocReader {
         ContentDocument contentDocument = new ContentDocument();
         Document document = XmlUtils.getDocument(in);
         contentDocument.setTitle(XhtmlDocUtils.getTitle(document));
-        contentDocument.setBody(XhtmlDocUtils.getBody(document));
+        // contentDocument.setBody(XhtmlDocUtils.getBody(document));
         return contentDocument;
     }
 }

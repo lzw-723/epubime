@@ -14,10 +14,10 @@ public class XhtmlDocUtils {
         return title.getTextContent();
     }
 
-    protected static String getBody(Document doc) {
-        Node body = XmlUtils.getChildNodeByTagName(doc.getDocumentElement(), "body");
-        return XmlUtils.getNodeContent(body);
-    }
+    // protected static String getBody(Document doc) {
+    //     Node body = XmlUtils.getChildNodeByTagName(doc.getDocumentElement(), "body");
+    //     return XmlUtils.getNodeContent(body);
+    // }
 
     // TODO: plainText
     // private static String getPlainText(Document doc){

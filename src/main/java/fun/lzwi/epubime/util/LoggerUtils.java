@@ -1,7 +1,7 @@
 package fun.lzwi.epubime.util;
 
 public class LoggerUtils {
-    private static boolean enable = true;
+    private static boolean enable = false;
 
     public static boolean isEnable() {
         return enable;
@@ -16,21 +16,27 @@ public class LoggerUtils {
     }
 
     public static class Logger {
-        private final java.util.logging.Logger logger;
+        private Class<?> from;
 
         public Logger(Class<?> from) {
-            this.logger = java.util.logging.Logger.getLogger(from.getName());
+            this.from = from;
         }
 
         public void info(String msg) {
             if (enable) {
-                logger.info(msg);
+                System.err.println("info: " + msg + "\tat " + from.getSimpleName() + ".java");
             }
         }
 
-        public void severe(String msg) {
+        public void warn(String msg) {
             if (enable) {
-                logger.severe(msg);
+                System.err.println("warn: " + msg + "\tat " + from.getSimpleName() + ".java");
+            }
+        }
+
+        public void error(String msg) {
+            if (enable) {
+                System.err.println("error: " + msg + "\tat " + from.getSimpleName() + ".java");
             }
         }
 

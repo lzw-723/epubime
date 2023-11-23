@@ -24,7 +24,7 @@ public class NavigationDocReader {
         NavigationDocument navigationDocument = new NavigationDocument();
         Document document = XmlUtils.getDocument(in);
         navigationDocument.setTitle(XhtmlDocUtils.getTitle(document));
-        navigationDocument.setBody(XhtmlDocUtils.getBody(document));
+        // navigationDocument.setBody(XhtmlDocUtils.getBody(document));
         List<Nav> navs = NavigationDocUtils.getNavs(document);
         navigationDocument.setNavs(navs);
         return navigationDocument;
