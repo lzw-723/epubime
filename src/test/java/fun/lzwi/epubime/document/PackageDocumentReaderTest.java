@@ -11,12 +11,12 @@ import org.junit.Test;
 
 import fun.lzwi.Utils;
 
-public class PackageDocumentTest {
+public class PackageDocumentReaderTest {
     PackageDocument packageDocument;
 
     @Before
     public void setUp() throws UnsupportedEncodingException, IOException {
-        packageDocument = new PackageDocumentReader(Files.newInputStream(Utils.getFile("content.opf").toPath())).read();
+        packageDocument = new PackageDocumentReader(Files.newInputStream(Utils.getFile("content.opf").toPath()), "entry/href").read();
     }
 
     @Test
@@ -26,16 +26,20 @@ public class PackageDocumentTest {
 
     @Test
     public void testGetManifest() {
-        assertEquals(packageDocument.getManifest().getItems().size(), 3);
+        assertEquals(3,packageDocument.getManifest().getItems().size());
     }
 
     @Test
     public void testGetMetaData() {
-        assertEquals(packageDocument.getMetaData().getMeta().size(), 2);
+        assertEquals(2,packageDocument.getMetaData().getMeta().size());
     }
 
     @Test
     public void testGetSpine() {
-        assertEquals(packageDocument.getSpine().getItemRefs().size(), 2);
+        assertEquals(2,packageDocument.getSpine().getItemRefs().size());
+    }
+    @Test
+    public void testGetHref() {
+        assertEquals("entry/href",packageDocument.getHref());
     }
 }

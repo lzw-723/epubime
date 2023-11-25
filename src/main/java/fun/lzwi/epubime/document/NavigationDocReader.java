@@ -14,10 +14,17 @@ import fun.lzwi.epubime.util.XmlUtils;
 
 public class NavigationDocReader {
     private final InputStream in;
+    private String entry = "";
 
     public NavigationDocReader(InputStream in) {
         super();
         this.in = in;
+    }
+
+    public NavigationDocReader(InputStream in, String entry) {
+        super();
+        this.in = in;
+        this.entry = entry;
     }
 
     public NavigationDocument read() throws SAXException, IOException, ParserConfigurationException {
@@ -27,6 +34,8 @@ public class NavigationDocReader {
         // navigationDocument.setBody(XhtmlDocUtils.getBody(document));
         List<Nav> navs = NavigationDocUtils.getNavs(document);
         navigationDocument.setNavs(navs);
+
+        navigationDocument.setHref(entry);
         return navigationDocument;
     }
 }

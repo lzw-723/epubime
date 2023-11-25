@@ -14,12 +14,17 @@ import fun.lzwi.epubime.document.section.NavPoint;
 
 public class NCXReader {
     private final InputStream in;
+    private String entry = "";
 
     /**
      * @param in
      */
     public NCXReader(InputStream in) {
         this.in = in;
+    }
+    public NCXReader(InputStream in, String entry) {
+        this.in = in;
+        this.entry = entry;
     }
     
     public NCX read() throws ParserConfigurationException, SAXException, IOException {
@@ -33,6 +38,8 @@ public class NCXReader {
         ncx.setDocAuthor(docAuthor);
         List<NavPoint> navMap = NCXUtils.getNavMap(ncxElement);
         ncx.setNavMap(navMap);
+
+        ncx.setHref(entry);
         return ncx;
     }
 }

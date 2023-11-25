@@ -14,8 +14,24 @@ public class NCX implements Cloneable {
     private String docTitle;
     private String docAuthor;
 
+    private String href;
+
+    /**
+     * @return the href
+     */
+    public String getHref() {
+        return href;
+    }
+
+    /**
+     * @param href the href to set
+     */
+    public void setHref(String href) {
+        this.href = href;
+    }
+
     @Override
-    public NCX clone(){
+    public NCX clone() {
         try {
             return (NCX) super.clone();
         } catch (CloneNotSupportedException e) {
@@ -24,12 +40,14 @@ public class NCX implements Cloneable {
     }
 
     private final List<NavPoint> navMap = new ArrayList<>();
+
     /**
      * @return the head
      */
     public Map<String, String> getHead() {
         return new HashMap<>(head);
     }
+
     /**
      * @param head the head to add
      */
@@ -37,36 +55,42 @@ public class NCX implements Cloneable {
         this.head.clear();
         this.head.putAll(head);
     }
+
     /**
      * @return the docTitle
      */
     public String getDocTitle() {
         return docTitle;
     }
+
     /**
      * @param docTitle the docTitle to set
      */
     public void setDocTitle(String docTitle) {
         this.docTitle = docTitle;
     }
+
     /**
      * @return the docAuthor
      */
     public String getDocAuthor() {
         return docAuthor;
     }
+
     /**
      * @param docAuthor the docAuthor to set
      */
     public void setDocAuthor(String docAuthor) {
         this.docAuthor = docAuthor;
     }
+
     /**
      * @return the navMap
      */
     public List<NavPoint> getNavMap() {
         return new ArrayList<>(navMap);
     }
+
     /**
      * @param navMap the navMap to add
      */

@@ -34,17 +34,17 @@ public class EpubReader {
         if (path != null) {
             parent = path + "/";
         }
-        PackageDocument packageDocument = new PackageDocumentReader(file.getInputStream(opf)).read();
+        PackageDocument packageDocument = new PackageDocumentReader(file.getInputStream(opf), opf).read();
         epub.setPackageDocument(packageDocument);
         String version = packageDocument.getVersion();
         // 仅epub3
         if (EpubConstants.EPUB_VERSION_3.equals(version)) {
             ManifestItem nav = packageDocument.getManifest().getItems().stream()
                     .filter(i -> "nav".equals(i.getProperties())).findFirst().get();
+            String navHref = parent + nav.getHref();
             NavigationDocReader navigationDocReader = new NavigationDocReader(
-                    file.getInputStream(parent + nav.getHref()));
-            NavigationDocument navigationDocument;
-            navigationDocument = navigationDocReader.read();
+                    file.getInputStream(navHref), navHref);
+            NavigationDocument navigationDocument = navigationDocReader.read();
             epub.setNavigationDocument(navigationDocument);
         }
         // 部分epub3也兼容ncx
@@ -54,7 +54,8 @@ public class EpubReader {
         ManifestItem ncx = packageDocument.getManifest().getItems().stream()
                 .filter(i -> EpubConstants.EPUB_2_NCX_MediaType.equals(i.getMediaType())).findFirst().get();
         if (ncx != null) {
-            NCXReader reader = new NCXReader(file.getInputStream(parent + ncx.getHref()));
+            String entry = parent + ncx.getHref();
+            NCXReader reader = new NCXReader(file.getInputStream(entry), entry);
             NCX nav = reader.read();
             epub.setNCX(nav);
         }
