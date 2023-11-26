@@ -70,6 +70,10 @@ public class Resource {
         this.href = href;
     }
 
+    public String getHash() {
+        return EntryPathUtils.hash(href);
+    }
+
     protected String getPath() {
         try {
             return EntryPathUtils.parse(base, href);

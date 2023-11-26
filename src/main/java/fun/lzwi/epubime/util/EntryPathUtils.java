@@ -1,6 +1,7 @@
 package fun.lzwi.epubime.util;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class EntryPathUtils {
@@ -28,5 +29,13 @@ public class EntryPathUtils {
             return "";
         }
         return path.substring(0, lastIndexOf);
+    }
+
+    public static String hash(String href) {
+        int hash = href.lastIndexOf("#");
+        if (href.lastIndexOf(".") < hash) {
+            return href.substring(hash + 1);
+        }
+        return null;
     }
 }

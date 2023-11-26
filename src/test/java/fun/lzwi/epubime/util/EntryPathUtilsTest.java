@@ -39,4 +39,18 @@ public class EntryPathUtilsTest {
         assertEquals("", EntryPathUtils.parent("/index.html"));
         assertEquals("", EntryPathUtils.parent("index.html"));
     }
+
+    @Test
+    public void testHash() throws IOException {
+        assertEquals("base/index.html", EntryPathUtils.parse("base", "./index.html#toc"));
+        assertEquals("index.html", EntryPathUtils.parse("base", "/index.html#toc"));
+        assertEquals("index.html", EntryPathUtils.parse("base", "../index.html#toc"));
+        assertEquals("index.html", EntryPathUtils.parse("base/page", "../../index.html#toc"));
+
+        assertEquals("toc", EntryPathUtils.hash("./index.html#toc"));
+        assertEquals("toc", EntryPathUtils.hash("/index.html#toc"));
+        assertEquals("toc", EntryPathUtils.hash("../index.html#toc"));
+        assertEquals("toc", EntryPathUtils.hash("../../index.html#toc"));
+
+    }
 }
