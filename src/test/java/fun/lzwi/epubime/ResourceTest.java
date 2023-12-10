@@ -40,4 +40,13 @@ public class ResourceTest {
     public void testGetHash() {
         assertEquals("toc-1", resource.getHash());
     }
+
+    @Test
+    public void testNew() {
+        resource.setBase("OEBPS");
+        resource.setHref("Text/page.html");
+        Resource resource2 = new Resource(resource, "../Image/pic.jpg");
+        assertEquals("OEBPS/Image/pic.jpg", resource2.getPath());
+    }
+
 }
