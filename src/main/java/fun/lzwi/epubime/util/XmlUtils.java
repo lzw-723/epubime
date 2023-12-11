@@ -21,7 +21,9 @@ public class XmlUtils {
             throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(inputStream);
+        Document document = builder.parse(inputStream);
+        inputStream.close();
+        return document;
     }
 
     /**

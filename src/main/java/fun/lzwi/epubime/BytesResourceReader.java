@@ -14,6 +14,8 @@ public class BytesResourceReader {
             bos.write(buf, 0, read);
         }
         byte[] bytes = bos.toByteArray();
+        bos.close();
+        is.close();
         return bytes;
     }
 }

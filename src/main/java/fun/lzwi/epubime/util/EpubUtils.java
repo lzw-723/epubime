@@ -3,6 +3,7 @@ package fun.lzwi.epubime.util;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipFile;
 
@@ -21,11 +22,13 @@ public class EpubUtils {
 
         try (ZipFile epub = new ZipFile(file)) {
             byte[] data = new byte[EpubConstants.MIMETYPE.length()];
-            try (DataInputStream din = new DataInputStream(epub.getInputStream(epub.getEntry("mimetype")))) {
+            InputStream inputStream = epub.getInputStream(epub.getEntry("mimetype"));
+            try (DataInputStream din = new DataInputStream(inputStream)) {
                 din.readFully(data);
+                din.close();
+                inputStream.close();
                 String mimetype = new String(data, StandardCharsets.UTF_8);
                 return EpubConstants.MIMETYPE.equals(mimetype);
-
             }
         }
     }

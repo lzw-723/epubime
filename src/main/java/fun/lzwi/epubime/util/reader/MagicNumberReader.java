@@ -16,6 +16,7 @@ public class MagicNumberReader {
             if (randomAccessFile.read(b, 0, len) == -1) {
                 throw new IOException("读取文件失败");
             }
+            randomAccessFile.close();
         }
     }
 

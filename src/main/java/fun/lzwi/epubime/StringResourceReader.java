@@ -14,6 +14,8 @@ public class StringResourceReader {
             while ((line = bReader.readLine()) != null) {
                 sb.append(line);
             }
+            bReader.close();
+            iReader.close();
             return sb.toString();
         }
     }
