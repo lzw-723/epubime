@@ -20,7 +20,7 @@ public class EntryPathUtils {
             path = path.substring(1);
         }
 
-        path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+        path = URLDecoder.decode(path, StandardCharsets.UTF_8.toString());
         return path;
     }
 
