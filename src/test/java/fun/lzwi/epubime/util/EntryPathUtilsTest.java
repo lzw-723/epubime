@@ -29,6 +29,24 @@ public class EntryPathUtilsTest {
         assertEquals("index.html", EntryPathUtils.parse("/base/", "/index.html"));
         assertEquals("index.html", EntryPathUtils.parse("/base/", "../index.html"));
         assertEquals("index.html", EntryPathUtils.parse("/base/page/", "../../index.html"));
+    }
+
+    @Test
+    public void testNoEN() throws IOException {
+
+        assertEquals("目录/文件.html", EntryPathUtils.parse("/目录/", "./文件.html"));
+        assertEquals("文件.html", EntryPathUtils.parse("/base/", "/文件.html"));
+        assertEquals("文件.html", EntryPathUtils.parse("/目录/", "../文件.html"));
+        assertEquals("文件.html", EntryPathUtils.parse("/目录/子目录/", "../../文件.html"));
+
+    }
+    @Test
+    public void testUrlEncoded() throws IOException {
+
+        assertEquals("目录/文件.html", EntryPathUtils.parse("/%E7%9B%AE%E5%BD%95/", "./%E6%96%87%E4%BB%B6.html"));
+        assertEquals("文件.html", EntryPathUtils.parse("/%E7%9B%AE%E5%BD%95/", "/%E6%96%87%E4%BB%B6.html"));
+        assertEquals("文件.html", EntryPathUtils.parse("/%E7%9B%AE%E5%BD%95/", "../%E6%96%87%E4%BB%B6.html"));
+        assertEquals("文件.html", EntryPathUtils.parse("/%E7%9B%AE%E5%BD%95/%E5%AD%90%E7%9B%AE%E5%BD%95/", "../../%E6%96%87%E4%BB%B6.html"));
 
     }
 

@@ -2,6 +2,8 @@ package fun.lzwi.epubime.util;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 public class EntryPathUtils {
     public static String parse(String base, String href) throws IOException {
@@ -18,6 +20,7 @@ public class EntryPathUtils {
             path = path.substring(1);
         }
 
+        path = URLDecoder.decode(path, StandardCharsets.UTF_8);
         return path;
     }
 

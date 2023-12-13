@@ -1,6 +1,7 @@
 package fun.lzwi.epubime;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,7 +44,28 @@ public class BytesResourceReaderTest {
             bos.write(buf, 0, read);
         }
         byte[] bytes = bos.toByteArray();
+        bos.close();
+        is.close();
 
         assertEquals(new String(bytes), new String(img));
+    }
+
+    @Test
+    public void testReadImgZH() throws UnsupportedEncodingException, IOException {
+        resource = new Resource(new EpubFile(Utils.getFile("test3.epub")));
+        resource.setHref("OEBPS/Images/两句诗.jpg");
+        BytesResourceReader reader = new BytesResourceReader();
+        byte[] img = reader.read(resource);
+
+        assertTrue(img.length > 0);
+    }
+    @Test
+    public void testReadImgZhURL() throws UnsupportedEncodingException, IOException {
+        resource = new Resource(new EpubFile(Utils.getFile("test3.epub")));
+        resource.setHref("OEBPS/Images/%E4%B8%A4%E5%8F%A5%E8%AF%97.jpg");
+        BytesResourceReader reader = new BytesResourceReader();
+        byte[] img = reader.read(resource);
+
+        assertTrue(img.length > 0);
     }
 }
