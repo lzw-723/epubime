@@ -120,7 +120,11 @@ public class PackageDocumentUtils {
                     break;
                 case "meta":
                     // NOTE: 处理meta
-                    metaData.getMeta().put(a.getName(), a.getContent());
+                    String name = a.getName();
+                    if (name == null) {
+                        name = a.getProperty();
+                    }
+                    metaData.getMeta().put(name, a.getContent());
                     break;
                 default:
                     break;
