@@ -2,6 +2,8 @@ package fun.lzwi.epubime.easy;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -24,11 +26,13 @@ public class EasyEpub {
     }
 
     public String getTitle() {
-        return epub.getPackageDocument().getMetaData().getDc().getTitles().get(0);
+        List<String> titles = epub.getPackageDocument().getMetaData().getDc().getTitles();
+        return titles.size() > 0 ? titles.get(0) : null;
     }
 
     public String getAuthor() {
-        return epub.getPackageDocument().getMetaData().getDc().getCreators().get(0);
+        List<String> creators = epub.getPackageDocument().getMetaData().getDc().getCreators();
+        return creators.size() > 0 ? creators.get(0) : null;
     }
 
     // TODO: 获取封面
@@ -37,11 +41,13 @@ public class EasyEpub {
     }
 
     public String getIdentifier() {
-        return epub.getPackageDocument().getMetaData().getDc().getIdentifiers().get(0);
+        List<String> identifiers = epub.getPackageDocument().getMetaData().getDc().getIdentifiers();
+        return identifiers.size() > 0 ? identifiers.get(0) : null;
     }
 
     public String getLanguage() {
-        return epub.getPackageDocument().getMetaData().getDc().getLanguages().get(0);
+        List<String> languages = epub.getPackageDocument().getMetaData().getDc().getLanguages();
+        return languages.size() > 0 ? languages.get(0) : null;
     }
 
     public String getModified() {
