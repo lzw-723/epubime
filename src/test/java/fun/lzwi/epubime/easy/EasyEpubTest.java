@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import fun.lzwi.Utils;
+import fun.lzwi.epubime.BytesResourceReader;
 
 public class EasyEpubTest {
     private EasyEpub book;
@@ -34,7 +35,7 @@ public class EasyEpubTest {
 
     @Test
     public void testGetCover() {
-        // TODO: testGetCover
+        assertEquals("OEBPS/images/Cover.jpg", book.getCover());
     }
 
     @Test
@@ -50,6 +51,11 @@ public class EasyEpubTest {
     @Test
     public void testGetLanguage() {
         assertEquals("zh", book.getLanguage());
+    }
+
+    @Test
+    public void testGetResource() throws IOException {
+        assertEquals(16007, new BytesResourceReader().read(book.getResource("OEBPS/images/Cover.jpg")).length);
     }
 
 }

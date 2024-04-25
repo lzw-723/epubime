@@ -35,8 +35,9 @@ public class Resource {
     /**
      * @param base the base to set
      */
-    public void setBase(String base) {
+    public Resource setBase(String base) {
         this.base = base;
+        return this;
     }
 
     /**
@@ -66,8 +67,9 @@ public class Resource {
     /**
      * @param href the href to set
      */
-    public void setHref(String href) {
+    public Resource setHref(String href) {
         this.href = href;
+        return this;
     }
 
     public String getHash() {

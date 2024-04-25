@@ -11,18 +11,23 @@ import org.xml.sax.SAXException;
 import fun.lzwi.epubime.Epub;
 import fun.lzwi.epubime.EpubFile;
 import fun.lzwi.epubime.EpubReader;
+import fun.lzwi.epubime.Resource;
+import fun.lzwi.epubime.util.EntryPathUtils;
 
 public class EasyEpub {
+    private EpubFile epubFile;
     private Epub epub;
 
     public EasyEpub(String path) throws ParserConfigurationException, SAXException, IOException {
         super();
-        epub = new EpubReader(new EpubFile(path)).read();
+        epubFile = new EpubFile(path);
+        epub = new EpubReader(epubFile).read();
     }
 
     public EasyEpub(File file) throws ParserConfigurationException, SAXException, IOException {
         super();
-        epub = new EpubReader(new EpubFile(file)).read();
+        epubFile = new EpubFile(file);
+        epub = new EpubReader(epubFile).read();
     }
 
     public String getTitle() {
@@ -35,9 +40,23 @@ public class EasyEpub {
         return creators.size() > 0 ? creators.get(0) : null;
     }
 
-    // TODO: 获取封面
-    public void getCover() {
-        // return epub.getPackageDocument().getMetaData().getDc().getCoverages().get(0);
+    public String getCover() {
+        List<String> coverages = epub.getPackageDocument().getMetaData().getDc().getCoverages();
+        if (coverages.size() > 0) {
+            return coverages.get(0);
+        }
+        String coverId = epub.getPackageDocument().getMetaData().getMeta().get("cover");
+        String cover = epub.getPackageDocument().getManifest().getItemById(coverId).getHref();
+        try {
+            return EntryPathUtils.parse(EntryPathUtils.parent(epub.getPackageDocument().getHref()), cover);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Resource getResource(String href) {
+        return new Resource(epubFile).setHref(href);
     }
 
     public String getIdentifier() {
