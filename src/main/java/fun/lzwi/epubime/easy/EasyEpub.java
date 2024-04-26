@@ -3,6 +3,7 @@ package fun.lzwi.epubime.easy;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -41,17 +42,23 @@ public class EasyEpub {
     }
 
     public String getCover() {
-        List<String> coverages = epub.getPackageDocument().getMetaData().getDc().getCoverages();
-        if (coverages.size() > 0) {
-            return coverages.get(0);
-        }
-        String coverId = epub.getPackageDocument().getMetaData().getMeta().get("cover");
-        String cover = epub.getPackageDocument().getManifest().getItemById(coverId).getHref();
+        String opf = epub.getPackageDocument().getHref();
         try {
-            return EntryPathUtils.parse(EntryPathUtils.parent(epub.getPackageDocument().getHref()), cover);
+            String parent = EntryPathUtils.parent(opf);
+            String cover;
+            List<String> coverages = epub.getPackageDocument().getMetaData().getDc().getCoverages();
+            Optional<String>  c = coverages.stream().filter(s -> s.length() > 0).findFirst();
+            if (c.isPresent()) {
+                cover = c.get();
+            } else {
+                String coverId = epub.getPackageDocument().getMetaData().getMeta().get("cover");
+                cover = epub.getPackageDocument().getManifest().getItemById(coverId).getHref();
+            }
+            return EntryPathUtils.parse(parent, cover);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
