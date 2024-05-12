@@ -47,7 +47,7 @@ public class EasyEpub {
             String parent = EntryPathUtils.parent(opf);
             String cover;
             List<String> coverages = epub.getPackageDocument().getMetaData().getDc().getCoverages();
-            Optional<String>  c = coverages.stream().filter(s -> s.length() > 0).findFirst();
+            Optional<String> c = coverages.stream().filter(s -> s.length() > 0).findFirst();
             if (c.isPresent()) {
                 cover = c.get();
             } else {
@@ -74,6 +74,15 @@ public class EasyEpub {
     public String getLanguage() {
         List<String> languages = epub.getPackageDocument().getMetaData().getDc().getLanguages();
         return languages.size() > 0 ? languages.get(0) : null;
+    }
+
+    public String getDescription() {
+        List<String> descriptions = epub.getPackageDocument().getMetaData().getDc().getDescriptions();
+        return descriptions.size() > 0 ? descriptions.get(0) : null;
+    }
+    public String getDate() {
+        List<String> dates = epub.getPackageDocument().getMetaData().getDc().getDates();
+        return dates.size() > 0 ? dates.get(0) : null;
     }
 
     public String getModified() {

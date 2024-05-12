@@ -58,4 +58,15 @@ public class EasyEpubTest {
         assertEquals(16007, new BytesResourceReader().read(book.getResource("OEBPS/images/Cover.jpg")).length);
     }
 
+    @Test
+    public void testGetDate() {
+        assertEquals("2022-12-06T13:14:44.000000+00:00", book.getDate());
+    }
+
+    @Test
+    public void testGetDescription() {
+        assertEquals("《坟》是鲁迅的论文集，收录鲁迅在1907年~1925年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。", book.getDescription());
+
+    }
+
 }
