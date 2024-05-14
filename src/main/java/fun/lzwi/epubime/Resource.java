@@ -58,6 +58,9 @@ public class Resource {
     }
 
     /**
+     * just return the href you set
+     * 
+     * @implNote if you want get the true href plz use getPath()
      * @return the href
      */
     public String getHref() {
@@ -76,7 +79,8 @@ public class Resource {
         return EntryPathUtils.hash(href);
     }
 
-    protected String getPath() {
+    // 组合base和child
+    public String getPath() {
         try {
             return EntryPathUtils.parse(base, href);
         } catch (IOException e) {
@@ -84,7 +88,7 @@ public class Resource {
         }
     }
 
-    protected String getParent() {
+    public String getParent() {
         try {
             return EntryPathUtils.parent(getPath());
         } catch (IOException e) {

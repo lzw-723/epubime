@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -66,6 +67,11 @@ public class EasyEpub {
         return new Resource(epubFile).setHref(href);
     }
 
+    public String getHref(String entry) {
+        Resource opf = new Resource(epubFile).setHref(epub.getPackageDocument().getHref());
+        return new Resource(opf, entry).getPath();
+    }
+
     public String getIdentifier() {
         List<String> identifiers = epub.getPackageDocument().getMetaData().getDc().getIdentifiers();
         return identifiers.size() > 0 ? identifiers.get(0) : null;
@@ -80,6 +86,7 @@ public class EasyEpub {
         List<String> descriptions = epub.getPackageDocument().getMetaData().getDc().getDescriptions();
         return descriptions.size() > 0 ? descriptions.get(0) : null;
     }
+
     public String getDate() {
         List<String> dates = epub.getPackageDocument().getMetaData().getDc().getDates();
         return dates.size() > 0 ? dates.get(0) : null;
@@ -87,5 +94,57 @@ public class EasyEpub {
 
     public String getModified() {
         return epub.getPackageDocument().getMetaData().getMeta().get("dcterms:modified");
+    }
+
+    public List<EasyResource> getResources() {
+        return epub.getPackageDocument().getManifest().getItems().stream()
+                .map(item -> new EasyResource(getHref(item.getHref()), item.getMediaType()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * EasyResource
+     */
+    public static class EasyResource {
+        private String href;
+        private String type;
+
+        /**
+         * @param href
+         * @param type
+         */
+        public EasyResource(String href, String type) {
+            this.href = href;
+            this.type = type;
+        }
+
+        /**
+         * @return the href
+         */
+        public String getHref() {
+            return href;
+        }
+
+        /**
+         * @param href the href to set
+         */
+        public void setHref(String href) {
+            this.href = href;
+        }
+
+        /**
+         * @return the type
+         */
+        public String getType() {
+            return type;
+        }
+
+        /**
+         * @param type the type to set
+         */
+        public void setType(String type) {
+            this.type = type;
+        }
+
     }
 }

@@ -65,8 +65,20 @@ public class EasyEpubTest {
 
     @Test
     public void testGetDescription() {
-        assertEquals("《坟》是鲁迅的论文集，收录鲁迅在1907年~1925年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。", book.getDescription());
+        assertEquals(
+                "《坟》是鲁迅的论文集，收录鲁迅在1907年~1925年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
+                book.getDescription());
 
+    }
+
+    @Test
+    public void testGetResources() {
+        assertEquals(35, book.getResources().size());
+    }
+    @Test
+    public void testGetResources2() {
+        assertEquals("application/x-dtbncx+xml", book.getResources().get(0).getType());
+        assertEquals("OEBPS/book.ncx", book.getResources().get(0).getHref());
     }
 
 }
