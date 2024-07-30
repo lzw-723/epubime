@@ -1,24 +1,23 @@
 package fun.lzwi.epubime.easy;
 
+import fun.lzwi.epubime.Epub;
+import fun.lzwi.epubime.EpubFile;
+import fun.lzwi.epubime.EpubReader;
+import fun.lzwi.epubime.Resource;
+import fun.lzwi.epubime.document.NCX;
+import fun.lzwi.epubime.util.EntryPathUtils;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import fun.lzwi.epubime.Epub;
-import fun.lzwi.epubime.EpubFile;
-import fun.lzwi.epubime.EpubReader;
-import fun.lzwi.epubime.Resource;
-import fun.lzwi.epubime.util.EntryPathUtils;
-
 public class EasyEpub {
-    private EpubFile epubFile;
-    private Epub epub;
+    private final EpubFile epubFile;
+    private final Epub epub;
 
     public EasyEpub(String path) throws ParserConfigurationException, SAXException, IOException {
         super();
@@ -34,12 +33,12 @@ public class EasyEpub {
 
     public String getTitle() {
         List<String> titles = epub.getPackageDocument().getMetaData().getDc().getTitles();
-        return titles.size() > 0 ? titles.get(0) : null;
+        return !titles.isEmpty() ? titles.get(0) : null;
     }
 
     public String getAuthor() {
         List<String> creators = epub.getPackageDocument().getMetaData().getDc().getCreators();
-        return creators.size() > 0 ? creators.get(0) : null;
+        return !creators.isEmpty() ? creators.get(0) : null;
     }
 
     public String getCover() {
@@ -48,7 +47,7 @@ public class EasyEpub {
             String parent = EntryPathUtils.parent(opf);
             String cover;
             List<String> coverages = epub.getPackageDocument().getMetaData().getDc().getCoverages();
-            Optional<String> c = coverages.stream().filter(s -> s.length() > 0).findFirst();
+            Optional<String> c = coverages.stream().filter(s -> !s.isEmpty()).findFirst();
             if (c.isPresent()) {
                 cover = c.get();
             } else {
@@ -74,32 +73,68 @@ public class EasyEpub {
 
     public String getIdentifier() {
         List<String> identifiers = epub.getPackageDocument().getMetaData().getDc().getIdentifiers();
-        return identifiers.size() > 0 ? identifiers.get(0) : null;
+        return !identifiers.isEmpty() ? identifiers.get(0) : null;
     }
 
     public String getLanguage() {
         List<String> languages = epub.getPackageDocument().getMetaData().getDc().getLanguages();
-        return languages.size() > 0 ? languages.get(0) : null;
+        return !languages.isEmpty() ? languages.get(0) : null;
     }
 
     public String getDescription() {
         List<String> descriptions = epub.getPackageDocument().getMetaData().getDc().getDescriptions();
-        return descriptions.size() > 0 ? descriptions.get(0) : null;
+        return !descriptions.isEmpty() ? descriptions.get(0) : null;
     }
 
     public String getDate() {
         List<String> dates = epub.getPackageDocument().getMetaData().getDc().getDates();
-        return dates.size() > 0 ? dates.get(0) : null;
+        return !dates.isEmpty() ? dates.get(0) : null;
     }
 
     public String getModified() {
         return epub.getPackageDocument().getMetaData().getMeta().get("dcterms:modified");
     }
 
+    public List<EasyContentItem> getContent() {
+        NCX ncx = epub.getNCX();
+        String parent = new Resource(epubFile).setHref(ncx.getHref()).getParent();
+        return ncx.getNavMap().stream().map(navPoint -> new EasyContentItem(navPoint.getNavLabel(), new Resource(epubFile).setBase(parent).setHref(navPoint.getContent()).getPath())).collect(Collectors.toList());
+    }
+
+    public static class EasyContentItem {
+        private String label;
+
+        public String getHref() {
+            return href;
+        }
+
+        public void setHref(String href) {
+            this.href = href;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        private String href;
+
+        public EasyContentItem(String label, String href) {
+            this.label = label;
+            this.href = href;
+        }
+
+        @Override
+        public String toString() {
+            return "EasyContentItem{" + "label='" + label + '\'' + ", href='" + href + '\'' + '}';
+        }
+    }
+
     public List<EasyResource> getResources() {
-        return epub.getPackageDocument().getManifest().getItems().stream()
-                .map(item -> new EasyResource(getHref(item.getHref()), item.getMediaType()))
-                .collect(Collectors.toList());
+        return epub.getPackageDocument().getManifest().getItems().stream().map(item -> new EasyResource(getHref(item.getHref()), item.getMediaType())).collect(Collectors.toList());
     }
 
     /**
@@ -110,8 +145,8 @@ public class EasyEpub {
         private String type;
 
         /**
-         * @param href
-         * @param type
+         * @param href the href to set
+         * @param type MimeType
          */
         public EasyResource(String href, String type) {
             this.href = href;
@@ -146,5 +181,9 @@ public class EasyEpub {
             this.type = type;
         }
 
+        @Override
+        public String toString() {
+            return "EasyResource{" + "href='" + href + '\'' + ", type='" + type + '\'' + '}';
+        }
     }
 }
