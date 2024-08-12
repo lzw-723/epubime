@@ -5,12 +5,7 @@ import fun.lzwi.epubime.util.XmlUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import java.io.IOException;
 import java.nio.file.Files;
 
 import static org.junit.Assert.*;
@@ -73,7 +68,7 @@ public class EasyHTMLTest {
 
         // 调用 addLink 方法并验证 XhtmlDocUtils.addLink 方法是否被正确调用
         easyHTML.addLink("https://example.com");
-        assertTrue(easyHTML.getString().contains("<link href=\"https://example.com\" rel=\"stylesheet\" type=\"text/css\">"));
+        assertTrue(easyHTML.getString().contains("<link href=\"https://example.com\" rel=\"stylesheet\" type=\"text/css\"/>"));
 
     }
 
@@ -95,7 +90,7 @@ public class EasyHTMLTest {
 
         // 调用 addScriptHref 方法并验证 XhtmlDocUtils.addScriptHref 方法是否被正确调用
         easyHTML.addScriptHref("https://example.com/script.js");
-        assertTrue(easyHTML.getString().contains("<script src=\"https://example.com/script.js\" type=\"text/javascript\"></script>"));
+        assertTrue(easyHTML.getString().contains("<script src=\"https://example.com/script.js\" type=\"text/javascript\"/>"));
 
     }
 
