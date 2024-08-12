@@ -1,6 +1,7 @@
 package fun.lzwi.epubime.util;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 
@@ -25,7 +26,7 @@ public class XmlUtils {
         factory.setValidating(false);
         DocumentBuilder builder = factory.newDocumentBuilder();
         // 忽略dtd验证
-        builder.setEntityResolver((publicId, systemId) -> new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes())));
+        builder.setEntityResolver((publicId, systemId) -> new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes(StandardCharsets.UTF_8))));
         Document document = builder.parse(inputStream);
         inputStream.close();
         return document;
