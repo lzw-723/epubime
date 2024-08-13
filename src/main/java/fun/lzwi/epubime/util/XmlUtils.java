@@ -100,11 +100,6 @@ public class XmlUtils {
     public static String document2String(Document document) {
         try {
             document.setXmlStandalone(true);
-            DocumentType doctype = document.getDoctype();
-            NamedNodeMap entities = doctype.getEntities();
-            for (int i = 0; i < entities.getLength(); i++) {
-                entities.removeNamedItem(entities.item(i).getNodeName());
-            }
             DOMSource domSource = new DOMSource(document);
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
