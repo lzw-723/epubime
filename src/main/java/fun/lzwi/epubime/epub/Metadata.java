@@ -1,5 +1,6 @@
 package fun.lzwi.epubime.epub;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Metadata {
@@ -32,6 +33,23 @@ public class Metadata {
         subjects = new java.util.ArrayList<>();
     }
 
+    public Metadata(Metadata metadata) {
+        this.title = metadata.title;
+        this.creator = metadata.creator;
+        this.contributors = metadata.contributors;
+        this.publisher = metadata.publisher;
+        this.identifier = metadata.identifier;
+        this.subjects = metadata.subjects;
+        this.date = metadata.date;
+        this.language = metadata.language;
+        this.description = metadata.description;
+        this.rights = metadata.rights;
+        this.type = metadata.type;
+        this.format = metadata.format;
+        this.source = metadata.source;
+        this.cover = metadata.cover;
+    }
+
     public String getFormat() {
         return format;
     }
@@ -58,7 +76,7 @@ public class Metadata {
     }
 
     public List<String> getSubjects() {
-        return subjects;
+        return Collections.unmodifiableList(subjects);
     }
 
     public void addSubject(String subject) {
@@ -139,7 +157,7 @@ public class Metadata {
     }
 
     public List<String> getContributors() {
-        return contributors;
+        return new java.util.ArrayList<>(contributors);
     }
 
     public void addContributor(String contributor) {

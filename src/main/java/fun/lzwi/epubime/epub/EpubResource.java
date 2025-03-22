@@ -24,11 +24,11 @@ public class EpubResource {
     }
 
     public byte[] getData() {
-        return data;
+        return data.clone();
     }
 
     public void setData(byte[] data) {
-        this.data = data;
+        this.data = data.clone();
     }
 
     public String getHref() {

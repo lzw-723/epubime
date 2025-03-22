@@ -143,6 +143,8 @@ public class EpubParser {
                                 String contentPath = navPoint.attr("src");
                                 chapter.setContent(contentPath);
                                 break;
+                            default:
+                                break;
                         }
                     });
                     chapters.add(chapter);
