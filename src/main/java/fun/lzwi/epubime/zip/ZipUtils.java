@@ -59,4 +59,22 @@ public class ZipUtils {
             }
         }
     }
+
+    public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
+        try (ZipFile zip = new ZipFile(zipFile)) {
+            ZipEntry entry = zip.getEntry(fileName);
+            if (entry == null) {
+                return null;
+            }
+            try (InputStream in = zip.getInputStream(entry);
+                 ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+                return out.toByteArray();
+            }
+        }
+    }
 }

@@ -14,6 +14,18 @@ public class Metadata {
     private String description;
     private String rights;
     private String type;
+    private String format;
+    private String source;
+
+    private String cover;
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
 
     public Metadata() {
         contributors = new java.util.ArrayList<>();
@@ -36,8 +48,6 @@ public class Metadata {
         this.type = type;
     }
 
-    private String format;
-    private String source;
 
     public String getIdentifier() {
         return identifier;

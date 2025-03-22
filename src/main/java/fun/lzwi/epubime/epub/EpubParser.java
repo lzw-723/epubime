@@ -101,6 +101,11 @@ public class EpubParser {
                     case "dc:contributor":
                         metadata.addContributor(child.text());
                         break;
+                    case "meta":
+                        if (child.attr("name").equals("cover")) {
+                            metadata.setCover(child.attr("content"));
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -147,7 +152,7 @@ public class EpubParser {
         return chapters;
     }
 
-    protected static List<EpubResource> parseResources(String opfContent, String opfDir) {
+    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) {
         Objects.requireNonNull(opfContent);
         List<EpubResource> resources = new ArrayList<>();
         Jsoup.parse(opfContent).select("manifest").forEach(manifest -> {
@@ -157,6 +162,11 @@ public class EpubParser {
                     res.setId(child.attr("id"));
                     res.setHref(opfDir + child.attr("href"));
                     res.setType(child.attr("media-type"));
+                    try {
+                        res.setData(ZipUtils.getZipFileBytes(epubFile, res.getHref()));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     resources.add(res);
                 }
             });
@@ -181,7 +191,7 @@ public class EpubParser {
         List<EpubChapter> chapters = parseChapters(tocContent);
         book.setChapters(chapters);
         // 解析资源文件，获取资源数据
-        List<EpubResource> resources = parseResources(opfContent, getRootFileDir(opfPath));
+        List<EpubResource> resources = parseResources(opfContent, getRootFileDir(opfPath), epubFile);
         book.setResources(resources);
         return book;
     }

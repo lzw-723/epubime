@@ -77,7 +77,7 @@ public class EpubParserTest {
     public void parseResources() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-        List<EpubResource> resources = EpubParser.parseResources(opfContent, "OEBPS/");
+        List<EpubResource> resources = EpubParser.parseResources(opfContent, "OEBPS/", epubFile);
         assertNotNull(resources);
         assertEquals(35, resources.size());
     }
