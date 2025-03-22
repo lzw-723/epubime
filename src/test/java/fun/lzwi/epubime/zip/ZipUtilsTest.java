@@ -14,10 +14,10 @@ public class ZipUtilsTest {
     @Test
     public void getZipFileList() throws IOException {
         // 测试getZipFileList方法
-        File zipFile = ResUtils.getFileFromRes("fun/lzwi/epubime/zip/sample.zip");
+        File zipFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         List<String> fileList = ZipUtils.getZipFileList(zipFile);
         assertNotNull(fileList);
         assertFalse(fileList.isEmpty());
-        assertTrue(fileList.contains("myPhoto.jpg"));
+        assertTrue(fileList.contains("mimetype"));
     }
 }
