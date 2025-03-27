@@ -90,4 +90,21 @@ public class EpubParserTest {
         assertEquals("坟", book.getMetadata().getTitle());
         assertEquals("鲁迅", book.getMetadata().getCreator());
     }
+
+    @Test
+    public void getNavPath() {
+        String opfContent = "<manifest><item properties=\"nav\" href=\"nav.xhtml\"></item></manifest>";
+        String opfDir = "";
+        String navPath = EpubParser.getNavPath(opfContent, opfDir);
+        assertEquals("nav.xhtml", navPath);
+    }
+
+    @Test
+    public void parseNav() {
+        String navContent = "<nav><ol><li><a href=\"chapter1.xhtml\">Chapter 1</a></li><li><a href=\"chapter2" +
+                ".xhtml\">Chapter 2</a></li></ol></nav>";
+        List<EpubChapter> chapters = EpubParser.parseNav(navContent);
+        assertNotNull(chapters);
+        assertEquals(2, chapters.size());
+    }
 }

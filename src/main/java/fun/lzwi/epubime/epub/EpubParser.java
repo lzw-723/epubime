@@ -2,6 +2,7 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.zip.ZipUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,14 +118,8 @@ public class EpubParser {
     protected static String getTocPath(String opfContent, String opfDir) {
         Objects.requireNonNull(opfContent);
         AtomicReference<String> tocPath = new AtomicReference<>();
-        Jsoup.parse(opfContent).select("manifest").forEach(manifest -> {
-            manifest.children().forEach(child -> {
-                if (child.attr("id").equals("ncx")) {
-                    tocPath.set(child.attr("href"));
-                }
-            });
-        });
-        return opfDir + tocPath.get();
+        Element ncxItem = Jsoup.parse(opfContent).select("manifest>item[id=\"ncx\"]").first();
+        return opfDir + ncxItem.attr("href");
     }
 
     protected static List<EpubChapter> parseChapters(String tocContent) {
@@ -152,6 +147,23 @@ public class EpubParser {
             });
         });
         return chapters;
+    }
+
+    protected static String getNavPath(String opfContent, String opfDir) {
+        Objects.requireNonNull(opfContent);
+        Element navItem = Jsoup.parse(opfContent).select("manifest>item[properties=\"nav\"]").first();
+        return opfDir + navItem.attr("href");
+    }
+
+    protected static List<EpubChapter> parseNav(String navContent) {
+        Objects.requireNonNull(navContent);
+        List<EpubChapter> chapters = new ArrayList<>();
+        return Jsoup.parse(navContent).select("nav>ol>li>a, nav>ul>li>a").stream().map(a -> {
+            EpubChapter chapter = new EpubChapter();
+            chapter.setTitle(a.text());
+            chapter.setContent(a.attr("href"));
+            return chapter;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) {
