@@ -115,7 +115,7 @@ public class EpubParser {
         return metadata;
     }
 
-    protected static String getTocPath(String opfContent, String opfDir) {
+    protected static String getNcxPath(String opfContent, String opfDir) {
         Objects.requireNonNull(opfContent);
         Document document = Jsoup.parse(opfContent);
         String id = document.select("spine").attr("toc");
@@ -124,7 +124,7 @@ public class EpubParser {
         return opfDir + ncxItem.attr("href");
     }
 
-    protected static List<EpubChapter> parseChapters(String tocContent) {
+    protected static List<EpubChapter> parseNcx(String tocContent) {
         Objects.requireNonNull(tocContent);
         return Jsoup.parse(tocContent).select("navMap>navPoint").stream().map(navPoint -> {
             EpubChapter chapter = new EpubChapter();
@@ -183,10 +183,18 @@ public class EpubParser {
         book.setMetadata(metadata);
 
         // 解析章节文件，获取章节内容
-        String tocPath = getTocPath(opfContent, opfDir);
-        String tocContent = readEpubContent(epubFile, tocPath);
-        List<EpubChapter> chapters = parseChapters(tocContent);
-        book.setChapters(chapters);
+        // epub3 支持两种格式，ncx 和 nav
+        // 优先解析 ncx
+        String ncxPath = getNcxPath(opfContent, opfDir);
+        String ncxContent = readEpubContent(epubFile, ncxPath);
+        List<EpubChapter> ncx = parseNcx(ncxContent);
+        book.setNcx(ncx);
+        // 解析 nav
+        String navPath = getNavPath(opfContent, opfDir);
+        String navContent = readEpubContent(epubFile, navPath);
+        List<EpubChapter> nav = parseNav(navContent);
+        book.setNav(nav);
+
         // 解析资源文件，获取资源数据
         List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
         book.setResources(resources);

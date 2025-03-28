@@ -51,10 +51,10 @@ public class EpubParserTest {
     }
 
     @Test
-    public void getTocPath() throws EpubParseException {
+    public void getNcxPath() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String optContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-        String tocPath = EpubParser.getTocPath(optContent, "");
+        String tocPath = EpubParser.getNcxPath(optContent, "");
         assertEquals("book.ncx", tocPath);
     }
 
@@ -65,12 +65,12 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parseChapters() throws EpubParseException {
+    public void parseNcx() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        String tocContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.ncx");
-        List<EpubChapter> characters = EpubParser.parseChapters(tocContent);
-        assertNotNull(characters);
-        assertEquals(28, characters.size());
+        String ncxContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.ncx");
+        List<EpubChapter> ncx = EpubParser.parseNcx(ncxContent);
+        assertNotNull(ncx);
+        assertEquals(28, ncx.size());
     }
 
     @Test
