@@ -142,7 +142,6 @@ public class EpubParser {
 
     protected static List<EpubChapter> parseNav(String navContent) {
         Objects.requireNonNull(navContent);
-        List<EpubChapter> chapters = new ArrayList<>();
         return Jsoup.parse(navContent).select("nav>ol>li>a, nav>ul>li>a").stream().map(a -> {
             EpubChapter chapter = new EpubChapter();
             chapter.setTitle(a.text());
