@@ -2,6 +2,7 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.zip.ZipUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.File;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class EpubParser {
     public static final String CONTAINER_FILE_PATH = "META-INF/container.xml";
@@ -117,36 +117,21 @@ public class EpubParser {
 
     protected static String getTocPath(String opfContent, String opfDir) {
         Objects.requireNonNull(opfContent);
-        AtomicReference<String> tocPath = new AtomicReference<>();
-        Element ncxItem = Jsoup.parse(opfContent).select("manifest>item[id=\"ncx\"]").first();
+        Document document = Jsoup.parse(opfContent);
+        String id = document.select("spine").attr("toc");
+        String selector = String.format("manifest>item[id=\"%s\"]", id);
+        Element ncxItem = document.select(selector).first();
         return opfDir + ncxItem.attr("href");
     }
 
     protected static List<EpubChapter> parseChapters(String tocContent) {
         Objects.requireNonNull(tocContent);
-        List<EpubChapter> chapters = new ArrayList<>();
-        Jsoup.parse(tocContent).select("navMap").forEach(navMap -> {
-            navMap.children().forEach(child -> {
-                if (child.tagName().equals("navpoint")) {
-                    EpubChapter chapter = new EpubChapter();
-                    child.children().forEach(navPoint -> {
-                        switch (navPoint.tagName()) {
-                            case "navlabel":
-                                chapter.setTitle(navPoint.text());
-                                break;
-                            case "content":
-                                String contentPath = navPoint.attr("src");
-                                chapter.setContent(contentPath);
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                    chapters.add(chapter);
-                }
-            });
-        });
-        return chapters;
+        return Jsoup.parse(tocContent).select("navMap>navPoint").stream().map(navPoint -> {
+            EpubChapter chapter = new EpubChapter();
+            chapter.setTitle(navPoint.select("navLabel>text").text());
+            chapter.setContent(navPoint.select("content").attr("src"));
+            return chapter;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     protected static String getNavPath(String opfContent, String opfDir) {
@@ -168,24 +153,18 @@ public class EpubParser {
 
     protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) {
         Objects.requireNonNull(opfContent);
-        List<EpubResource> resources = new ArrayList<>();
-        Jsoup.parse(opfContent).select("manifest").forEach(manifest -> {
-            manifest.children().forEach(child -> {
-                if (child.tagName().equals("item")) {
-                    EpubResource res = new EpubResource();
-                    res.setId(child.attr("id"));
-                    res.setHref(opfDir + child.attr("href"));
-                    res.setType(child.attr("media-type"));
-                    try {
-                        res.setData(ZipUtils.getZipFileBytes(epubFile, res.getHref()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    resources.add(res);
-                }
-            });
-        });
-        return resources;
+        return Jsoup.parse(opfContent).select("manifest>item").stream().map(item -> {
+            EpubResource res = new EpubResource();
+            res.setId(item.attr("id"));
+            res.setHref(opfDir + item.attr("href"));
+            res.setType(item.attr("media-type"));
+            try {
+                res.setData(ZipUtils.getZipFileBytes(epubFile, res.getHref()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return res;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     // 解析EPUB文件并返回EpubBook对象
@@ -196,16 +175,20 @@ public class EpubParser {
         // 解析OPF文件，获取元数据、章节列表和资源列表
         Objects.requireNonNull(container);
         String opfPath = getRootFilePath(container);
+        String opfDir = getRootFileDir(opfPath);
         String opfContent = readEpubContent(epubFile, opfPath);
+
         // 元数据
-        book.setMetadata(parseMetadata(opfContent));
+        Metadata metadata = parseMetadata(opfContent);
+        book.setMetadata(metadata);
+
         // 解析章节文件，获取章节内容
-        String tocPath = getTocPath(opfContent, getRootFileDir(opfPath));
+        String tocPath = getTocPath(opfContent, opfDir);
         String tocContent = readEpubContent(epubFile, tocPath);
         List<EpubChapter> chapters = parseChapters(tocContent);
         book.setChapters(chapters);
         // 解析资源文件，获取资源数据
-        List<EpubResource> resources = parseResources(opfContent, getRootFileDir(opfPath), epubFile);
+        List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
         book.setResources(resources);
         return book;
     }
