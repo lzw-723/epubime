@@ -137,7 +137,10 @@ public class EpubParser {
     protected static String getNavPath(String opfContent, String opfDir) {
         Objects.requireNonNull(opfContent);
         Element navItem = Jsoup.parse(opfContent).select("manifest>item[properties=\"nav\"]").first();
-        return opfDir + navItem.attr("href");
+        if (navItem != null) {
+            return opfDir + navItem.attr("href");
+        }
+        return null;
     }
 
     protected static List<EpubChapter> parseNav(String navContent) {
@@ -190,9 +193,12 @@ public class EpubParser {
         book.setNcx(ncx);
         // 解析 nav
         String navPath = getNavPath(opfContent, opfDir);
-        String navContent = readEpubContent(epubFile, navPath);
-        List<EpubChapter> nav = parseNav(navContent);
-        book.setNav(nav);
+        // nav 可能不存在
+        if (navPath != null) {
+            String navContent = readEpubContent(epubFile, navPath);
+            List<EpubChapter> nav = parseNav(navContent);
+            book.setNav(nav);
+        }
 
         // 解析资源文件，获取资源数据
         List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
