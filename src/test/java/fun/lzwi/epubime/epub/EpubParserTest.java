@@ -51,10 +51,10 @@ public class EpubParserTest {
     }
 
     @Test
-    public void getTocPath() throws EpubParseException {
+    public void getNcxPath() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String optContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-        String tocPath = EpubParser.getTocPath(optContent, "");
+        String tocPath = EpubParser.getNcxPath(optContent, "");
         assertEquals("book.ncx", tocPath);
     }
 
@@ -65,12 +65,12 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parseChapters() throws EpubParseException {
+    public void parseNcx() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        String tocContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.ncx");
-        List<EpubChapter> characters = EpubParser.parseChapters(tocContent);
-        assertNotNull(characters);
-        assertEquals(28, characters.size());
+        String ncxContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.ncx");
+        List<EpubChapter> ncx = EpubParser.parseNcx(ncxContent);
+        assertNotNull(ncx);
+        assertEquals(28, ncx.size());
     }
 
     @Test
@@ -89,5 +89,22 @@ public class EpubParserTest {
         assertNotNull(book);
         assertEquals("坟", book.getMetadata().getTitle());
         assertEquals("鲁迅", book.getMetadata().getCreator());
+    }
+
+    @Test
+    public void getNavPath() {
+        String opfContent = "<manifest><item properties=\"nav\" href=\"nav.xhtml\"></item></manifest>";
+        String opfDir = "";
+        String navPath = EpubParser.getNavPath(opfContent, opfDir);
+        assertEquals("nav.xhtml", navPath);
+    }
+
+    @Test
+    public void parseNav() {
+        String navContent = "<nav><ol><li><a href=\"chapter1.xhtml\">Chapter 1</a></li><li><a href=\"chapter2" +
+                ".xhtml\">Chapter 2</a></li></ol></nav>";
+        List<EpubChapter> chapters = EpubParser.parseNav(navContent);
+        assertNotNull(chapters);
+        assertEquals(2, chapters.size());
     }
 }

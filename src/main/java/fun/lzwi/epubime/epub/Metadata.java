@@ -157,7 +157,7 @@ public class Metadata {
     }
 
     public List<String> getContributors() {
-        return new java.util.ArrayList<>(contributors);
+        return Collections.unmodifiableList(contributors);
     }
 
     public void addContributor(String contributor) {

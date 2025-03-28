@@ -1,24 +1,38 @@
 package fun.lzwi.epubime.epub;
 
-import fun.lzwi.epubime.zip.ZipUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class EpubBook {
     private Metadata metadata;
-    private List<EpubChapter> chapters = new ArrayList<>();
+
+    private List<EpubChapter> ncx = new ArrayList<>();
+    private List<EpubChapter> nav = new ArrayList<>();
     private List<EpubResource> resources = new ArrayList<>();
 
-    public List<EpubChapter> getChapters() {
-        return Collections.unmodifiableList(chapters);
+    public List<EpubChapter> getNcx() {
+        return Collections.unmodifiableList(ncx);
     }
 
-    public void setChapters(List<EpubChapter> chapters) {
-        this.chapters = new ArrayList<>(chapters);
+    public void setNcx(List<EpubChapter> ncx) {
+        this.ncx = new ArrayList<>(ncx);
+    }
+
+    public List<EpubChapter> getNav() {
+        return Collections.unmodifiableList(nav);
+    }
+
+    public void setNav(List<EpubChapter> nav) {
+        this.nav = new ArrayList<>(nav);
+    }
+
+    public List<EpubChapter> getChapters() {
+        if (nav.size() > ncx.size()) {
+            return getNav();
+        }
+        // 默认使用 ncx
+        return getNcx();
     }
 
     public Metadata getMetadata() {
