@@ -153,20 +153,24 @@ public class EpubParser {
         }).collect(java.util.stream.Collectors.toList());
     }
 
-    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) {
+    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
         Objects.requireNonNull(opfContent);
-        return Jsoup.parse(opfContent).select("manifest>item").stream().map(item -> {
+        Document document = Jsoup.parse(opfContent);
+        List<EpubResource> resources = new ArrayList<>();
+        
+        for (Element item : document.select("manifest>item")) {
             EpubResource res = new EpubResource();
             res.setId(item.attr("id"));
             res.setHref(opfDir + item.attr("href"));
             res.setType(item.attr("media-type"));
             try {
                 res.setData(ZipUtils.getZipFileBytes(epubFile, res.getHref()));
+                resources.add(res);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new EpubParseException("Failed to parse resource: " + res.getHref(), e);
             }
-            return res;
-        }).collect(java.util.stream.Collectors.toList());
+        }
+        return resources;
     }
 
     // 解析EPUB文件并返回EpubBook对象
