@@ -231,11 +231,62 @@ public class EpubParserTest {
 
     @Test
     public void parseNav() {
-        String navContent = "<nav><ol><li><a href=\"chapter1.xhtml\">Chapter 1</a></li><li><a href=\"chapter2" +
-                ".xhtml\">Chapter 2</a></li></ol></nav>";
+        String navContent = "<nav><ol><li><a href=\"chapter1.xhtml\">Chapter 1</a></li><li><a href=\"chapter2.xhtml\">Chapter 2</a></li></ol></nav>";
         List<EpubChapter> chapters = EpubParser.parseNav(navContent);
         assertNotNull(chapters);
         assertEquals(2, chapters.size());
+    }
+
+    @Test
+    public void parseNestedNav() {
+        String navContent = "<nav><ol>" +
+                "<li><a href=\"chapter1.xhtml\">Chapter 1</a>" +
+                "<ol>" +
+                "<li><a href=\"chapter1_1.xhtml\">Chapter 1.1</a></li>" +
+                "<li><a href=\"chapter1_2.xhtml\">Chapter 1.2</a>" +
+                "<ol>" +
+                "<li><a href=\"chapter1_2_1.xhtml\">Chapter 1.2.1</a></li>" +
+                "</ol>" +
+                "</li>" +
+                "</ol>" +
+                "</li>" +
+                "<li><a href=\"chapter2.xhtml\">Chapter 2</a></li>" +
+                "</ol></nav>";
+        List<EpubChapter> chapters = EpubParser.parseNav(navContent);
+        assertNotNull(chapters);
+        assertEquals(2, chapters.size());
+        
+        // 检查第一章及其子章节
+        EpubChapter chapter1 = chapters.get(0);
+        assertEquals("Chapter 1", chapter1.getTitle());
+        assertEquals("chapter1.xhtml", chapter1.getContent());
+        assertTrue(chapter1.hasChildren());
+        assertEquals(2, chapter1.getChildren().size());
+        
+        // 检查第一章的第一个子章节
+        EpubChapter chapter1_1 = chapter1.getChildren().get(0);
+        assertEquals("Chapter 1.1", chapter1_1.getTitle());
+        assertEquals("chapter1_1.xhtml", chapter1_1.getContent());
+        assertFalse(chapter1_1.hasChildren());
+        
+        // 检查第一章的第二个子章节及其子章节
+        EpubChapter chapter1_2 = chapter1.getChildren().get(1);
+        assertEquals("Chapter 1.2", chapter1_2.getTitle());
+        assertEquals("chapter1_2.xhtml", chapter1_2.getContent());
+        assertTrue(chapter1_2.hasChildren());
+        assertEquals(1, chapter1_2.getChildren().size());
+        
+        // 检查第一章的第二个子章节的子章节
+        EpubChapter chapter1_2_1 = chapter1_2.getChildren().get(0);
+        assertEquals("Chapter 1.2.1", chapter1_2_1.getTitle());
+        assertEquals("chapter1_2_1.xhtml", chapter1_2_1.getContent());
+        assertFalse(chapter1_2_1.hasChildren());
+        
+        // 检查第二章
+        EpubChapter chapter2 = chapters.get(1);
+        assertEquals("Chapter 2", chapter2.getTitle());
+        assertEquals("chapter2.xhtml", chapter2.getContent());
+        assertFalse(chapter2.hasChildren());
     }
 
     @Test

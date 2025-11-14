@@ -4,9 +4,13 @@ import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import fun.lzwi.epubime.zip.ZipUtils;
 import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
+
 import org.jsoup.nodes.Element;
+
 import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
@@ -277,12 +281,117 @@ public class EpubParser {
      */
     protected static List<EpubChapter> parseNav(String navContent) {
         Objects.requireNonNull(navContent);
-        return Jsoup.parse(navContent).select("nav>ol>li>a, nav>ul>li>a").stream().map(a -> {
-            EpubChapter chapter = new EpubChapter();
-            chapter.setTitle(a.text());
-            chapter.setContent(a.attr("href"));
-            return chapter;
-        }).collect(java.util.stream.Collectors.toList());
+
+        Document doc = Jsoup.parse(navContent);
+
+        List<EpubChapter> chapters = new ArrayList<>();
+
+        Element navElement = doc.selectFirst("nav");
+
+        if (navElement != null) {
+
+            // 查找顶级的ol或ul元素
+
+            Elements topLists = navElement.select("> ol, > ul");
+
+            for (Element list : topLists) {
+
+                chapters.addAll(parseNavList(list));
+
+            }
+
+        }
+
+        return chapters;
+
+    }
+
+
+
+    /**
+
+     * 递归解析导航列表
+
+     *
+
+     * @param listElement ol或ul元素
+
+     * @return 章节列表
+
+     */
+
+    private static List<EpubChapter> parseNavList(Element listElement) {
+
+        List<EpubChapter> chapters = new ArrayList<>();
+
+        for (Element li : listElement.children()) {
+
+            if (!"li".equalsIgnoreCase(li.tagName())) {
+
+                continue;
+
+            }
+
+
+
+            EpubChapter chapter = null;
+
+            Element link = li.selectFirst("a");
+
+            if (link != null) {
+
+                chapter = new EpubChapter();
+
+                chapter.setTitle(link.text());
+
+                chapter.setContent(link.attr("href"));
+
+            }
+
+
+
+            // 查找嵌套的列表（子章节）
+
+            Elements nestedLists = li.select("> ol, > ul");
+
+            for (Element nestedList : nestedLists) {
+
+                if (chapter != null) {
+
+                    List<EpubChapter> children = parseNavList(nestedList);
+
+                    for (EpubChapter child : children) {
+
+                        chapter.addChild(child);
+
+                    }
+
+                } else {
+
+                    // 如果li标签中没有a标签但有嵌套列表，解析这些嵌套列表
+
+                    List<EpubChapter> children = parseNavList(nestedList);
+
+                    chapters.addAll(children);
+
+                }
+
+            }
+
+
+
+            // 如果当前li标签包含链接，则添加到章节列表中
+
+            if (chapter != null) {
+
+                chapters.add(chapter);
+
+            }
+
+        }
+
+        return chapters;
+
     }
 
     /**
