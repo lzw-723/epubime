@@ -30,6 +30,14 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- epublib dependency for benchmark comparison -->
+        <dependency>
+            <groupId>com.positiondev.epublib</groupId>
+            <artifactId>epublib-core</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
