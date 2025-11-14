@@ -236,7 +236,7 @@ public class EpubParserTest {
         assertEquals("application/epub+zip", contents.get("mimetype"));
     }
     
-    @Test
+        @Test
     public void parseMetadataWithSampleData() {
         // 创建一个模拟的EPUB OPF内容用于测试
         String sampleOpfContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -264,6 +264,10 @@ public class EpubParserTest {
                 "    <meta property=\"rendition:layout\">reflowable</meta> " +
                 "    <meta property=\"rendition:orientation\">auto</meta> " +
                 "    <meta property=\"rendition:spread\">auto</meta> " +
+                "    <meta property=\"rendition:viewport\">width=1200,height=600</meta> " +
+                "    <meta property=\"rendition:media\">(min-width: 600px)</meta> " +
+                "    <meta property=\"rendition:flow\">paginated</meta> " +
+                "    <meta property=\"rendition:align-x-center\">true</meta> " +
                 "    <meta property=\"schema:accessibilityFeature\">alternativeText</meta> " +
                 "    <meta property=\"schema:accessibilityFeature\">longDescriptions</meta> " +
                 "    <meta property=\"schema:accessibilityHazard\">noFlashingHazard</meta> " +
@@ -280,6 +284,7 @@ public class EpubParserTest {
         assertEquals("Author One", metadata.getCreator());
         assertEquals("en", metadata.getLanguage());
         assertEquals("urn:uuid:123456789", metadata.getIdentifier());
+        assertEquals("urn:uuid:123456789", metadata.getUniqueIdentifier()); // 验证unique-identifier解析
         assertEquals("Publisher Name", metadata.getPublisher());
         assertEquals("2023-01-01", metadata.getDate());
         assertEquals("Test Subject 1", metadata.getSubject());
@@ -303,6 +308,10 @@ public class EpubParserTest {
         assertEquals("reflowable", metadata.getLayout());
         assertEquals("auto", metadata.getOrientation());
         assertEquals("auto", metadata.getSpread());
+        assertEquals("width=1200,height=600", metadata.getViewport());
+        assertEquals("(min-width: 600px)", metadata.getMedia());
+        assertEquals("paginated", metadata.getFlow());
+        assertTrue(metadata.isAlignXCenter());
 
         // 验证可访问性元数据
         assertEquals(2, metadata.getAccessibilityFeatures().size());
@@ -311,5 +320,23 @@ public class EpubParserTest {
         assertEquals(1, metadata.getAccessibilityHazard().size());
         assertEquals("noFlashingHazard", metadata.getAccessibilityHazard().get(0));
         assertEquals("This book includes accessibility features.", metadata.getAccessibilitySummary());
+    }
+
+    @Test
+    public void testUniqueIdentifierParsing() {
+        // 测试unique-identifier属性的解析
+        String sampleOpfContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<package xmlns=\"http://www.idpf.org/2007/opf\" unique-identifier=\"bookid\" version=\"3.0\"> " +
+                "  <metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\"> " +
+                "    <dc:identifier id=\"otherid\">urn:isbn:123456789</dc:identifier> " +
+                "    <dc:identifier id=\"bookid\">urn:uuid:123456789</dc:identifier> " +
+                "  </metadata> " +
+                "</package>";
+
+        Metadata metadata = EpubParser.parseMetadata(sampleOpfContent);
+        assertNotNull(metadata);
+        assertEquals("urn:uuid:123456789", metadata.getUniqueIdentifier());
+        assertEquals("urn:isbn:123456789", metadata.getIdentifier()); // 第一个identifier
+        assertEquals(2, metadata.getIdentifiers().size());
     }
 }

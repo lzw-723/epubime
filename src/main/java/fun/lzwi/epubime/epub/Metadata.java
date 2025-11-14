@@ -78,21 +78,37 @@ public class Metadata {
     private final List<String> accessibilitySummary;
 
 
-    // 渲染属性
-
-    private String layout;
-
-
-    private String orientation;
-
-
-    private String spread;
-
-
-    /**
-     * 获取封面资源ID
-     *
-     * @return 封面资源ID
+    // 渲染属性
+
+    private String layout;
+
+
+    private String orientation;
+
+
+    private String spread;
+
+
+    private String viewport;
+
+
+    private String media;
+
+
+    private String flow;
+
+
+    private boolean alignXCenter;
+
+
+    // unique-identifier属性
+    private String uniqueIdentifier;
+
+
+    /**
+     * 获取封面资源ID
+     *
+     * @return 封面资源ID
      */
 
 
@@ -174,9 +190,16 @@ public class Metadata {
         accessibilityHazard = new java.util.ArrayList<>();
 
 
-        accessibilitySummary = new java.util.ArrayList<>();
-
-
+        accessibilitySummary = new java.util.ArrayList<>();
+
+
+        this.uniqueIdentifier = null;
+        this.viewport = null;
+        this.media = null;
+        this.flow = null;
+        this.alignXCenter = false;
+
+
     }
 
 
@@ -253,9 +276,24 @@ public class Metadata {
         this.orientation = metadata.orientation;
 
 
-        this.spread = metadata.spread;
-
-
+        this.spread = metadata.spread;
+
+
+        this.uniqueIdentifier = metadata.uniqueIdentifier;
+
+
+        this.viewport = metadata.viewport;
+
+
+        this.media = metadata.media;
+
+
+        this.flow = metadata.flow;
+
+
+        this.alignXCenter = metadata.alignXCenter;
+
+
     }
 
     /**
@@ -1322,19 +1360,167 @@ public class Metadata {
     }
 
 
-    /**
-     * 设置展开属性
-     *
-     * @param spread 展开属性
-     */
-
-
-    public void setSpread(String spread) {
-
-
-        this.spread = spread;
-
-
+    /**
+     * 设置展开属性
+     *
+     * @param spread 展开属性
+     */
+
+
+    public void setSpread(String spread) {
+
+
+        this.spread = spread;
+
+
+    }
+
+
+    /**
+     * 获取视口属性
+     *
+     * @return 视口属性
+     */
+
+
+    public String getViewport() {
+
+
+        return viewport;
+
+
+    }
+
+
+    /**
+     * 设置视口属性
+     *
+     * @param viewport 视口属性
+     */
+
+
+    public void setViewport(String viewport) {
+
+
+        this.viewport = viewport;
+
+
+    }
+
+
+    /**
+     * 获取媒体属性
+     *
+     * @return 媒体属性
+     */
+
+
+    public String getMedia() {
+
+
+        return media;
+
+
+    }
+
+
+    /**
+     * 设置媒体属性
+     *
+     * @param media 媒体属性
+     */
+
+
+    public void setMedia(String media) {
+
+
+        this.media = media;
+
+
+    }
+
+
+    /**
+     * 获取流动属性
+     *
+     * @return 流动属性
+     */
+
+
+    public String getFlow() {
+
+
+        return flow;
+
+
+    }
+
+
+    /**
+     * 设置流动属性
+     *
+     * @param flow 流动属性
+     */
+
+
+    public void setFlow(String flow) {
+
+
+        this.flow = flow;
+
+
+    }
+
+
+    /**
+     * 获取水平居中对齐属性
+     *
+     * @return 水平居中对齐属性
+     */
+
+
+    public boolean isAlignXCenter() {
+
+
+        return alignXCenter;
+
+
+    }
+
+
+    /**
+     * 设置水平居中对齐属性
+     *
+     * @param alignXCenter 水平居中对齐属性
+     */
+
+
+    public void setAlignXCenter(boolean alignXCenter) {
+
+
+        this.alignXCenter = alignXCenter;
+
+
+    }
+
+
+    /**
+     * 获取唯一标识符
+     *
+     * @return 唯一标识符
+     */
+    public String getUniqueIdentifier() {
+        return uniqueIdentifier;
+    }
+
+
+    /**
+     * 设置唯一标识符
+     *
+     * @param uniqueIdentifier 唯一标识符
+     */
+    public void setUniqueIdentifier(String uniqueIdentifier) {
+        this.uniqueIdentifier = uniqueIdentifier;
     }
 
 

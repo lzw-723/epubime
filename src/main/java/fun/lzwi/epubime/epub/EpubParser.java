@@ -76,99 +76,124 @@ public class EpubParser {
         return rootFilePath.substring(0, start + 1);
     }
 
-    /**
-     * 解析OPF内容中的元数据
-     * @param opfContent OPF文件内容
-     * @return 元数据对象
-     */
-    protected static Metadata parseMetadata(String opfContent) {
-        // Try to get from cache - static method cannot directly get epubFile, so temporarily not cached
-        Objects.requireNonNull(opfContent);
-        Metadata metadata = new Metadata();
-        Jsoup.parse(opfContent, Parser.xmlParser()).select("metadata").forEach(meta -> {
-            meta.children().forEach(child -> {
-                switch (child.tagName()) {
-                    case "dc:title":
-                        metadata.addTitle(child.text());
-                        break;
-                    case "dc:creator":
-                        metadata.addCreator(child.text());
-                        break;
-                    case "dc:language":
-                        metadata.addLanguage(child.text());
-                        break;
-                    case "dc:identifier":
-                        metadata.addIdentifier(child.text());
-                        break;
-                    case "dc:publisher":
-                        metadata.addPublisher(child.text());
-                        break;
-                    case "dc:date":
-                        metadata.addDate(child.text());
-                        break;
-                    case "dc:description":
-                        metadata.addDescription(child.text());
-                        break;
-                    case "dc:subject":
-                        metadata.addSubject(child.text());
-                        break;
-                    case "dc:type":
-                        metadata.addType(child.text());
-                        break;
-                    case "dc:format":
-                        metadata.addFormat(child.text());
-                        break;
-                    case "dc:source":
-                        metadata.addSource(child.text());
-                        break;
-                    //                    case "dc:relation":
-
-                    //                        metadata.addRelation(child.text());
-
-                    //                        break;
-
-                    //                    case "dc:coverage":
-
-                    //                        metadata.addCoverage(child.text());
-
-                    //                        break;
-                    case "dc:rights":
-                        metadata.addRights(child.text());
-                        break;
-                    case "dc:contributor":
-                        metadata.addContributor(child.text());
-                        break;
-                    case "meta":
-                        String property = child.attr("property");
-                        String name = child.attr("name");
-                        String content = child.text(); // Use text() for meta elements with property attributes
-                        
-                        if (name.equals("cover")) {
-                            metadata.setCover(child.attr("content"));
-                        } else if (property.equals("dcterms:rightsHolder")) {
-                            metadata.setRightsHolder(content);
-                        } else if (property.equals("dcterms:modified")) {
-                            metadata.setModified(content);
-                        } else if (property.equals("rendition:layout")) {
-                            metadata.setLayout(content);
-                        } else if (property.equals("rendition:orientation")) {
-                            metadata.setOrientation(content);
-                        } else if (property.equals("rendition:spread")) {
-                            metadata.setSpread(content);
+    /**
+     * 解析OPF内容中的元数据
+     * @param opfContent OPF文件内容
+     * @return 元数据对象
+     */
+    protected static Metadata parseMetadata(String opfContent) {
+        // Try to get from cache - static method cannot directly get epubFile, so temporarily not cached
+        Objects.requireNonNull(opfContent);
+        Metadata metadata = new Metadata();
+        Document opfDocument = Jsoup.parse(opfContent, Parser.xmlParser());
+        
+        // 解析package元素获取unique-identifier属性
+        Element packageElement = opfDocument.selectFirst("package");
+        if (packageElement != null) {
+            String uniqueIdentifierId = packageElement.attr("unique-identifier");
+            if (!uniqueIdentifierId.isEmpty()) {
+                // 查找对应的dc:identifier元素并设置为uniqueIdentifier
+                opfDocument.select("metadata > dc\\:identifier").forEach(identifier -> {
+                    String id = identifier.attr("id");
+                    if (uniqueIdentifierId.equals(id)) {
+                        metadata.setUniqueIdentifier(identifier.text());
+                    }
+                });
+            }
+        }
+        
+        opfDocument.select("metadata").forEach(meta -> {
+            meta.children().forEach(child -> {
+                switch (child.tagName()) {
+                    case "dc:title":
+                        metadata.addTitle(child.text());
+                        break;
+                    case "dc:creator":
+                        metadata.addCreator(child.text());
+                        break;
+                    case "dc:language":
+                        metadata.addLanguage(child.text());
+                        break;
+                    case "dc:identifier":
+                        metadata.addIdentifier(child.text());
+                        break;
+                    case "dc:publisher":
+                        metadata.addPublisher(child.text());
+                        break;
+                    case "dc:date":
+                        metadata.addDate(child.text());
+                        break;
+                    case "dc:description":
+                        metadata.addDescription(child.text());
+                        break;
+                    case "dc:subject":
+                        metadata.addSubject(child.text());
+                        break;
+                    case "dc:type":
+                        metadata.addType(child.text());
+                        break;
+                    case "dc:format":
+                        metadata.addFormat(child.text());
+                        break;
+                    case "dc:source":
+                        metadata.addSource(child.text());
+                        break;
+                    //                    case "dc:relation":
+
+                    //                        metadata.addRelation(child.text());
+
+                    //                        break;
+
+                    //                    case "dc:coverage":
+
+                    //                        metadata.addCoverage(child.text());
+
+                    //                        break;
+                    case "dc:rights":
+                        metadata.addRights(child.text());
+                        break;
+                    case "dc:contributor":
+                        metadata.addContributor(child.text());
+                        break;
+                    case "meta":
+                        String property = child.attr("property");
+                        String name = child.attr("name");
+                        String content = child.text(); // Use text() for meta elements with property attributes
+                        
+                        if (name.equals("cover")) {
+                            metadata.setCover(child.attr("content"));
+                        } else if (property.equals("dcterms:rightsHolder")) {
+                            metadata.setRightsHolder(content);
+                        } else if (property.equals("dcterms:modified")) {
+                            metadata.setModified(content);
+                        } else if (property.equals("rendition:layout")) {
+                            metadata.setLayout(content);
+                        } else if (property.equals("rendition:orientation")) {
+                            metadata.setOrientation(content);
+                        } else if (property.equals("rendition:spread")) {
+                            metadata.setSpread(content);
+                        } else if (property.equals("rendition:viewport")) {
+                            metadata.setViewport(content);
+                        } else if (property.equals("rendition:media")) {
+                            metadata.setMedia(content);
+                        } else if (property.equals("rendition:flow")) {
+                            metadata.setFlow(content);
+                        } else if (property.equals("rendition:align-x-center")) {
+                            metadata.setAlignXCenter("true".equalsIgnoreCase(content) || "yes".equalsIgnoreCase(content) || "1".equals(content));
                         } else if (property.equals("schema:accessibilityFeature")) {
                             metadata.addAccessibilityFeature(content);
                         } else if (property.equals("schema:accessibilityHazard")) {
                             metadata.addAccessibilityHazard(content);
                         } else if (property.equals("schema:accessibilitySummary")) {
                             metadata.addAccessibilitySummary(content);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            });
-        });
-        return metadata;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
+        return metadata;
     }
 
     /**

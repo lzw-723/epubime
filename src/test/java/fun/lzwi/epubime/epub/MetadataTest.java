@@ -226,18 +226,26 @@ public class MetadataTest {
         assertEquals("This publication includes markup to enable accessibility and compatibility with assistive technology.", metadata.getAccessibilitySummary());
     }
     
-    @Test
-    public void testRenderingProperties() {
-        Metadata metadata = new Metadata();
-        
-        // 测试渲染属性
-        metadata.setLayout("pre-paginated");
-        metadata.setOrientation("landscape");
-        metadata.setSpread("both");
-        
-        assertEquals("pre-paginated", metadata.getLayout());
-        assertEquals("landscape", metadata.getOrientation());
-        assertEquals("both", metadata.getSpread());
+    @Test
+    public void testRenderingProperties() {
+        Metadata metadata = new Metadata();
+        
+        // 测试渲染属性
+        metadata.setLayout("pre-paginated");
+        metadata.setOrientation("landscape");
+        metadata.setSpread("both");
+        metadata.setViewport("width=1200,height=600");
+        metadata.setMedia("(min-width: 600px)");
+        metadata.setFlow("paginated");
+        metadata.setAlignXCenter(true);
+        
+        assertEquals("pre-paginated", metadata.getLayout());
+        assertEquals("landscape", metadata.getOrientation());
+        assertEquals("both", metadata.getSpread());
+        assertEquals("width=1200,height=600", metadata.getViewport());
+        assertEquals("(min-width: 600px)", metadata.getMedia());
+        assertEquals("paginated", metadata.getFlow());
+        assertTrue(metadata.isAlignXCenter());
     }
     
     @Test
@@ -269,52 +277,70 @@ public class MetadataTest {
         assertEquals(1, original.getTitles().size()); // 原始对象不应受影响
     }
     
-    @Test
-    public void testEmptyListHandling() {
-        Metadata metadata = new Metadata();
-        
-        // 验证空列表处理
-        assertNull(metadata.getTitle());
-        assertTrue(metadata.getTitles().isEmpty());
-        
-        assertNull(metadata.getCreator());
-        assertTrue(metadata.getCreators().isEmpty());
-        
-        assertNull(metadata.getLanguage());
-        assertTrue(metadata.getLanguages().isEmpty());
-        
-        assertNull(metadata.getIdentifier());
-        assertTrue(metadata.getIdentifiers().isEmpty());
-        
-        assertNull(metadata.getPublisher());
-        assertTrue(metadata.getPublishers().isEmpty());
-        
-        assertNull(metadata.getSubject());
-        assertTrue(metadata.getSubjects().isEmpty());
-        
-        assertNull(metadata.getDate());
-        assertTrue(metadata.getDates().isEmpty());
-        
-        assertNull(metadata.getDescription());
-        assertTrue(metadata.getDescriptions().isEmpty());
-        
-        assertNull(metadata.getRights());
-        assertTrue(metadata.getRightsList().isEmpty());
-        
-        assertNull(metadata.getType());
-        assertTrue(metadata.getTypes().isEmpty());
-        
-        assertNull(metadata.getFormat());
-        assertTrue(metadata.getFormats().isEmpty());
-        
-        assertNull(metadata.getSource());
-        assertTrue(metadata.getSources().isEmpty());
-        
-        assertNull(metadata.getContributor());
-        assertTrue(metadata.getContributors().isEmpty());
-        
-        assertNull(metadata.getAccessibilitySummary());
-        assertTrue(metadata.getAccessibilityFeatures().isEmpty());
-        assertTrue(metadata.getAccessibilityHazard().isEmpty());
+    @Test
+    public void testUniqueIdentifier() {
+        Metadata metadata = new Metadata();
+        
+        // 测试uniqueIdentifier的getter和setter
+        assertNull(metadata.getUniqueIdentifier());
+        metadata.setUniqueIdentifier("test-unique-id");
+        assertEquals("test-unique-id", metadata.getUniqueIdentifier());
+        
+        // 验证uniqueIdentifier与其他identifier的区别
+        metadata.addIdentifier("other-id");
+        assertEquals("test-unique-id", metadata.getUniqueIdentifier()); // uniqueIdentifier保持不变
+        assertEquals("other-id", metadata.getIdentifier()); // identifier为列表中的第一个
+        assertEquals(1, metadata.getIdentifiers().size());
+    }
+
+    @Test
+    public void testEmptyListHandling() {
+        Metadata metadata = new Metadata();
+        
+        // 验证空列表处理
+        assertNull(metadata.getTitle());
+        assertTrue(metadata.getTitles().isEmpty());
+        
+        assertNull(metadata.getCreator());
+        assertTrue(metadata.getCreators().isEmpty());
+        
+        assertNull(metadata.getLanguage());
+        assertTrue(metadata.getLanguages().isEmpty());
+        
+        assertNull(metadata.getIdentifier());
+        assertTrue(metadata.getIdentifiers().isEmpty());
+        
+        assertNull(metadata.getUniqueIdentifier());
+        
+        assertNull(metadata.getPublisher());
+        assertTrue(metadata.getPublishers().isEmpty());
+        
+        assertNull(metadata.getSubject());
+        assertTrue(metadata.getSubjects().isEmpty());
+        
+        assertNull(metadata.getDate());
+        assertTrue(metadata.getDates().isEmpty());
+        
+        assertNull(metadata.getDescription());
+        assertTrue(metadata.getDescriptions().isEmpty());
+        
+        assertNull(metadata.getRights());
+        assertTrue(metadata.getRightsList().isEmpty());
+        
+        assertNull(metadata.getType());
+        assertTrue(metadata.getTypes().isEmpty());
+        
+        assertNull(metadata.getFormat());
+        assertTrue(metadata.getFormats().isEmpty());
+        
+        assertNull(metadata.getSource());
+        assertTrue(metadata.getSources().isEmpty());
+        
+        assertNull(metadata.getContributor());
+        assertTrue(metadata.getContributors().isEmpty());
+        
+        assertNull(metadata.getAccessibilitySummary());
+        assertTrue(metadata.getAccessibilityFeatures().isEmpty());
+        assertTrue(metadata.getAccessibilityHazard().isEmpty());
     }
 }
