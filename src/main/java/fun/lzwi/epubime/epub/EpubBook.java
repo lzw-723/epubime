@@ -1,5 +1,7 @@
 package fun.lzwi.epubime.epub;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,5 +56,13 @@ public class EpubBook {
     public EpubResource getCover() {
         return resources.stream().filter(r -> r.getId().equals(metadata.getCover())).findFirst().get();
     }
-
+    
+    /**
+     * 批量加载所有资源的数据
+     * @param epubFile EPUB文件
+     * @throws IOException
+     */
+    public void loadAllResourceData(File epubFile) throws IOException {
+        EpubResource.loadResourceData(resources, epubFile);
+    }
 }

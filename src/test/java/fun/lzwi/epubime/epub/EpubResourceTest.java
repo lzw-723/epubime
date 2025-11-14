@@ -65,4 +65,43 @@ public class EpubResourceTest {
             assertNull("InputStream should be null when href is null", inputStream);
         }
     }
+
+    @Test
+    public void testLoadResourceData() throws Exception {
+        // 测试批量加载资源数据的功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 为测试创建新资源，以确保数据未加载
+        EpubResource testResource = new EpubResource();
+        testResource.setEpubFile(epubFile);
+        testResource.setHref("mimetype"); // 使用一个简单的文件进行测试
+        
+        // 不要调用getData()方法，因为这会触发数据加载
+        // 直接设置一个初始数据为null的资源
+        testResource.setData(null); // 确保数据是null
+        
+        // 创建只包含测试资源的列表
+        java.util.List<EpubResource> testResources = java.util.Arrays.asList(testResource);
+
+        // 批量加载所有资源的数据
+        EpubResource.loadResourceData(testResources, epubFile);
+
+        // 验证资源数据已加载
+        byte[] data = testResource.getData();
+        assertNotNull("Resource data should be loaded", data);
+        assertTrue("Resource data should have content", data.length > 0);
+    }
+
+    @Test
+    public void testLoadResourceDataWithEmptyList() throws Exception {
+        // 测试批量加载空资源列表的功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<EpubResource> emptyResources = new java.util.ArrayList<>();
+
+        // 批量加载空资源列表的数据 - 这不应该抛出异常
+        EpubResource.loadResourceData(emptyResources, epubFile);
+
+        // 验证空列表仍为空
+        assertTrue("Resource list should remain empty", emptyResources.isEmpty());
+    }
 }

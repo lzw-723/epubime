@@ -88,4 +88,53 @@ public class ZipUtilsTest {
             // 期望的异常，因为流已被关闭
         }
     }
+
+    @Test
+    public void getMultipleZipFileContents() throws IOException {
+        // 测试批量获取ZIP文件内容的功能
+        File zipFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype", "META-INF/container.xml");
+
+        java.util.Map<String, String> contents = ZipUtils.getMultipleZipFileContents(zipFile, filePaths);
+
+        assertNotNull(contents);
+        assertEquals(2, contents.size());
+        assertTrue(contents.containsKey("mimetype"));
+        assertTrue(contents.containsKey("META-INF/container.xml"));
+        assertEquals("application/epub+zip", contents.get("mimetype"));
+        assertNotNull(contents.get("META-INF/container.xml"));
+        assertTrue(contents.get("META-INF/container.xml").contains("container"));
+    }
+
+    @Test
+    public void getMultipleZipFileBytes() throws IOException {
+        // 测试批量获取ZIP文件字节数组的功能
+        File zipFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype");
+
+        java.util.Map<String, byte[]> contents = ZipUtils.getMultipleZipFileBytes(zipFile, filePaths);
+
+        assertNotNull(contents);
+        assertEquals(1, contents.size());
+        assertTrue(contents.containsKey("mimetype"));
+        byte[] data = contents.get("mimetype");
+        assertNotNull(data);
+        assertEquals("application/epub+zip", new String(data, "UTF-8"));
+    }
+
+    @Test
+    public void getMultipleZipFileContentsWithNonExistentFile() throws IOException {
+        // 测试批量获取ZIP文件内容时包含不存在文件的功能
+        File zipFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype", "nonexistent.txt");
+
+        java.util.Map<String, String> contents = ZipUtils.getMultipleZipFileContents(zipFile, filePaths);
+
+        assertNotNull(contents);
+        assertEquals(2, contents.size());
+        assertTrue(contents.containsKey("mimetype"));
+        assertTrue(contents.containsKey("nonexistent.txt"));
+        assertNotNull(contents.get("mimetype"));
+        assertNull(contents.get("nonexistent.txt"));
+    }
 }
