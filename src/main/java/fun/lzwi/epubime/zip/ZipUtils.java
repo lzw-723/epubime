@@ -27,7 +27,8 @@ public class ZipUtils {
         try {
             return zip.stream().map(ZipEntry::getName).collect(java.util.stream.Collectors.toList());
         } finally {
-            // Note: We don't close the ZIP file because it may be reused
+            // 释放ZIP文件句柄，减少引用计数
+            ZipFileManager.getInstance().releaseZipFile();
         }
     }
 
@@ -39,27 +40,30 @@ public class ZipUtils {
      * @throws IOException IO异常
      */
     public static String getZipFileContent(File zipFile, String fileName) throws IOException {
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        String cachedContent = cache.getTextContent(fileName);
-        if (cachedContent != null) {
-            return cachedContent;
+        // Try to get from cache
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        String cachedContent = cache.getTextContent(fileName);
+        if (cachedContent != null) {
+            return cachedContent;
         }
         
         // Cache miss, read from ZIP file
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         ZipEntry entry = zip.getEntry(fileName);
         if (entry == null) {
+            // 释放ZIP文件句柄，减少引用计数
+            ZipFileManager.getInstance().releaseZipFile();
             return null;
         }
         try (InputStream in = zip.getInputStream(entry); BufferedReader reader =
                 new BufferedReader(new InputStreamReader(in, DEFAULT_CHARSET))) {
-            String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
-            // Cache result
-            cache.setTextContent(fileName, content);
-            return content;
-        } finally {
-            // Note: We don't close the ZIP file because it may be reused
+            String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+            // Cache result
+            cache.setTextContent(fileName, content);
+            return content;
+        } finally {
+            // 释放ZIP文件句柄，减少引用计数
+        ZipFileManager.getInstance().releaseZipFile();
         }
     }
 
@@ -71,11 +75,11 @@ public class ZipUtils {
      * @throws IOException IO异常
      */
     public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        byte[] cachedData = cache.getBinaryContent(fileName);
-        if (cachedData != null) {
-            return cachedData.clone(); // Return clone to avoid modifying cache data
+        // Try to get from cache
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        byte[] cachedData = cache.getBinaryContent(fileName);
+        if (cachedData != null) {
+            return cachedData.clone(); // Return clone to avoid modifying cache data
         }
         
         // Cache miss, read from ZIP file
@@ -91,12 +95,12 @@ public class ZipUtils {
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
-            byte[] data = out.toByteArray();
-            // Cache result
-            cache.setBinaryContent(fileName, data.clone());
-            return data;
-        } finally {
-            // Note: We don't close the ZIP file because it may be reused
+            byte[] data = out.toByteArray();
+            // Cache result
+            cache.setBinaryContent(fileName, data.clone());
+            return data;
+        } finally {
+            // Note: We don't close the ZIP file because it may be reused
         }
     }
 
@@ -111,6 +115,8 @@ public class ZipUtils {
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         ZipEntry entry = zip.getEntry(fileName);
         if (entry == null) {
+            // 释放ZIP文件句柄，减少引用计数
+            ZipFileManager.getInstance().releaseZipFile();
             return;
         }
         try (InputStream in = zip.getInputStream(entry)) {
@@ -159,7 +165,8 @@ public class ZipUtils {
                 contents.put(fileName, null);
             }
         }
-        // Note: We don't close the ZIP file because it may be reused
+        // 释放ZIP文件句柄，减少引用计数
+        ZipFileManager.getInstance().releaseZipFile();
         return contents;
     }
 
@@ -220,21 +227,21 @@ public class ZipUtils {
                 try (InputStream in = zip.getInputStream(entry)) {
                     processor.accept(fileName, in);
                 } finally {
-                    // Note: We don't close the ZIP file because it may be reused
+                    // 释放ZIP文件句柄，减少引用计数
                 }
             }
         }
+        // 释放ZIP文件句柄，减少引用计数
+        ZipFileManager.getInstance().releaseZipFile();
     }
 
     /**
-     * 自定义输入流，自动关闭ZipFile
+     * 自定义输入流，自动释放ZIP文件句柄引用
      */
     private static class ZipFileInputStream extends InputStream {
-        private final ZipFile zipFile;
         private final InputStream inputStream;
 
         public ZipFileInputStream(ZipFile zipFile, InputStream inputStream) {
-            this.zipFile = zipFile;
             this.inputStream = inputStream;
         }
 
@@ -268,8 +275,8 @@ public class ZipUtils {
             try {
                 inputStream.close();
             } finally {
-                // Note: We don't close zipFile here because it may be reused by other operations
-                // ZipFile closing is managed uniformly by external manager
+                // 在流关闭时释放ZIP文件句柄引用
+                ZipFileManager.getInstance().releaseZipFile();
             }
         }
 
