@@ -4,6 +4,15 @@
 
 EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供了完整的 EPUB 文件解析功能，包括元数据提取、章节内容读取和资源文件处理。支持 EPUB 2 和 EPUB 3 格式。
 
+## 技术栈
+
+- **Java 8+**: 主要开发语言
+- **Maven**: 项目构建和依赖管理
+- **JSoup 1.19.1**: HTML/XML 解析库
+- **JaCoCo 0.8.10**: 代码覆盖率分析工具
+- **JUnit 4.13.1**: 单元测试框架
+- **SpotBugs 4.7.3.6**: 静态代码分析工具，用于检测潜在的代码缺陷
+
 ## 安装依赖
 
 在 `pom.xml` 中添加：
@@ -63,6 +72,36 @@ byte[] coverData = cover.getData();
 
 - Java 8 或更高版本
 - Maven 3.5+（用于构建和依赖管理）
+
+## 构建和测试
+
+### 基本构建命令
+
+```bash
+# 清理并编译项目
+mvn clean compile
+
+# 运行测试
+mvn test
+
+# 打包（包含测试）
+mvn package
+
+# 生成代码覆盖率报告
+mvn jacoco:report
+
+# 静态代码分析
+mvn spotbugs:check
+
+# 生成详细的SpotBugs报告
+mvn spotbugs:spotbugs
+
+# 检查依赖版本更新
+mvn versions:display-dependency-updates
+
+# 检查插件版本更新
+mvn versions:display-plugin-updates
+```
 
 ## 后续步骤
 

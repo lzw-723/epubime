@@ -4,6 +4,15 @@
 
 EPUBime is a pure Java library for parsing EPUB file format. It provides complete EPUB file parsing functionality, including metadata extraction, chapter content reading, and resource file processing. It supports both EPUB 2 and EPUB 3 formats.
 
+## Tech Stack
+
+- **Java 8+**: Main development language
+- **Maven**: Project build and dependency management
+- **JSoup 1.19.1**: HTML/XML parsing library
+- **JaCoCo 0.8.10**: Code coverage analysis tool
+- **JUnit 4.13.1**: Unit testing framework
+- **SpotBugs 4.7.3.6**: Static code analysis tool for detecting potential code defects
+
 ## Installation
 
 Add the following to your `pom.xml`:
@@ -63,6 +72,36 @@ Comprehensive exception handling mechanism including format exceptions, parsing 
 
 - Java 8 or higher
 - Maven 3.5+ (for building and dependency management)
+
+## Build and Test
+
+### Basic Build Commands
+
+```bash
+# Clean and compile the project
+mvn clean compile
+
+# Run tests
+mvn test
+
+# Package (including tests)
+mvn package
+
+# Generate code coverage report
+mvn jacoco:report
+
+# Static code analysis
+mvn spotbugs:check
+
+# Generate detailed SpotBugs report
+mvn spotbugs:spotbugs
+
+# Check dependency version updates
+mvn versions:display-dependency-updates
+
+# Check plugin version updates
+mvn versions:display-plugin-updates
+```
 
 ## Next Steps
 

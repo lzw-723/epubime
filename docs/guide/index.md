@@ -9,6 +9,7 @@
 - [高级功能](/guide/advanced-features) - 介绍 EPUBime 的高级特性和用法
 - [异常处理](/guide/exception-handling) - 说明如何处理 EPUBime 中的各种异常
 - [性能优化](/guide/performance) - 提供性能优化的建议和最佳实践
+- [开发规范](/guide/development-guidelines) - 介绍开发 EPUBime 的规范和最佳实践
 
 ## 简介
 

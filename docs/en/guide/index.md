@@ -9,6 +9,7 @@ Welcome to EPUBime's user guide! EPUBime is a pure Java library for parsing EPUB
 - [Advanced Features](/en/guide/advanced-features) - Introduction to EPUBime's advanced features and usage
 - [Exception Handling](/en/guide/exception-handling) - Instructions on how to handle various exceptions in EPUBime
 - [Performance Optimization](/en/guide/performance) - Performance optimization suggestions and best practices
+- [Development Guidelines](/en/guide/development-guidelines) - Introduction to development standards and best practices for EPUBime
 
 ## Introduction
 
