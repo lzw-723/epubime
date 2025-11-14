@@ -42,12 +42,14 @@ public class EpubParserTest {
         assertEquals("https://www.7sbook.com/ebook/254.html", metadata.getIdentifier());
         assertArrayEquals(new String[]{"论文", "论文集"}, metadata.getSubjects().toArray());
         assertEquals("《坟》是鲁迅的论文集，收录鲁迅在1907年~1925" +
-                "年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
+                        "年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
                 metadata.getDescription());
         assertEquals("本书的版权和许可信息。", metadata.getRights());
         //        assertEquals("text", metadata.getType());
         //        assertEquals("application/epub+zip", metadata.getFormat());
         assertEquals("https://www.7sbook.com/", metadata.getSource());
+
+        assertEquals("2022-12-06T13:14:44Z", metadata.getModified());
     }
 
     @Test

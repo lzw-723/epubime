@@ -4,21 +4,40 @@ import java.util.Collections;
 import java.util.List;
 
 public class Metadata {
+
     private String title;
+
     private String creator;
+
     private final List<String> contributors;
+
     private String publisher;
+
     private String identifier;
+
     private final List<String> subjects;
+
     private String date;
+
     private String language;
+
     private String description;
+
     private String rights;
+
     private String type;
+
     private String format;
+
     private String source;
 
+    private String modified;
+
+    private String rightsHolder;
+
+
     private String cover;
+
 
     public String getCover() {
         return cover;
@@ -34,20 +53,39 @@ public class Metadata {
     }
 
     public Metadata(Metadata metadata) {
+
         this.title = metadata.title;
+
         this.creator = metadata.creator;
+
         this.contributors = metadata.contributors;
+
         this.publisher = metadata.publisher;
+
         this.identifier = metadata.identifier;
+
         this.subjects = metadata.subjects;
+
         this.date = metadata.date;
+
         this.language = metadata.language;
+
         this.description = metadata.description;
+
         this.rights = metadata.rights;
+
         this.type = metadata.type;
+
         this.format = metadata.format;
+
         this.source = metadata.source;
+
+        this.modified = metadata.modified;
+
+        this.rightsHolder = metadata.rightsHolder;
+
         this.cover = metadata.cover;
+
     }
 
     public String getFormat() {
@@ -163,4 +201,25 @@ public class Metadata {
     public void addContributor(String contributor) {
         this.contributors.add(contributor);
     }
+
+
+    public String getModified() {
+        return modified;
+    }
+
+
+    public void setModified(String modified) {
+        this.modified = modified;
+    }
+
+
+    public String getRightsHolder() {
+        return rightsHolder;
+    }
+
+
+    public void setRightsHolder(String rightsHolder) {
+        this.rightsHolder = rightsHolder;
+    }
+
 }

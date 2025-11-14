@@ -4,6 +4,7 @@ import fun.lzwi.epubime.zip.ZipUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class EpubParser {
     protected static Metadata parseMetadata(String opfContent) {
         Objects.requireNonNull(opfContent);
         Metadata metadata = new Metadata();
-        Jsoup.parse(opfContent).select("metadata").forEach(meta -> {
+        Jsoup.parse(opfContent, Parser.xmlParser()).select("metadata").forEach(meta -> {
             meta.children().forEach(child -> {
                 switch (child.tagName()) {
                     case "dc:title":
@@ -91,10 +92,15 @@ public class EpubParser {
                         metadata.setSource(child.text());
                         break;
                     //                    case "dc:relation":
+
                     //                        metadata.addRelation(child.text());
+
                     //                        break;
+
                     //                    case "dc:coverage":
+
                     //                        metadata.addCoverage(child.text());
+
                     //                        break;
                     case "dc:rights":
                         metadata.setRights(child.text());
@@ -105,6 +111,10 @@ public class EpubParser {
                     case "meta":
                         if (child.attr("name").equals("cover")) {
                             metadata.setCover(child.attr("content"));
+                        } else if (child.attr("property").equals("dcterms:rightsHolder")) {
+                            metadata.setRightsHolder(child.text());
+                        } else if (child.attr("property").equals("dcterms:modified")) {
+                            metadata.setModified(child.text());
                         }
                         break;
                     default:
