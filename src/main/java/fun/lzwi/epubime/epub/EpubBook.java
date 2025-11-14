@@ -16,12 +16,12 @@ public class EpubBook {
     private List<EpubResource> resources = new ArrayList<>();
 
     public EpubBook() {
-        // 默认构造函数
+        // Default constructor
     }
     
     /**
-     * 复制构造函数，用于缓存
-     * @param other 要复制的EpubBook对象
+     * Copy constructor for caching
+     * @param other EpubBook object to copy
      */
     public EpubBook(EpubBook other) {
         if (other.metadata != null) {
@@ -67,7 +67,7 @@ public class EpubBook {
         if (nav.size() > ncx.size()) {
             return getNav();
         }
-        // 默认使用 ncx
+        // Default to ncx
         return getNcx();
     }
 
@@ -92,8 +92,8 @@ public class EpubBook {
     }
     
     /**
-     * 批量加载所有资源的数据
-     * @param epubFile EPUB文件
+     * Batch load data for all resources
+     * @param epubFile EPUB file
      * @throws IOException
      */
     public void loadAllResourceData(File epubFile) throws IOException {
@@ -101,8 +101,8 @@ public class EpubBook {
     }
     
     /**
-     * 流式处理HTML章节内容，避免将整个文件加载到内存中
-     * @param processor 处理HTML内容的消费者函数
+     * Stream process HTML chapter content to avoid loading entire file into memory
+     * @param processor Consumer function to process HTML content
      * @throws EpubParseException
      */
     public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws EpubParseException {

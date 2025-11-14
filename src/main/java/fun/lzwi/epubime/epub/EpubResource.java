@@ -14,15 +14,15 @@ public class EpubResource {
     private String type;
     private String href;
     private byte[] data;
-    private File epubFile; // 用于流式处理的EPUB文件引用
+    private File epubFile; // EPUB file reference for streaming processing
 
     public EpubResource() {
-        // 默认构造函数
+        // Default constructor
     }
     
     /**
-     * 复制构造函数
-     * @param other 要复制的EpubResource对象
+     * Copy constructor
+     * @param other EpubResource object to copy
      */
     public EpubResource(EpubResource other) {
         this.id = other.id;
@@ -51,18 +51,18 @@ public class EpubResource {
     }
 
     public byte[] getData() {
-        // 如果已经有数据，直接返回
+        // If data already exists, return directly
         if (data != null) {
             return data.clone();
         }
         
-        // 如果有EPUB文件引用，尝试流式读取数据
+        // If there is an EPUB file reference, try to stream read data
         if (epubFile != null && href != null) {
             try {
                 data = ZipUtils.getZipFileBytes(epubFile, href);
                 return data != null ? data.clone() : null;
             } catch (IOException e) {
-                // 流式读取失败，返回null
+                // Stream read failed, return null
                 return null;
             }
         }
@@ -93,25 +93,26 @@ public class EpubResource {
     }
 
     /**
-     * 获取资源的输入流，用于流式处理大文件
-     * @return 输入流
+     * Get input stream for resource for streaming processing of large files
+     * @return Input stream
      * @throws IOException
      */
     public InputStream getInputStream() throws IOException {
         if (epubFile != null && href != null) {
+            // Use ZipFileManager to optimize ZIP access
             return ZipUtils.getZipFileInputStream(epubFile, href);
         }
         return null;
     }
     
     /**
-     * 批量加载资源数据
-     * @param resources 资源列表
-     * @param epubFile EPUB文件
+     * Batch load resource data
+     * @param resources Resource list
+     * @param epubFile EPUB file
      * @throws IOException
      */
     public static void loadResourceData(List<EpubResource> resources, File epubFile) throws IOException {
-        // 收集所有需要加载的资源路径
+        // Collect all resource paths that need to be loaded
         List<String> hrefs = new java.util.ArrayList<>();
         for (EpubResource resource : resources) {
             if (resource.epubFile != null && resource.href != null) {
@@ -119,10 +120,10 @@ public class EpubResource {
             }
         }
         
-        // 使用ZIP文件流重用机制一次性读取所有资源数据
+        // Use ZIP file stream reuse mechanism to read all resource data at once
         Map<String, byte[]> resourceData = ZipUtils.getMultipleZipFileBytes(epubFile, hrefs);
         
-        // 将数据设置到对应的资源对象中
+        // Set data to corresponding resource objects
         for (EpubResource resource : resources) {
             if (resource.href != null) {
                 byte[] data = resourceData.get(resource.href);
@@ -134,8 +135,8 @@ public class EpubResource {
     }
     
     /**
-     * 流式处理资源内容，避免将整个文件加载到内存中
-     * @param processor 处理资源内容的消费者函数
+     * Stream process resource content to avoid loading entire file into memory
+     * @param processor Consumer function to process resource content
      * @throws IOException
      */
     public void processContent(java.util.function.Consumer<InputStream> processor) throws IOException {

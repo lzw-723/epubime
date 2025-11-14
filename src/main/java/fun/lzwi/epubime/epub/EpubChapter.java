@@ -5,14 +5,14 @@ public class EpubChapter {
     private String title;
     private String content;
 
-    public EpubChapter() {
-        // 默认构造函数
-    }
-    
-    /**
-     * 复制构造函数
-     * @param other 要复制的EpubChapter对象
-     */
+    public EpubChapter() {
+        // Default constructor
+    }
+    
+    /**
+     * Copy constructor
+     * @param other EpubChapter object to copy
+     */
     public EpubChapter(EpubChapter other) {
         this.id = other.id;
         this.title = other.title;
