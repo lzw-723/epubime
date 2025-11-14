@@ -123,7 +123,7 @@ public class EpubParser {
         }
 
         try {
-            // 第一次ZIP访问：读取container.xml和OPF文件
+            // 优化：批量读取关键文件，减少ZIP文件访问次数
             List<String> firstBatchPaths = new ArrayList<>();
             firstBatchPaths.add(CONTAINER_FILE_PATH);
 
@@ -140,7 +140,7 @@ public class EpubParser {
             String opfPath = extractRootFilePath(container);
             String opfDir = extractRootFileDir(opfPath);
 
-            // 重置文件路径列表，包含OPF文件
+            // 优化：一次性读取container.xml和OPF文件
             firstBatchPaths.add(opfPath);
             firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile, firstBatchPaths);
             
@@ -152,7 +152,7 @@ public class EpubParser {
             // 解析元数据
             book.setMetadata(metadataParser.parseMetadata(opfContent));
 
-            // 获取章节文件路径
+            // 优化：一次性获取所有导航文件路径
             String ncxPath = null;
             String navPath = null;
             
@@ -168,7 +168,7 @@ public class EpubParser {
                 // NAV路径可选，不抛出异常
             }
 
-            // 第二次ZIP访问：读取章节文件
+            // 优化：批量读取导航文件，减少ZIP访问次数
             List<String> secondBatchPaths = new ArrayList<>();
             if (ncxPath != null) {
                 secondBatchPaths.add(ncxPath);

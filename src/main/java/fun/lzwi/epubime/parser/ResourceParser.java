@@ -5,6 +5,8 @@ import fun.lzwi.epubime.epub.EpubResource;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,12 +57,19 @@ public class ResourceParser {
             }
         }
         
-        Document document = Jsoup.parse(opfContent);
-        List<EpubResource> resources = new ArrayList<>();
+        // 使用更快的解析配置
+        Document document = Jsoup.parse(opfContent, "", Parser.xmlParser());
+        Elements items = document.select("manifest > item");
         
-        for (Element item : document.select("manifest>item")) {
-            EpubResource resource = createResource(item, opfDir);
-            resources.add(resource);
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // 预分配列表容量，避免动态扩容
+        List<EpubResource> resources = new ArrayList<>(items.size());
+        
+        for (Element item : items) {
+            resources.add(createResource(item, opfDir));
         }
         
         // 如果epubFile不为null，缓存结果
@@ -87,11 +96,16 @@ public class ResourceParser {
         resource.setHref(opfDir + item.attr("href"));
         resource.setType(item.attr("media-type"));
         
+        // 优化：一次性获取属性，避免多次查询
         String properties = item.attr("properties");
-        resource.setProperties(properties.isEmpty() ? null : properties);
+        if (!properties.isEmpty()) {
+            resource.setProperties(properties);
+        }
         
         String fallback = item.attr("fallback");
-        resource.setFallback(fallback.isEmpty() ? null : fallback);
+        if (!fallback.isEmpty()) {
+            resource.setFallback(fallback);
+        }
         
         // 设置EPUB文件引用，用于按需流式加载资源
         resource.setEpubFile(epubFile);
@@ -111,16 +125,16 @@ public class ResourceParser {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
         
-        Document document = Jsoup.parse(opfContent);
+        // 使用更快的解析配置
+        Document document = Jsoup.parse(opfContent, "", Parser.xmlParser());
         String id = document.select("spine").attr("toc");
         
         if (id.isEmpty()) {
             throw new IllegalArgumentException("No NCX reference found in spine element");
         }
         
-        String selector = String.format("manifest>item[id=\"%s\"]", id);
-        Element ncxItem = document.select(selector).first();
-        
+        // 优化：使用更高效的查询方式
+        Element ncxItem = document.selectFirst("manifest > item[id=\"" + id + "\"]");
         if (ncxItem == null) {
             throw new IllegalArgumentException("NCX item not found in OPF manifest with id: " + id);
         }
@@ -140,7 +154,8 @@ public class ResourceParser {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
         
-        Element navItem = Jsoup.parse(opfContent).select("manifest>item[properties=\"nav\"]").first();
+        // 使用更快的查询方式
+        Element navItem = Jsoup.parse(opfContent, "", Parser.xmlParser()).selectFirst("manifest > item[properties=nav]");
         if (navItem != null) {
             return opfDir + navItem.attr("href");
         }
@@ -158,16 +173,17 @@ public class ResourceParser {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
         
-        Document document = Jsoup.parse(opfContent);
+        // 使用更快的解析配置
+        Document document = Jsoup.parse(opfContent, "", Parser.xmlParser());
         
         // 首先尝试查找properties="cover-image"的资源
-        Element coverItem = document.select("manifest>item[properties=\"cover-image\"]").first();
+        Element coverItem = document.selectFirst("manifest > item[properties=cover-image]");
         if (coverItem != null) {
             return coverItem.attr("id");
         }
         
         // 然后尝试查找meta name="cover"的资源
-        Element metaCover = document.select("metadata>meta[name=\"cover\"]").first();
+        Element metaCover = document.selectFirst("metadata > meta[name=cover]");
         if (metaCover != null) {
             return metaCover.attr("content");
         }
