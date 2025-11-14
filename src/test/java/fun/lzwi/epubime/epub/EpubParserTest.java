@@ -30,86 +30,52 @@ public class EpubParserTest {
         assertNotNull(content);
         assertEquals("application/epub+zip", content);
     }
-
-    @Test
-
-    public void parseMetadata() throws EpubParseException {
-
+    
+    @Test(expected = EpubParseException.class)
+    public void readEpubContentWithTraversalPathShouldThrowException() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-
-        String optContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-
-        Metadata metadata = EpubParser.parseMetadata(optContent);
-
-        assertNotNull(metadata);
-
-        assertEquals("坟", metadata.getTitle());
-
-        assertEquals("鲁迅", metadata.getCreator());
-
-        assertEquals("zh", metadata.getLanguage());
-
-        assertEquals("传硕公版书", metadata.getPublisher());
-
-        assertEquals("2022-12-06T13:14:44.000000+00:00", metadata.getDate());
-
-        assertEquals("https://www.7sbook.com/ebook/254.html", metadata.getIdentifier());
-
-        assertArrayEquals(new String[]{"论文", "论文集"}, metadata.getSubjects().toArray());
-
-        assertEquals("《坟》是鲁迅的论文集，收录鲁迅在1907年~1925" +
-
-                        "年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
-
-                metadata.getDescription());
-
-        assertEquals("本书的版权和许可信息。", metadata.getRights());
-
-        //        assertEquals("text", metadata.getType());
-
-        //        assertEquals("application/epub+zip", metadata.getFormat());
-
-        assertEquals("https://www.7sbook.com/", metadata.getSource());
-
-
-        assertEquals("2022-12-06T13:14:44Z", metadata.getModified());
-
+        // 测试使用目录穿越路径时应抛出异常
+        EpubParser.readEpubContent(epubFile, "../../../etc/passwd");
     }
 
+    @Test
+    public void parseMetadata() throws EpubParseException {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        Metadata metadata = EpubParser.parseMetadata(opfContent);
+        assertNotNull(metadata);
+        assertEquals("坟", metadata.getTitle());
+        assertEquals("鲁迅", metadata.getCreator());
+        assertEquals("zh", metadata.getLanguage());
+        assertEquals("传硕公版书", metadata.getPublisher());
+        assertEquals("2022-12-06T13:14:44.000000+00:00", metadata.getDate());
+        assertEquals("https://www.7sbook.com/ebook/254.html", metadata.getIdentifier());
+        assertArrayEquals(new String[]{"论文", "论文集"}, metadata.getSubjects().toArray());
+        assertEquals("《坟》是鲁迅的论文集，收录鲁迅在1907年~1925" +
+                        "年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
+                metadata.getDescription());
+        assertEquals("本书的版权和许可信息。", metadata.getRights());
+        assertEquals("https://www.7sbook.com/", metadata.getSource());
+        assertEquals("2022-12-06T13:14:44Z", metadata.getModified());
+    }
 
     @Test
-
     public void parseMetadataMultipleValues() throws EpubParseException {
-
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-
-        String optContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-
-        Metadata metadata = EpubParser.parseMetadata(optContent);
-
+        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        Metadata metadata = EpubParser.parseMetadata(opfContent);
         assertNotNull(metadata);
 
-
         // 验证多值元数据支持
-
         assertFalse(metadata.getTitles().isEmpty());
-
         assertFalse(metadata.getCreators().isEmpty());
-
         assertFalse(metadata.getLanguages().isEmpty());
-
         assertFalse(metadata.getIdentifiers().isEmpty());
-
         assertFalse(metadata.getPublishers().isEmpty());
-
         assertFalse(metadata.getDates().isEmpty());
-
         assertFalse(metadata.getDescriptions().isEmpty());
-
         assertFalse(metadata.getRightsList().isEmpty());
-
         assertFalse(metadata.getSubjects().isEmpty());
-
         assertFalse(metadata.getContributors().isEmpty());
 
         // 测试文件中不存在格式和类型元数据，这里不验证
@@ -117,14 +83,13 @@ public class EpubParserTest {
         // assertFalse(metadata.getTypes().isEmpty());
 
         assertFalse(metadata.getSources().isEmpty());
-
     }
 
     @Test
     public void getNcxPath() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        String optContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-        String tocPath = EpubParser.getNcxPath(optContent, "");
+        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        String tocPath = EpubParser.getNcxPath(opfContent, "");
         assertEquals("book.ncx", tocPath);
     }
 
@@ -369,6 +334,19 @@ public class EpubParserTest {
         assertTrue("HTML chapter content should be processed", processed[0]);
         assertEquals("application/epub+zip", content.toString());
     }
+    
+    @Test(expected = EpubParseException.class)
+    public void processHtmlChapterContentWithTraversalPathShouldThrowException() throws Exception {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        // 测试使用目录穿越路径时应抛出异常
+        EpubParser.processHtmlChapterContent(epubFile, "../../../etc/passwd", new Consumer<InputStream>() {
+            @Override
+            public void accept(InputStream inputStream) {
+                // 不应该执行到这里
+                fail("Should have thrown EpubParseException");
+            }
+        });
+    }
 
     @Test
     public void processMultipleHtmlChapters() throws Exception {
@@ -389,7 +367,7 @@ public class EpubParserTest {
                         content.append(line);
                     }
                     contents.put(fileName, content.toString());
-                    processedCount[0]++;
+                    processedCount[0]++; 
                 } catch (java.io.IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -401,7 +379,21 @@ public class EpubParserTest {
         assertEquals("application/epub+zip", contents.get("mimetype"));
     }
     
-        @Test
+    @Test(expected = EpubParseException.class)
+    public void processMultipleHtmlChaptersWithTraversalPathShouldThrowException() throws Exception {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype", "../../../etc/passwd");
+        // 测试使用目录穿越路径时应抛出异常
+        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, new BiConsumer<String, InputStream>() {
+            @Override
+            public void accept(String fileName, InputStream inputStream) {
+                // 不应该执行到这里
+                fail("Should have thrown EpubParseException");
+            }
+        });
+    }
+    
+    @Test
     public void parseMetadataWithSampleData() {
         // 创建一个模拟的EPUB OPF内容用于测试
         String sampleOpfContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +

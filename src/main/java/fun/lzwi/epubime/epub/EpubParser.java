@@ -3,6 +3,7 @@ package fun.lzwi.epubime.epub;
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import fun.lzwi.epubime.zip.ZipUtils;
+import fun.lzwi.epubime.zip.PathValidator;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
@@ -22,34 +23,38 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * EPUB解析器类
- * 负责解析EPUB文件并提取元数据、章节和资源信息
+ * EPUB parser class
+ * Responsible for parsing EPUB files and extracting metadata, chapters and resource information
  */
 public class EpubParser {
     /**
-     * 容器文件路径
+     * Container file path
      */
     public static final String CONTAINER_FILE_PATH = "META-INF/container.xml";
     private File epubFile;
 
     /**
-     * 构造函数
+     * Constructor
      *
-     * @param epubFile EPUB文件
+     * @param epubFile EPUB file
      */
     public EpubParser(File epubFile) {
         this.epubFile = epubFile;
     }
 
     /**
-     * 读取EPUB文件中的指定路径内容
+     * Read content at specified path in EPUB file
      *
-     * @param epubFile EPUB文件
-     * @param path     文件路径
-     * @return 文件内容
-     * @throws EpubParseException 解析异常
+     * @param epubFile EPUB file
+     * @param path     file path
+     * @return file content
+     * @throws EpubParseException parsing exception
      */
     protected static String readEpubContent(File epubFile, String path) throws EpubParseException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", path)) {
+            throw new EpubParseException("Invalid file path: " + path, epubFile.getName(), path, "readEpubContent");
+        }
 
         try {
 
@@ -65,10 +70,10 @@ public class EpubParser {
     }
 
     /**
-     * 从容器文件内容中获取根文件路径
+     * Get root file path from container file content
      *
-     * @param containerContent 容器文件内容
-     * @return 根文件路径
+     * @param containerContent container file content
+     * @return root file path
      */
     protected static String getRootFilePath(String containerContent) {
         // Try to get from cache - static method cannot directly get epubFile, so temporarily not cached
@@ -78,10 +83,10 @@ public class EpubParser {
     }
 
     /**
-     * 获取根文件目录
+     * Get root file directory
      *
-     * @param rootFilePath 根文件路径
-     * @return 根文件目录
+     * @param rootFilePath root file path
+     * @return root file directory
      */
     protected static String getRootFileDir(String rootFilePath) {
         // Try to get from cache - static method cannot directly get epubFile, so temporarily not cached
@@ -90,10 +95,10 @@ public class EpubParser {
     }
 
     /**
-     * 解析OPF内容中的元数据
+     * Parse metadata in OPF content
      *
-     * @param opfContent OPF文件内容
-     * @return 元数据对象
+     * @param opfContent OPF file content
+     * @return metadata object
      */
     protected static Metadata parseMetadata(String opfContent) {
         // Try to get from cache - static method cannot directly get epubFile, so temporarily not cached
@@ -101,12 +106,12 @@ public class EpubParser {
         Metadata metadata = new Metadata();
         Document opfDocument = Jsoup.parse(opfContent, Parser.xmlParser());
 
-        // 解析package元素获取unique-identifier属性
+        // Parse package element to get unique-identifier attribute
         Element packageElement = opfDocument.selectFirst("package");
         if (packageElement != null) {
             String uniqueIdentifierId = packageElement.attr("unique-identifier");
             if (!uniqueIdentifierId.isEmpty()) {
-                // 查找对应的dc:identifier元素并设置为uniqueIdentifier
+                // Find corresponding dc:identifier element and set as uniqueIdentifier
                 opfDocument.select("metadata > dc\\:identifier").forEach(identifier -> {
                     String id = identifier.attr("id");
                     if (uniqueIdentifierId.equals(id)) {
@@ -176,7 +181,7 @@ public class EpubParser {
 
                         if (name.equals("cover")) {
 
-                            // 保留对旧的meta name="cover"方式的支持，但优先级较低
+                            // Maintain support for old meta name="cover" method, but with lower priority
 
                             if (metadata.getCover() == null || metadata.getCover().isEmpty()) {
 
@@ -233,11 +238,11 @@ public class EpubParser {
     }
 
     /**
-     * 从OPF内容中获取NCX文件路径
+     * Get NCX file path from OPF content
      *
-     * @param opfContent OPF文件内容
-     * @param opfDir     OPF文件目录
-     * @return NCX文件路径
+     * @param opfContent OPF file content
+     * @param opfDir     OPF file directory
+     * @return NCX file path
      */
     protected static String getNcxPath(String opfContent, String opfDir) {
         Objects.requireNonNull(opfContent);
@@ -249,10 +254,10 @@ public class EpubParser {
     }
 
     /**
-     * 解析NCX目录内容
+     * Parse NCX table of contents content
      *
-     * @param tocContent NCX目录内容
-     * @return 章节列表
+     * @param tocContent NCX table of contents content
+     * @return list of chapters
      */
     protected static List<EpubChapter> parseNcx(String tocContent) {
         Objects.requireNonNull(tocContent);
@@ -265,11 +270,11 @@ public class EpubParser {
     }
 
     /**
-     * 从OPF内容中获取NAV文件路径
+     * Get NAV file path from OPF content
      *
-     * @param opfContent OPF文件内容
-     * @param opfDir     OPF文件目录
-     * @return NAV文件路径，如果不存在则返回null
+     * @param opfContent OPF file content
+     * @param opfDir     OPF file directory
+     * @return NAV file path, returns null if it does not exist
      */
     protected static String getNavPath(String opfContent, String opfDir) {
         Objects.requireNonNull(opfContent);
@@ -281,10 +286,10 @@ public class EpubParser {
     }
 
     /**
-     * 解析NAV目录内容
+     * Parse NAV table of contents content
      *
-     * @param navContent NAV目录内容
-     * @return 章节列表
+     * @param navContent NAV table of contents content
+     * @return list of chapters
      */
 
     protected static List<EpubChapter> parseNav(String navContent) {
@@ -298,13 +303,13 @@ public class EpubParser {
         List<EpubChapter> chapters = new ArrayList<>();
 
 
-        // 首先查找toc类型的nav元素（这是主要内容导航）
+        // First find nav element with type toc (this is the main navigation)
 
         Element navElement = doc.selectFirst("nav[epub:type= toc]");
 
         if (navElement == null) {
 
-            // 尝试查找其他toc类型的表达方式
+            // Try to find other expressions of toc type
 
             navElement = doc.selectFirst("nav[epub:type='toc']");
 
@@ -318,7 +323,7 @@ public class EpubParser {
 
         if (navElement == null) {
 
-            // 如果没有找到toc类型的nav，则使用第一个nav元素
+            // If no nav element with toc type is found, use the first nav element
 
             navElement = doc.selectFirst("nav");
 
@@ -328,7 +333,7 @@ public class EpubParser {
         if (navElement != null) {
 
 
-            // 查找顶级的ol或ul元素
+            // Find top-level ol or ul elements
 
 
             Elements topLists = navElement.select("> ol, > ul");
@@ -353,10 +358,10 @@ public class EpubParser {
 
 
     /**
-     * 递归解析导航列表
+     * Recursively parse navigation list
      *
-     * @param listElement ol或ul元素
-     * @return 章节列表
+     * @param listElement ol or ul element
+     * @return list of chapters
      */
 
     private static List<EpubChapter> parseNavList(Element listElement) {
@@ -388,7 +393,7 @@ public class EpubParser {
                 chapter = new EpubChapter();
 
 
-                // 设置章节ID（如果存在）
+                // Set chapter ID (if it exists)
 
                 String id = link.attr("id");
 
@@ -404,15 +409,15 @@ public class EpubParser {
                 chapter.setContent(link.attr("href"));
 
 
-                // 处理epub:type属性
+                // Process epub:type attribute
 
                 String epubType = link.attr("epub:type");
 
                 if (epubType != null && !epubType.isEmpty()) {
 
-                    // 可以根据需要存储epub:type信息
+                    // Can store epub:type information as needed
 
-                    // 这里暂时不处理，但保留扩展的可能性
+                    // Not processed here, but keep possibility for extension
 
                 }
 
@@ -420,7 +425,7 @@ public class EpubParser {
             }
 
 
-            // 查找嵌套的列表（子章节）
+            // Find nested lists (sub-chapters)
 
             Elements nestedLists = li.select("> ol, > ul");
 
@@ -446,7 +451,7 @@ public class EpubParser {
                 } else {
 
 
-                    // 如果li标签中没有a标签但有嵌套列表，解析这些嵌套列表
+                    // If li tag has no a tag but has nested list, parse these nested lists
 
 
                     List<EpubChapter> children = parseNavList(nestedList);
@@ -461,7 +466,7 @@ public class EpubParser {
             }
 
 
-            // 如果当前li标签包含链接，则添加到章节列表中
+            // If current li tag contains link, add to chapter list
 
 
             if (chapter != null) {
@@ -482,13 +487,13 @@ public class EpubParser {
     }
 
     /**
-     * 解析OPF内容中的资源文件列表
+     * Parse resource file list in OPF content
      *
-     * @param opfContent OPF文件内容
-     * @param opfDir     OPF文件目录
-     * @param epubFile   EPUB文件
-     * @return 资源文件列表
-     * @throws EpubParseException 解析异常
+     * @param opfContent OPF file content
+     * @param opfDir     OPF file directory
+     * @param epubFile   EPUB file
+     * @return list of resource files
+     * @throws EpubParseException parsing exception
      */
 
     protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
@@ -550,10 +555,10 @@ public class EpubParser {
     }
 
     /**
-     * 解析EPUB文件并返回EpubBook对象
+     * Parse EPUB file and return EpubBook object
      *
-     * @return 解析后的EpubBook对象
-     * @throws EpubParseException 解析异常
+     * @return parsed EpubBook object
+     * @throws EpubParseException parsing exception
      */
 
     public EpubBook parse() throws EpubParseException {
@@ -675,7 +680,7 @@ public class EpubParser {
                 book.setNav(nav);
 
 
-                // 解析其他类型的导航（地标、页面列表等）
+                // Parse other types of navigation (landmarks, page list, etc.)
 
                 List<EpubChapter> landmarks = parseNavByType(navContent, "landmarks");
 
@@ -720,11 +725,11 @@ public class EpubParser {
     }
 
     /**
-     * 根据nav类型解析导航内容
+     * Parse navigation content by nav type
      *
-     * @param navContent NAV目录内容
-     * @param navType    导航类型（如toc、landmarks、page-list等）
-     * @return 章节列表
+     * @param navContent NAV table of contents content
+     * @param navType    navigation type (e.g. toc, landmarks, page-list, etc.)
+     * @return list of chapters
      */
     protected static List<EpubChapter> parseNavByType(String navContent, String navType) {
         Objects.requireNonNull(navContent);
@@ -734,7 +739,7 @@ public class EpubParser {
 
         List<EpubChapter> chapters = new ArrayList<>();
 
-        // 查找特定类型的nav元素
+        // Find specific type nav element
         Element navElement = doc.selectFirst("nav[epub:type= " + navType + "]");
         if (navElement == null) {
             navElement = doc.selectFirst("nav[epub:type='" + navType + "']");
@@ -744,7 +749,7 @@ public class EpubParser {
         }
 
         if (navElement != null) {
-            // 查找顶级的ol或ul元素
+            // Find top-level ol or ul elements
             Elements topLists = navElement.select("> ol, > ul");
 
             for (Element list : topLists) {
@@ -756,10 +761,10 @@ public class EpubParser {
     }
 
     /**
-     * 解析EPUB文件并返回EpubBook对象，但不使用缓存
+     * Parse EPUB file and return EpubBook object, but without using cache
      *
-     * @return 解析后的EpubBook对象
-     * @throws EpubParseException 解析异常
+     * @return parsed EpubBook object
+     * @throws EpubParseException parsing exception
      */
     public EpubBook parseWithoutCache() throws EpubParseException {
         // Clean up current thread's ZIP file handle
@@ -774,15 +779,20 @@ public class EpubParser {
     }
 
     /**
-     * 流式处理HTML章节内容以避免将整个文件加载到内存中
+     * Stream processing HTML chapter content to avoid loading entire file into memory
      *
-     * @param epubFile     EPUB文件
-     * @param htmlFileName HTML文件名
-     * @param processor    消费者函数，用于处理HTML内容
-     * @throws EpubParseException 解析异常
+     * @param epubFile     EPUB file
+     * @param htmlFileName HTML file name
+     * @param processor    consumer function to process HTML content
+     * @throws EpubParseException parsing exception
      */
     public static void processHtmlChapterContent(File epubFile, String htmlFileName,
                                                  Consumer<InputStream> processor) throws EpubParseException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", htmlFileName)) {
+            throw new EpubParseException("Invalid file path: " + htmlFileName, epubFile.getName(), htmlFileName, "processHtmlChapterContent");
+        }
+        
         try {
 
             ZipUtils.processHtmlContent(epubFile, htmlFileName, processor);
@@ -797,15 +807,22 @@ public class EpubParser {
     }
 
     /**
-     * 流式处理多个HTML章节内容
+     * Stream processing multiple HTML chapter contents
      *
-     * @param epubFile      EPUB文件
-     * @param htmlFileNames HTML文件名列表
-     * @param processor     消费者函数，用于处理每个HTML内容
-     * @throws EpubParseException 解析异常
+     * @param epubFile      EPUB file
+     * @param htmlFileNames HTML file name list
+     * @param processor     consumer function to process each HTML content
+     * @throws EpubParseException parsing exception
      */
     public static void processMultipleHtmlChapters(File epubFile, List<String> htmlFileNames, BiConsumer<String,
             InputStream> processor) throws EpubParseException {
+        // Prevent directory traversal attacks
+        for (String fileName : htmlFileNames) {
+            if (!PathValidator.isPathSafe("", fileName)) {
+                throw new EpubParseException("Invalid file path: " + fileName, epubFile.getName(), fileName, "processMultipleHtmlChapters");
+            }
+        }
+        
         try {
 
             ZipUtils.processMultipleHtmlContents(epubFile, htmlFileNames, processor);

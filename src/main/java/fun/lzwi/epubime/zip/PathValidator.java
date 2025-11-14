@@ -1,0 +1,74 @@
+package fun.lzwi.epubime.zip;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.net.URLDecoder;
+import java.io.UnsupportedEncodingException;
+
+/**
+ * Path validation utility class
+ * Used to prevent directory traversal attacks (Path Traversal Attack)
+ */
+public class PathValidator {
+    
+    /**
+     * Validates whether a file path is safe to prevent directory traversal attacks
+     * @param basePath base path
+     * @param relativePath relative path
+     * @return true if the path is safe, false otherwise
+     */
+    public static boolean isPathSafe(String basePath, String relativePath) {
+        if (basePath == null || relativePath == null) {
+            return false;
+        }
+        
+        try {
+            // Decode URL-encoded characters first to handle cases like ..%2F (.. encoded as %2F)
+            relativePath = URLDecoder.decode(relativePath, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // If decoding fails, proceed with original path but return false as a safe default
+            return false;
+        }
+        
+        // Normalize paths
+        Path base = Paths.get(basePath).toAbsolutePath().normalize();
+        Path resolved = base.resolve(relativePath).normalize();
+        
+        // Check if the resolved path is under the base path
+        return resolved.startsWith(base);
+    }
+    
+    /**
+     * Sanitizes a path string by removing potential directory traversal characters
+     * @param path path string
+     * @return sanitized path
+     */
+    public static String sanitizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+        
+        try {
+            // Decode URL-encoded characters first
+            path = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // If decoding fails, return the original path
+            return path;
+        }
+        
+        // Remove leading and trailing whitespace
+        path = path.trim();
+        
+        // Remove leading slashes (if any)
+        while (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        
+        // Remove trailing slashes (if any, but preserve root path slash)
+        while (path.endsWith("/") && path.length() > 1) {
+            path = path.substring(0, path.length() - 1);
+        }
+        
+        return path;
+    }
+}

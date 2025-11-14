@@ -2,7 +2,7 @@ package fun.lzwi.epubime.zip;
 
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import java.io.*;
-import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -10,36 +10,41 @@ import java.util.function.Consumer;
 import java.util.function.BiConsumer;
 
 /**
- * ZIP工具类
- * 提供对ZIP文件的读取、流式处理等操作，支持缓存和ZIP文件句柄重用
+ * ZIP utility class
+ * Provides operations for reading ZIP files, streaming processing, etc., supports caching and ZIP file handle reuse
  */
 public class ZipUtils {
     private static final String DEFAULT_CHARSET = "UTF-8";
 
     /**
-     * 获取ZIP文件中的文件列表
-     * @param zipFile ZIP文件
-     * @return 文件名列表
-     * @throws IOException IO异常
+     * Get file list in ZIP file
+     * @param zipFile ZIP file
+     * @return list of file names
+     * @throws IOException IO exception
      */
     public static List<String> getZipFileList(File zipFile) throws IOException {
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         try {
             return zip.stream().map(ZipEntry::getName).collect(java.util.stream.Collectors.toList());
         } finally {
-            // 释放ZIP文件句柄，减少引用计数
+            // Release ZIP file handle, reduce reference count
             ZipFileManager.getInstance().releaseZipFile();
         }
     }
 
     /**
-     * 获取ZIP文件中的文本内容
-     * @param zipFile ZIP文件
-     * @param fileName 文件名
-     * @return 文件内容，如果不存在则返回null
-     * @throws IOException IO异常
+     * Get text content in ZIP file
+     * @param zipFile ZIP file
+     * @param fileName file name
+     * @return file content, returns null if it does not exist
+     * @throws IOException IO exception
      */
     public static String getZipFileContent(File zipFile, String fileName) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new IOException("Invalid file path: " + fileName);
+        }
+        
         // Try to get from cache
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
         String cachedContent = cache.getTextContent(fileName);
@@ -51,7 +56,7 @@ public class ZipUtils {
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         ZipEntry entry = zip.getEntry(fileName);
         if (entry == null) {
-            // 释放ZIP文件句柄，减少引用计数
+            // Release ZIP file handle, reduce reference count
             ZipFileManager.getInstance().releaseZipFile();
             return null;
         }
@@ -62,19 +67,24 @@ public class ZipUtils {
             cache.setTextContent(fileName, content);
             return content;
         } finally {
-            // 释放ZIP文件句柄，减少引用计数
+            // Release ZIP file handle, reduce reference count
         ZipFileManager.getInstance().releaseZipFile();
         }
     }
 
     /**
-     * 获取ZIP文件中的字节数组内容
-     * @param zipFile ZIP文件
-     * @param fileName 文件名
-     * @return 文件内容字节数组，如果不存在则返回null
-     * @throws IOException IO异常
+     * Get byte array content in ZIP file
+     * @param zipFile ZIP file
+     * @param fileName file name
+     * @return file content byte array, returns null if it does not exist
+     * @throws IOException IO exception
      */
     public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new IOException("Invalid file path: " + fileName);
+        }
+        
         // Try to get from cache
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
         byte[] cachedData = cache.getBinaryContent(fileName);
@@ -105,17 +115,22 @@ public class ZipUtils {
     }
 
     /**
-     * 流式处理ZIP文件中的内容以避免将整个文件加载到内存中
-     * @param zipFile ZIP文件
-     * @param fileName 要处理的文件名
-     * @param processor 消费者函数，用于处理输入流
-     * @throws IOException IO异常
+     * Stream processing content in ZIP file to avoid loading entire file into memory
+     * @param zipFile ZIP file
+     * @param fileName file name to process
+     * @param processor consumer function to process input stream
+     * @throws IOException IO exception
      */
     public static void processZipFileContent(File zipFile, String fileName, Consumer<InputStream> processor) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new IOException("Invalid file path: " + fileName);
+        }
+        
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         ZipEntry entry = zip.getEntry(fileName);
         if (entry == null) {
-            // 释放ZIP文件句柄，减少引用计数
+            // Release ZIP file handle, reduce reference count
             ZipFileManager.getInstance().releaseZipFile();
             return;
         }
@@ -127,13 +142,18 @@ public class ZipUtils {
     }
 
     /**
-     * 获取ZIP文件中指定文件的输入流，用于流式处理
-     * @param zipFile ZIP文件
-     * @param fileName 要获取的文件名
-     * @return 输入流，调用者需要负责关闭
-     * @throws IOException IO异常
+     * Get input stream for specified file in ZIP file, for streaming processing
+     * @param zipFile ZIP file
+     * @param fileName file name to get
+     * @return input stream, caller needs to close it
+     * @throws IOException IO exception
      */
     public static InputStream getZipFileInputStream(File zipFile, String fileName) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new IOException("Invalid file path: " + fileName);
+        }
+        
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         ZipEntry entry = zip.getEntry(fileName);
         if (entry == null) {
@@ -144,13 +164,20 @@ public class ZipUtils {
     }
 
     /**
-     * 使用单个ZIP文件句柄批量读取多个文件内容
-     * @param zipFile ZIP文件
-     * @param fileNames 要读取的文件名列表
-     * @return 文件名到内容的映射
-     * @throws IOException IO异常
+     * Batch read multiple file contents using single ZIP file handle
+     * @param zipFile ZIP file
+     * @param fileNames list of file names to read
+     * @return mapping from file name to content
+     * @throws IOException IO exception
      */
     public static java.util.Map<String, String> getMultipleZipFileContents(File zipFile, List<String> fileNames) throws IOException {
+        // Prevent directory traversal attacks
+        for (String fileName : fileNames) {
+            if (!PathValidator.isPathSafe("", fileName)) {
+                throw new IOException("Invalid file path: " + fileName);
+            }
+        }
+        
         java.util.Map<String, String> contents = new java.util.HashMap<>();
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         for (String fileName : fileNames) {
@@ -165,19 +192,26 @@ public class ZipUtils {
                 contents.put(fileName, null);
             }
         }
-        // 释放ZIP文件句柄，减少引用计数
+        // Release ZIP file handle, reduce reference count
         ZipFileManager.getInstance().releaseZipFile();
         return contents;
     }
 
     /**
-     * 使用单个ZIP文件句柄批量读取多个文件的字节数组
-     * @param zipFile ZIP文件
-     * @param fileNames 要读取的文件名列表
-     * @return 文件名到字节数组的映射
-     * @throws IOException IO异常
+     * Batch read multiple file byte arrays using single ZIP file handle
+     * @param zipFile ZIP file
+     * @param fileNames list of file names to read
+     * @return mapping from file name to byte array
+     * @throws IOException IO exception
      */
     public static java.util.Map<String, byte[]> getMultipleZipFileBytes(File zipFile, List<String> fileNames) throws IOException {
+        // Prevent directory traversal attacks
+        for (String fileName : fileNames) {
+            if (!PathValidator.isPathSafe("", fileName)) {
+                throw new IOException("Invalid file path: " + fileName);
+            }
+        }
+        
         java.util.Map<String, byte[]> contents = new java.util.HashMap<>();
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         for (String fileName : fileNames) {
@@ -201,25 +235,37 @@ public class ZipUtils {
     }
     
     /**
-     * 流式处理HTML内容以避免将整个文件加载到内存中
-     * @param zipFile ZIP文件
-     * @param htmlFileName HTML文件名
-     * @param processor 消费者函数，用于处理HTML内容
-     * @throws IOException IO异常
+     * Stream processing HTML content to avoid loading entire file into memory
+     * @param zipFile ZIP file
+     * @param htmlFileName HTML file name
+     * @param processor consumer function to process HTML content
+     * @throws IOException IO exception
      */
     public static void processHtmlContent(File zipFile, String htmlFileName, Consumer<InputStream> processor) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", htmlFileName)) {
+            throw new IOException("Invalid file path: " + htmlFileName);
+        }
+        
         processZipFileContent(zipFile, htmlFileName, processor);
     }
 
     /**
-     * 批量流式处理多个HTML文件内容
-     * @param zipFile ZIP文件
-     * @param htmlFileNames HTML文件名列表
-     * @param processor 消费者函数，用于处理每个HTML内容
-     * @throws IOException IO异常
+     * Batch stream processing multiple HTML file contents
+     * @param zipFile ZIP file
+     * @param htmlFileNames HTML file name list
+     * @param processor consumer function to process each HTML content
+     * @throws IOException IO exception
      */
     public static void processMultipleHtmlContents(File zipFile, List<String> htmlFileNames, 
                                                    BiConsumer<String, InputStream> processor) throws IOException {
+        // Prevent directory traversal attacks
+        for (String fileName : htmlFileNames) {
+            if (!PathValidator.isPathSafe("", fileName)) {
+                throw new IOException("Invalid file path: " + fileName);
+            }
+        }
+        
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         for (String fileName : htmlFileNames) {
             ZipEntry entry = zip.getEntry(fileName);
@@ -227,16 +273,16 @@ public class ZipUtils {
                 try (InputStream in = zip.getInputStream(entry)) {
                     processor.accept(fileName, in);
                 } finally {
-                    // 释放ZIP文件句柄，减少引用计数
+                    // Release ZIP file handle, reduce reference count
                 }
             }
         }
-        // 释放ZIP文件句柄，减少引用计数
+        // Release ZIP file handle, reduce reference count
         ZipFileManager.getInstance().releaseZipFile();
     }
 
     /**
-     * 自定义输入流，自动释放ZIP文件句柄引用
+     * Custom input stream, automatically release ZIP file handle reference
      */
     private static class ZipFileInputStream extends InputStream {
         private final InputStream inputStream;
@@ -275,7 +321,7 @@ public class ZipUtils {
             try {
                 inputStream.close();
             } finally {
-                // 在流关闭时释放ZIP文件句柄引用
+                // Release ZIP file handle reference when stream is closed
                 ZipFileManager.getInstance().releaseZipFile();
             }
         }
