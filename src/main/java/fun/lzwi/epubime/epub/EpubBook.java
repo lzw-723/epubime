@@ -15,6 +15,38 @@ public class EpubBook {
     private List<EpubChapter> nav = new ArrayList<>();
     private List<EpubResource> resources = new ArrayList<>();
 
+    public EpubBook() {
+        // 默认构造函数
+    }
+    
+    /**
+     * 复制构造函数，用于缓存
+     * @param other 要复制的EpubBook对象
+     */
+    public EpubBook(EpubBook other) {
+        if (other.metadata != null) {
+            this.metadata = new Metadata(other.metadata);
+        }
+        if (other.ncx != null) {
+            this.ncx = new ArrayList<>();
+            for (EpubChapter chapter : other.ncx) {
+                this.ncx.add(new EpubChapter(chapter));
+            }
+        }
+        if (other.nav != null) {
+            this.nav = new ArrayList<>();
+            for (EpubChapter chapter : other.nav) {
+                this.nav.add(new EpubChapter(chapter));
+            }
+        }
+        if (other.resources != null) {
+            this.resources = new ArrayList<>();
+            for (EpubResource resource : other.resources) {
+                this.resources.add(new EpubResource(resource));
+            }
+        }
+    }
+
     public List<EpubChapter> getNcx() {
         return Collections.unmodifiableList(ncx);
     }

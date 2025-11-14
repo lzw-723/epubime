@@ -3,6 +3,21 @@ package fun.lzwi.epubime.epub;
 public class EpubChapter {
     private String id;
     private String title;
+    private String content;
+
+    public EpubChapter() {
+        // 默认构造函数
+    }
+    
+    /**
+     * 复制构造函数
+     * @param other 要复制的EpubChapter对象
+     */
+    public EpubChapter(EpubChapter other) {
+        this.id = other.id;
+        this.title = other.title;
+        this.content = other.content;
+    }
 
     public String getContent() {
         return content;
@@ -27,7 +42,4 @@ public class EpubChapter {
     public void setId(String id) {
         this.id = id;
     }
-
-    private String content;
-
 }

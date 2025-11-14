@@ -1,5 +1,6 @@
 package fun.lzwi.epubime.epub;
 
+import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.zip.ZipUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,6 +40,7 @@ public class EpubParser {
      * @return 根文件路径
      */
     protected static String getRootFilePath(String containerContent) {
+        // 尝试从缓存获取 - 使用静态方法无法直接获取epubFile，所以暂时不缓存
         int start = containerContent.indexOf("full-path=\"");
         int end = containerContent.indexOf("\"", start + 11);
         return containerContent.substring(start + 11, end);
@@ -51,11 +53,13 @@ public class EpubParser {
      * @return 根文件目录
      */
     protected static String getRootFileDir(String rootFilePath) {
+        // 尝试从缓存获取 - 使用静态方法无法直接获取epubFile，所以暂时不缓存
         int start = rootFilePath.lastIndexOf("/");
         return rootFilePath.substring(0, start + 1);
     }
 
     protected static Metadata parseMetadata(String opfContent) {
+        // 尝试从缓存获取 - 使用静态方法无法直接获取epubFile，所以暂时不缓存
         Objects.requireNonNull(opfContent);
         Metadata metadata = new Metadata();        Jsoup.parse(opfContent, Parser.xmlParser()).select("metadata").forEach(meta -> {
             meta.children().forEach(child -> {
@@ -167,6 +171,16 @@ public class EpubParser {
 
     protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
         Objects.requireNonNull(opfContent);
+        
+        // 尝试从缓存获取
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+        @SuppressWarnings("unchecked")
+        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResultCache().get(cacheKey);
+        if (cachedResult != null) {
+            return new ArrayList<>(cachedResult);
+        }
+        
         Document document = Jsoup.parse(opfContent);
         List<EpubResource> resources = new ArrayList<>();
         
@@ -180,12 +194,26 @@ public class EpubParser {
             // 不立即加载数据，仅设置文件引用，提供按需加载的能力
             resources.add(res);
         }
+        
+        // 缓存结果
+        cache.getParsedResultCache().put(cacheKey, new ArrayList<>(resources));
         return resources;
     }
+
 
     // 解析EPUB文件并返回EpubBook对象
     public EpubBook parse() throws EpubParseException {
         EpubBook book = new EpubBook();
+        
+        // 获取当前EPUB文件的缓存
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
+        
+        // 尝试从缓存获取完整解析结果
+        EpubBook cachedBook = (EpubBook) cache.getParsedResultCache().get(cacheKey);
+        if (cachedBook != null) {
+            return new EpubBook(cachedBook);
+        }
         
         try {
             // 第一次ZIP访问：读取container.xml和OPF文件
@@ -238,6 +266,9 @@ public class EpubParser {
             // 解析资源文件，获取资源数据 - 现在只设置引用，不加载数据
             List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
             book.setResources(resources);
+            
+            // 缓存完整解析结果
+            cache.getParsedResultCache().put(cacheKey, new EpubBook(book));
         } catch (IOException e) {
             throw new EpubParseException("Failed to read EPUB file", e);
         }

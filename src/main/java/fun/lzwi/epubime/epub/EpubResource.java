@@ -16,6 +16,24 @@ public class EpubResource {
     private byte[] data;
     private File epubFile; // 用于流式处理的EPUB文件引用
 
+    public EpubResource() {
+        // 默认构造函数
+    }
+    
+    /**
+     * 复制构造函数
+     * @param other 要复制的EpubResource对象
+     */
+    public EpubResource(EpubResource other) {
+        this.id = other.id;
+        this.type = other.type;
+        this.href = other.href;
+        this.epubFile = other.epubFile;
+        if (other.data != null) {
+            this.data = other.data.clone();
+        }
+    }
+
     public String getId() {
         return id;
     }

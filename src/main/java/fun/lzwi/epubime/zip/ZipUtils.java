@@ -1,5 +1,6 @@
 package fun.lzwi.epubime.zip;
 
+import fun.lzwi.epubime.cache.EpubCacheManager;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
@@ -18,6 +19,14 @@ public class ZipUtils {
     }
 
     public static String getZipFileContent(File zipFile, String fileName) throws IOException {
+        // 尝试从缓存获取
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        String cachedContent = cache.getTextContentCache().get(fileName);
+        if (cachedContent != null) {
+            return cachedContent;
+        }
+        
+        // 缓存未命中，从ZIP文件读取
         try (ZipFile zip = new ZipFile(zipFile)) {
             ZipEntry entry = zip.getEntry(fileName);
             if (entry == null) {
@@ -25,12 +34,23 @@ public class ZipUtils {
             }
             try (InputStream in = zip.getInputStream(entry); BufferedReader reader =
                     new BufferedReader(new InputStreamReader(in, DEFAULT_CHARSET))) {
-                return reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+                String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+                // 缓存结果
+                cache.getTextContentCache().put(fileName, content);
+                return content;
             }
         }
     }
 
     public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
+        // 尝试从缓存获取
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        byte[] cachedData = cache.getBinaryContentCache().get(fileName);
+        if (cachedData != null) {
+            return cachedData.clone(); // 返回克隆以避免修改缓存数据
+        }
+        
+        // 缓存未命中，从ZIP文件读取
         try (ZipFile zip = new ZipFile(zipFile)) {
             ZipEntry entry = zip.getEntry(fileName);
             if (entry == null) {
@@ -43,7 +63,10 @@ public class ZipUtils {
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
-                return out.toByteArray();
+                byte[] data = out.toByteArray();
+                // 缓存结果
+                cache.getBinaryContentCache().put(fileName, data.clone());
+                return data;
             }
         }
     }
