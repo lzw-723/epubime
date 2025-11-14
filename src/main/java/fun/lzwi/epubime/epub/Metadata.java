@@ -3,55 +3,59 @@ package fun.lzwi.epubime.epub;
 
 import java.util.Collections;
 
+
 import java.util.List;
 
 
 /**
  * EPUB元数据模型类
+ *
+ * <p>
  * <p>
  * 表示EPUB电子书的元数据信息，包括标题、作者、出版商等
  */
 
+
 public class Metadata {
 
 
-    private String title;
+    private final List<String> titles;
 
 
-    private String creator;
+    private final List<String> creators;
 
 
     private final List<String> contributors;
 
 
-    private String publisher;
+    private final List<String> publishers;
 
 
-    private String identifier;
+    private final List<String> identifiers;
 
 
     private final List<String> subjects;
 
 
-    private String date;
+    private final List<String> dates;
 
 
-    private String language;
+    private final List<String> languages;
 
 
-    private String description;
+    private final List<String> descriptions;
 
 
-    private String rights;
+    private final List<String> rightsList;
 
 
-    private String type;
+    private final List<String> types;
 
 
-    private String format;
+    private final List<String> formats;
 
 
-    private String source;
+    private final List<String> sources;
 
 
     private String modified;
@@ -63,15 +67,40 @@ public class Metadata {
     private String cover;
 
 
+    // EPUB 3.3 可访问性元数据
+
+    private final List<String> accessibilityFeatures;
+
+
+    private final List<String> accessibilityHazard;
+
+
+    private final List<String> accessibilitySummary;
+
+
+    // 渲染属性
+
+    private String layout;
+
+
+    private String orientation;
+
+
+    private String spread;
+
+
     /**
      * 获取封面资源ID
      *
      * @return 封面资源ID
      */
 
+
     public String getCover() {
 
+
         return cover;
+
 
     }
 
@@ -82,9 +111,12 @@ public class Metadata {
      * @param cover 封面资源ID
      */
 
+
     public void setCover(String cover) {
 
+
         this.cover = cover;
+
 
     }
 
@@ -93,11 +125,57 @@ public class Metadata {
      * 默认构造函数
      */
 
+
     public Metadata() {
+
+
+        titles = new java.util.ArrayList<>();
+
+
+        creators = new java.util.ArrayList<>();
+
 
         contributors = new java.util.ArrayList<>();
 
+
+        publishers = new java.util.ArrayList<>();
+
+
+        identifiers = new java.util.ArrayList<>();
+
+
         subjects = new java.util.ArrayList<>();
+
+
+        dates = new java.util.ArrayList<>();
+
+
+        languages = new java.util.ArrayList<>();
+
+
+        descriptions = new java.util.ArrayList<>();
+
+
+        rightsList = new java.util.ArrayList<>();
+
+
+        types = new java.util.ArrayList<>();
+
+
+        formats = new java.util.ArrayList<>();
+
+
+        sources = new java.util.ArrayList<>();
+
+
+        accessibilityFeatures = new java.util.ArrayList<>();
+
+
+        accessibilityHazard = new java.util.ArrayList<>();
+
+
+        accessibilitySummary = new java.util.ArrayList<>();
+
 
     }
 
@@ -108,46 +186,47 @@ public class Metadata {
      * @param metadata 要复制的元数据对象
      */
 
+
     public Metadata(Metadata metadata) {
 
 
-        this.title = metadata.title;
+        this.titles = new java.util.ArrayList<>(metadata.titles);
 
 
-        this.creator = metadata.creator;
+        this.creators = new java.util.ArrayList<>(metadata.creators);
 
 
-        this.contributors = metadata.contributors;
+        this.contributors = new java.util.ArrayList<>(metadata.contributors);
 
 
-        this.publisher = metadata.publisher;
+        this.publishers = new java.util.ArrayList<>(metadata.publishers);
 
 
-        this.identifier = metadata.identifier;
+        this.identifiers = new java.util.ArrayList<>(metadata.identifiers);
 
 
-        this.subjects = metadata.subjects;
+        this.subjects = new java.util.ArrayList<>(metadata.subjects);
 
 
-        this.date = metadata.date;
+        this.dates = new java.util.ArrayList<>(metadata.dates);
 
 
-        this.language = metadata.language;
+        this.languages = new java.util.ArrayList<>(metadata.languages);
 
 
-        this.description = metadata.description;
+        this.descriptions = new java.util.ArrayList<>(metadata.descriptions);
 
 
-        this.rights = metadata.rights;
+        this.rightsList = new java.util.ArrayList<>(metadata.rightsList);
 
 
-        this.type = metadata.type;
+        this.types = new java.util.ArrayList<>(metadata.types);
 
 
-        this.format = metadata.format;
+        this.formats = new java.util.ArrayList<>(metadata.formats);
 
 
-        this.source = metadata.source;
+        this.sources = new java.util.ArrayList<>(metadata.sources);
 
 
         this.modified = metadata.modified;
@@ -159,82 +238,759 @@ public class Metadata {
         this.cover = metadata.cover;
 
 
+        this.accessibilityFeatures = new java.util.ArrayList<>(metadata.accessibilityFeatures);
+
+
+        this.accessibilityHazard = new java.util.ArrayList<>(metadata.accessibilityHazard);
+
+
+        this.accessibilitySummary = new java.util.ArrayList<>(metadata.accessibilitySummary);
+
+
+        this.layout = metadata.layout;
+
+
+        this.orientation = metadata.orientation;
+
+
+        this.spread = metadata.spread;
+
+
     }
 
     /**
-     * 获取格式信息
+     * 获取标题列表
      *
-     * @return 格式信息
+     * @return 标题列表（不可修改）
      */
 
-    public String getFormat() {
 
-        return format;
-
-    }
+    public List<String> getTitles() {
 
 
-    /**
-     * 设置格式信息
-     *
-     * @param format 格式信息
-     */
+        return Collections.unmodifiableList(titles);
 
-    public void setFormat(String format) {
-
-        this.format = format;
-
-    }
-
-
-    /**
-     * 获取类型信息
-     *
-     * @return 类型信息
-     */
-
-    public String getType() {
-
-        return type;
 
     }
 
 
     /**
-     * 设置类型信息
+     * 获取主标题（第一个标题）
      *
-     * @param type 类型信息
+     * @return 主标题
      */
 
-    public void setType(String type) {
 
-        this.type = type;
+    public String getTitle() {
+
+
+        return titles.isEmpty() ? null : titles.get(0);
+
 
     }
 
 
     /**
-     * 获取标识符
+     * 添加标题
      *
-     * @return 标识符
+     * @param title 标题
      */
+
+
+    public void addTitle(String title) {
+
+
+        this.titles.add(title);
+
+
+    }
+
+
+    /**
+     * 设置标题（清空现有标题并添加新标题）
+     *
+     * @param title 标题
+     */
+
+
+    public void setTitle(String title) {
+
+
+        this.titles.clear();
+
+
+        this.titles.add(title);
+
+
+    }
+
+
+    /**
+     * 获取创建者列表
+     *
+     * @return 创建者列表（不可修改）
+     */
+
+
+    public List<String> getCreators() {
+
+
+        return Collections.unmodifiableList(creators);
+
+
+    }
+
+
+    /**
+     * 获取主创建者（第一个创建者）
+     *
+     * @return 主创建者
+     */
+
+
+    public String getCreator() {
+
+
+        return creators.isEmpty() ? null : creators.get(0);
+
+
+    }
+
+
+    /**
+     * 添加创建者
+     *
+     * @param creator 创建者
+     */
+
+
+    public void addCreator(String creator) {
+
+
+        this.creators.add(creator);
+
+
+    }
+
+
+    /**
+     * 设置创建者（清空现有创建者并添加新创建者）
+     *
+     * @param creator 创建者
+     */
+
+
+    public void setCreator(String creator) {
+
+
+        this.creators.clear();
+
+
+        this.creators.add(creator);
+
+
+    }
+
+
+    /**
+     * 获取出版商列表
+     *
+     * @return 出版商列表（不可修改）
+     */
+
+
+    public List<String> getPublishers() {
+
+
+        return Collections.unmodifiableList(publishers);
+
+
+    }
+
+
+    /**
+     * 获取第一个出版商
+     *
+     * @return 第一个出版商
+     */
+
+
+    public String getPublisher() {
+
+
+        return publishers.isEmpty() ? null : publishers.get(0);
+
+
+    }
+
+
+    /**
+     * 添加出版商
+     *
+     * @param publisher 出版商
+     */
+
+
+    public void addPublisher(String publisher) {
+
+
+        this.publishers.add(publisher);
+
+
+    }
+
+
+    /**
+     * 设置出版商（清空现有出版商并添加新出版商）
+     *
+     * @param publisher 出版商
+     */
+
+
+    public void setPublisher(String publisher) {
+
+
+        this.publishers.clear();
+
+
+        this.publishers.add(publisher);
+
+
+    }
+
+
+    /**
+     * 获取标识符列表
+     *
+     * @return 标识符列表（不可修改）
+     */
+
+
+    public List<String> getIdentifiers() {
+
+
+        return Collections.unmodifiableList(identifiers);
+
+
+    }
+
+
+    /**
+     * 获取第一个标识符
+     *
+     * @return 第一个标识符
+     */
+
 
     public String getIdentifier() {
 
-        return identifier;
+
+        return identifiers.isEmpty() ? null : identifiers.get(0);
+
 
     }
 
 
     /**
-     * 设置标识符
+     * 添加标识符
      *
      * @param identifier 标识符
      */
 
+
+    public void addIdentifier(String identifier) {
+
+
+        this.identifiers.add(identifier);
+
+
+    }
+
+
+    /**
+     * 设置标识符（清空现有标识符并添加新标识符）
+     *
+     * @param identifier 标识符
+     */
+
+
     public void setIdentifier(String identifier) {
 
-        this.identifier = identifier;
+
+        this.identifiers.clear();
+
+
+        this.identifiers.add(identifier);
+
+
+    }
+
+
+    /**
+     * 获取格式列表
+     *
+     * @return 格式列表（不可修改）
+     */
+
+
+    public List<String> getFormats() {
+
+
+        return Collections.unmodifiableList(formats);
+
+
+    }
+
+
+    /**
+     * 获取第一个格式
+     *
+     * @return 第一个格式
+     */
+
+
+    public String getFormat() {
+
+
+        return formats.isEmpty() ? null : formats.get(0);
+
+
+    }
+
+
+    /**
+     * 添加格式
+     *
+     * @param format 格式
+     */
+
+
+    public void addFormat(String format) {
+
+
+        this.formats.add(format);
+
+
+    }
+
+
+    /**
+     * 设置格式（清空现有格式并添加新格式）
+     *
+     * @param format 格式
+     */
+
+
+    public void setFormat(String format) {
+
+
+        this.formats.clear();
+
+
+        this.formats.add(format);
+
+
+    }
+
+
+    /**
+     * 获取类型列表
+     *
+     * @return 类型列表（不可修改）
+     */
+
+
+    public List<String> getTypes() {
+
+
+        return Collections.unmodifiableList(types);
+
+
+    }
+
+
+    /**
+     * 获取第一个类型
+     *
+     * @return 第一个类型
+     */
+
+
+    public String getType() {
+
+
+        return types.isEmpty() ? null : types.get(0);
+
+
+    }
+
+
+    /**
+     * 添加类型
+     *
+     * @param type 类型
+     */
+
+
+    public void addType(String type) {
+
+
+        this.types.add(type);
+
+
+    }
+
+
+    /**
+     * 设置类型（清空现有类型并添加新类型）
+     *
+     * @param type 类型
+     */
+
+
+    public void setType(String type) {
+
+
+        this.types.clear();
+
+
+        this.types.add(type);
+
+
+    }
+
+
+    /**
+     * 获取日期列表
+     *
+     * @return 日期列表（不可修改）
+     */
+
+
+    public List<String> getDates() {
+
+
+        return Collections.unmodifiableList(dates);
+
+
+    }
+
+
+    /**
+     * 获取第一个日期
+     *
+     * @return 第一个日期
+     */
+
+
+    public String getDate() {
+
+
+        return dates.isEmpty() ? null : dates.get(0);
+
+
+    }
+
+
+    /**
+     * 添加日期
+     *
+     * @param date 日期
+     */
+
+
+    public void addDate(String date) {
+
+
+        this.dates.add(date);
+
+
+    }
+
+
+    /**
+     * 设置日期（清空现有日期并添加新日期）
+     *
+     * @param date 日期
+     */
+
+
+    public void setDate(String date) {
+
+
+        this.dates.clear();
+
+
+        this.dates.add(date);
+
+
+    }
+
+
+    /**
+     * 获取语言列表
+     *
+     * @return 语言列表（不可修改）
+     */
+
+
+    public List<String> getLanguages() {
+
+
+        return Collections.unmodifiableList(languages);
+
+
+    }
+
+
+    /**
+     * 获取第一个语言
+     *
+     * @return 第一个语言
+     */
+
+
+    public String getLanguage() {
+
+
+        return languages.isEmpty() ? null : languages.get(0);
+
+
+    }
+
+
+    /**
+     * 添加语言
+     *
+     * @param language 语言
+     */
+
+
+    public void addLanguage(String language) {
+
+
+        this.languages.add(language);
+
+
+    }
+
+
+    /**
+     * 设置语言（清空现有语言并添加新语言）
+     *
+     * @param language 语言
+     */
+
+
+    public void setLanguage(String language) {
+
+
+        this.languages.clear();
+
+
+        this.languages.add(language);
+
+
+    }
+
+
+    /**
+     * 获取来源列表
+     *
+     * @return 来源列表（不可修改）
+     */
+
+
+    public List<String> getSources() {
+
+
+        return Collections.unmodifiableList(sources);
+
+
+    }
+
+
+    /**
+     * 获取第一个来源
+     *
+     * @return 第一个来源
+     */
+
+
+    public String getSource() {
+
+
+        return sources.isEmpty() ? null : sources.get(0);
+
+
+    }
+
+
+    /**
+     * 添加来源
+     *
+     * @param source 来源
+     */
+
+
+    public void addSource(String source) {
+
+
+        this.sources.add(source);
+
+
+    }
+
+
+    /**
+     * 设置来源（清空现有来源并添加新来源）
+     *
+     * @param source 来源
+     */
+
+
+    public void setSource(String source) {
+
+
+        this.sources.clear();
+
+
+        this.sources.add(source);
+
+
+    }
+
+
+    /**
+     * 获取描述列表
+     *
+     * @return 描述列表（不可修改）
+     */
+
+
+    public List<String> getDescriptions() {
+
+
+        return Collections.unmodifiableList(descriptions);
+
+
+    }
+
+
+    /**
+     * 获取第一个描述
+     *
+     * @return 第一个描述
+     */
+
+
+    public String getDescription() {
+
+
+        return descriptions.isEmpty() ? null : descriptions.get(0);
+
+
+    }
+
+
+    /**
+     * 添加描述
+     *
+     * @param description 描述
+     */
+
+
+    public void addDescription(String description) {
+
+
+        this.descriptions.add(description);
+
+
+    }
+
+
+    /**
+     * 设置描述（清空现有描述并添加新描述）
+     *
+     * @param description 描述
+     */
+
+
+    public void setDescription(String description) {
+
+
+        this.descriptions.clear();
+
+
+        this.descriptions.add(description);
+
+
+    }
+
+
+    /**
+     * 获取权利列表
+     *
+     * @return 权利列表（不可修改）
+     */
+
+
+    public List<String> getRightsList() {
+
+
+        return Collections.unmodifiableList(rightsList);
+
+
+    }
+
+
+    /**
+     * 获取第一个权利
+     *
+     * @return 第一个权利
+     */
+
+
+    public String getRights() {
+
+
+        return rightsList.isEmpty() ? null : rightsList.get(0);
+
+
+    }
+
+
+    /**
+     * 添加权利
+     *
+     * @param rights 权利
+     */
+
+
+    public void addRights(String rights) {
+
+
+        this.rightsList.add(rights);
+
+
+    }
+
+
+    /**
+     * 设置权利（清空现有权利并添加新权利）
+     *
+     * @param rights 权利
+     */
+
+
+    public void setRights(String rights) {
+
+
+        this.rightsList.clear();
+
+
+        this.rightsList.add(rights);
+
 
     }
 
@@ -245,9 +1001,12 @@ public class Metadata {
      * @return 主题列表（不可修改）
      */
 
+
     public List<String> getSubjects() {
 
+
         return Collections.unmodifiableList(subjects);
+
 
     }
 
@@ -258,9 +1017,12 @@ public class Metadata {
      * @param subject 主题
      */
 
+
     public void addSubject(String subject) {
 
+
         this.subjects.add(subject);
+
 
     }
 
@@ -271,217 +1033,12 @@ public class Metadata {
      * @return 第一个主题
      */
 
+
     public String getSubject() {
 
-        return subjects.get(0);
 
-    }
+        return subjects.isEmpty() ? null : subjects.get(0);
 
-
-    /**
-     * 获取描述信息
-     *
-     * @return 描述信息
-     */
-
-    public String getDescription() {
-
-        return description;
-
-    }
-
-
-    /**
-     * 设置描述信息
-     *
-     * @param description 描述信息
-     */
-
-    public void setDescription(String description) {
-
-        this.description = description;
-
-    }
-
-
-    /**
-     * 获取权利信息
-     *
-     * @return 权利信息
-     */
-
-    public String getRights() {
-
-        return rights;
-
-    }
-
-
-    /**
-     * 设置权利信息
-     *
-     * @param rights 权利信息
-     */
-
-    public void setRights(String rights) {
-
-        this.rights = rights;
-
-    }
-
-
-    /**
-     * 获取标题
-     *
-     * @return 标题
-     */
-
-    public String getTitle() {
-
-        return title;
-
-    }
-
-
-    /**
-     * 设置标题
-     *
-     * @param title 标题
-     */
-
-    public void setTitle(String title) {
-
-        this.title = title;
-
-    }
-
-
-    /**
-     * 获取创建者（作者）
-     *
-     * @return 创建者
-     */
-
-    public String getCreator() {
-
-        return creator;
-
-    }
-
-
-    /**
-     * 设置创建者（作者）
-     *
-     * @param creator 创建者
-     */
-
-    public void setCreator(String creator) {
-
-        this.creator = creator;
-
-    }
-
-
-    /**
-     * 获取出版商
-     *
-     * @return 出版商
-     */
-
-    public String getPublisher() {
-
-        return publisher;
-
-    }
-
-
-    /**
-     * 设置出版商
-     *
-     * @param publisher 出版商
-     */
-
-    public void setPublisher(String publisher) {
-
-        this.publisher = publisher;
-
-    }
-
-
-    /**
-     * 获取日期
-     *
-     * @return 日期
-     */
-
-    public String getDate() {
-
-        return date;
-
-    }
-
-
-    /**
-     * 设置日期
-     *
-     * @param date 日期
-     */
-
-    public void setDate(String date) {
-
-        this.date = date;
-
-    }
-
-
-    /**
-     * 获取语言
-     *
-     * @return 语言
-     */
-
-    public String getLanguage() {
-
-        return language;
-
-    }
-
-
-    /**
-     * 设置语言
-     *
-     * @param language 语言
-     */
-
-    public void setLanguage(String language) {
-
-        this.language = language;
-
-    }
-
-
-    /**
-     * 获取来源信息
-     *
-     * @return 来源信息
-     */
-
-    public String getSource() {
-
-        return source;
-
-    }
-
-
-    /**
-     * 设置来源信息
-     *
-     * @param source 来源信息
-     */
-
-    public void setSource(String source) {
-
-        this.source = source;
 
     }
 
@@ -494,6 +1051,9 @@ public class Metadata {
 
     public String getContributor() {
 
+        if (contributors.isEmpty()) {
+            return null;
+        }
         return contributors.get(0);
 
     }
@@ -570,12 +1130,214 @@ public class Metadata {
      * @param rightsHolder 权利持有者
      */
 
+
     public void setRightsHolder(String rightsHolder) {
 
+
         this.rightsHolder = rightsHolder;
+
+
+    }
+
+
+    // 可访问性元数据相关方法
+
+
+    /**
+     * 获取可访问性特征列表
+     *
+     * @return 可访问性特征列表（不可修改）
+     */
+
+
+    public List<String> getAccessibilityFeatures() {
+
+
+        return Collections.unmodifiableList(accessibilityFeatures);
+
+
+    }
+
+
+    /**
+     * 添加可访问性特征
+     *
+     * @param feature 可访问性特征
+     */
+
+
+    public void addAccessibilityFeature(String feature) {
+
+
+        this.accessibilityFeatures.add(feature);
+
+
+    }
+
+
+    /**
+     * 获取可访问性危害列表
+     *
+     * @return 可访问性危害列表（不可修改）
+     */
+
+
+    public List<String> getAccessibilityHazard() {
+
+
+        return Collections.unmodifiableList(accessibilityHazard);
+
+
+    }
+
+
+    /**
+     * 添加可访问性危害
+     *
+     * @param hazard 可访问性危害
+     */
+
+
+    public void addAccessibilityHazard(String hazard) {
+
+
+        this.accessibilityHazard.add(hazard);
+
+
+    }
+
+
+    /**
+     * 获取可访问性摘要
+     *
+     * @return 可访问性摘要
+     */
+
+
+    public String getAccessibilitySummary() {
+
+
+        return accessibilitySummary.isEmpty() ? null : accessibilitySummary.get(0);
+
+
+    }
+
+
+    /**
+     * 添加可访问性摘要
+     *
+     * @param summary 可访问性摘要
+     */
+
+
+    public void addAccessibilitySummary(String summary) {
+
+
+        this.accessibilitySummary.add(summary);
+
+
+    }
+
+
+    // 渲染属性相关方法
+
+
+    /**
+     * 获取布局属性
+     *
+     * @return 布局属性
+     */
+
+
+    public String getLayout() {
+
+
+        return layout;
+
+
+    }
+
+
+    /**
+     * 设置布局属性
+     *
+     * @param layout 布局属性
+     */
+
+
+    public void setLayout(String layout) {
+
+
+        this.layout = layout;
+
+
+    }
+
+
+    /**
+     * 获取方向属性
+     *
+     * @return 方向属性
+     */
+
+
+    public String getOrientation() {
+
+
+        return orientation;
+
+
+    }
+
+
+    /**
+     * 设置方向属性
+     *
+     * @param orientation 方向属性
+     */
+
+
+    public void setOrientation(String orientation) {
+
+
+        this.orientation = orientation;
+
+
+    }
+
+
+    /**
+     * 获取展开属性
+     *
+     * @return 展开属性
+     */
+
+
+    public String getSpread() {
+
+
+        return spread;
+
+
+    }
+
+
+    /**
+     * 设置展开属性
+     *
+     * @param spread 展开属性
+     */
+
+
+    public void setSpread(String spread) {
+
+
+        this.spread = spread;
+
 
     }
 
 
 }
+
 

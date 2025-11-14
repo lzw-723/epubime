@@ -3,238 +3,318 @@ package fun.lzwi.epubime.epub;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import java.util.List;
-
 public class MetadataTest {
     
     @Test
-    public void testDefaultConstructor() {
+    public void testMultipleValues() {
         Metadata metadata = new Metadata();
         
-        // 测试默认构造函数创建空的列表
-        assertNotNull(metadata.getContributors());
-        assertNotNull(metadata.getSubjects());
-        assertTrue(metadata.getContributors().isEmpty());
-        assertTrue(metadata.getSubjects().isEmpty());
+        // 测试标题
+        metadata.addTitle("Title 1");
+        metadata.addTitle("Title 2");
+        assertEquals("Title 1", metadata.getTitle());
+        assertEquals(2, metadata.getTitles().size());
+        
+        // 测试创建者
+        metadata.addCreator("Creator 1");
+        metadata.addCreator("Creator 2");
+        assertEquals("Creator 1", metadata.getCreator());
+        assertEquals(2, metadata.getCreators().size());
+        
+        // 测试语言
+        metadata.addLanguage("en");
+        metadata.addLanguage("zh");
+        assertEquals("en", metadata.getLanguage());
+        assertEquals(2, metadata.getLanguages().size());
+    }
+    
+    @Test
+    public void testAllMetadataFields() {
+        Metadata metadata = new Metadata();
+        
+        // 测试所有元数据字段
+        metadata.addTitle("Test Title");
+        metadata.addCreator("Test Author");
+        metadata.addPublisher("Test Publisher");
+        metadata.addIdentifier("test-identifier");
+        metadata.addSubject("Test Subject");
+        metadata.addDate("2023-01-01");
+        metadata.addLanguage("en");
+        metadata.addDescription("Test Description");
+        metadata.addRights("Test Rights");
+        metadata.addType("Test Type");
+        metadata.addFormat("application/epub+zip");
+        metadata.addSource("Test Source");
+        metadata.addContributor("Test Contributor");
+        
+        // 验证获取第一个值的方法
+        assertEquals("Test Title", metadata.getTitle());
+        assertEquals("Test Author", metadata.getCreator());
+        assertEquals("Test Publisher", metadata.getPublisher());
+        assertEquals("test-identifier", metadata.getIdentifier());
+        assertEquals("Test Subject", metadata.getSubject());
+        assertEquals("2023-01-01", metadata.getDate());
+        assertEquals("en", metadata.getLanguage());
+        assertEquals("Test Description", metadata.getDescription());
+        assertEquals("Test Rights", metadata.getRights());
+        assertEquals("Test Type", metadata.getType());
+        assertEquals("application/epub+zip", metadata.getFormat());
+        assertEquals("Test Source", metadata.getSource());
+        assertEquals("Test Contributor", metadata.getContributor());
+        
+        // 验证列表大小
+        assertEquals(1, metadata.getTitles().size());
+        assertEquals(1, metadata.getCreators().size());
+        assertEquals(1, metadata.getPublishers().size());
+        assertEquals(1, metadata.getIdentifiers().size());
+        assertEquals(1, metadata.getSubjects().size());
+        assertEquals(1, metadata.getDates().size());
+        assertEquals(1, metadata.getLanguages().size());
+        assertEquals(1, metadata.getDescriptions().size());
+        assertEquals(1, metadata.getRightsList().size());
+        assertEquals(1, metadata.getTypes().size());
+        assertEquals(1, metadata.getFormats().size());
+        assertEquals(1, metadata.getSources().size());
+        assertEquals(1, metadata.getContributors().size());
+    }
+    
+    @Test
+    public void testMultipleValuesForAllFields() {
+        Metadata metadata = new Metadata();
+        
+        // 添加多个值到每个字段
+        metadata.addTitle("Title 1");
+        metadata.addTitle("Title 2");
+        metadata.addCreator("Creator 1");
+        metadata.addCreator("Creator 2");
+        metadata.addPublisher("Publisher 1");
+        metadata.addPublisher("Publisher 2");
+        metadata.addIdentifier("ID 1");
+        metadata.addIdentifier("ID 2");
+        metadata.addSubject("Subject 1");
+        metadata.addSubject("Subject 2");
+        metadata.addDate("Date 1");
+        metadata.addDate("Date 2");
+        metadata.addLanguage("en");
+        metadata.addLanguage("fr");
+        metadata.addDescription("Description 1");
+        metadata.addDescription("Description 2");
+        metadata.addRights("Rights 1");
+        metadata.addRights("Rights 2");
+        metadata.addType("Type 1");
+        metadata.addType("Type 2");
+        metadata.addFormat("Format 1");
+        metadata.addFormat("Format 2");
+        metadata.addSource("Source 1");
+        metadata.addSource("Source 2");
+        metadata.addContributor("Contributor 1");
+        metadata.addContributor("Contributor 2");
+        
+        // 验证获取第一个值的方法
+        assertEquals("Title 1", metadata.getTitle());
+        assertEquals("Creator 1", metadata.getCreator());
+        assertEquals("Publisher 1", metadata.getPublisher());
+        assertEquals("ID 1", metadata.getIdentifier());
+        assertEquals("Subject 1", metadata.getSubject());
+        assertEquals("Date 1", metadata.getDate());
+        assertEquals("en", metadata.getLanguage());
+        assertEquals("Description 1", metadata.getDescription());
+        assertEquals("Rights 1", metadata.getRights());
+        assertEquals("Type 1", metadata.getType());
+        assertEquals("Format 1", metadata.getFormat());
+        assertEquals("Source 1", metadata.getSource());
+        assertEquals("Contributor 1", metadata.getContributor());
+        
+        // 验证列表大小
+        assertEquals(2, metadata.getTitles().size());
+        assertEquals(2, metadata.getCreators().size());
+        assertEquals(2, metadata.getPublishers().size());
+        assertEquals(2, metadata.getIdentifiers().size());
+        assertEquals(2, metadata.getSubjects().size());
+        assertEquals(2, metadata.getDates().size());
+        assertEquals(2, metadata.getLanguages().size());
+        assertEquals(2, metadata.getDescriptions().size());
+        assertEquals(2, metadata.getRightsList().size());
+        assertEquals(2, metadata.getTypes().size());
+        assertEquals(2, metadata.getFormats().size());
+        assertEquals(2, metadata.getSources().size());
+        assertEquals(2, metadata.getContributors().size());
+    }
+    
+    @Test
+    public void testSetSingleValueMethods() {
+        Metadata metadata = new Metadata();
+        
+        // 测试设置单个值的方法（清空现有值并添加新值）
+        metadata.setTitle("Single Title");
+        assertEquals("Single Title", metadata.getTitle());
+        assertEquals(1, metadata.getTitles().size());
+        
+        metadata.setCreator("Single Creator");
+        assertEquals("Single Creator", metadata.getCreator());
+        assertEquals(1, metadata.getCreators().size());
+        
+        metadata.setPublisher("Single Publisher");
+        assertEquals("Single Publisher", metadata.getPublisher());
+        assertEquals(1, metadata.getPublishers().size());
+        
+        metadata.setIdentifier("Single ID");
+        assertEquals("Single ID", metadata.getIdentifier());
+        assertEquals(1, metadata.getIdentifiers().size());
+        
+        metadata.addSubject("Single Subject");
+        assertEquals("Single Subject", metadata.getSubject());
+        assertEquals(1, metadata.getSubjects().size());
+        
+        metadata.setDate("Single Date");
+        assertEquals("Single Date", metadata.getDate());
+        assertEquals(1, metadata.getDates().size());
+        
+        metadata.setLanguage("Single Language");
+        assertEquals("Single Language", metadata.getLanguage());
+        assertEquals(1, metadata.getLanguages().size());
+        
+        metadata.setDescription("Single Description");
+        assertEquals("Single Description", metadata.getDescription());
+        assertEquals(1, metadata.getDescriptions().size());
+        
+        metadata.setRights("Single Rights");
+        assertEquals("Single Rights", metadata.getRights());
+        assertEquals(1, metadata.getRightsList().size());
+        
+        metadata.setType("Single Type");
+        assertEquals("Single Type", metadata.getType());
+        assertEquals(1, metadata.getTypes().size());
+        
+        metadata.setFormat("Single Format");
+        assertEquals("Single Format", metadata.getFormat());
+        assertEquals(1, metadata.getFormats().size());
+        
+        metadata.setSource("Single Source");
+        assertEquals("Single Source", metadata.getSource());
+        assertEquals(1, metadata.getSources().size());
+        
+        // 测试添加多个值后使用设置单个值的方法
+        metadata.addTitle("Additional Title");
+        assertEquals(2, metadata.getTitles().size());
+        
+        metadata.setTitle("Replaced Title");
+        assertEquals("Replaced Title", metadata.getTitle());
+        assertEquals(1, metadata.getTitles().size()); // 应该只有1个，因为setTitle清空了之前的值
+    }
+    
+    @Test
+    public void testAccessibilityMetadata() {
+        Metadata metadata = new Metadata();
+        
+        // 测试可访问性特征
+        metadata.addAccessibilityFeature("alternativeText");
+        metadata.addAccessibilityFeature("longDescriptions");
+        assertEquals(2, metadata.getAccessibilityFeatures().size());
+        assertTrue(metadata.getAccessibilityFeatures().contains("alternativeText"));
+        assertTrue(metadata.getAccessibilityFeatures().contains("longDescriptions"));
+        
+        // 测试可访问性危害
+        metadata.addAccessibilityHazard("noFlashingHazard");
+        metadata.addAccessibilityHazard("noMotionSimulationHazard");
+        assertEquals(2, metadata.getAccessibilityHazard().size());
+        assertTrue(metadata.getAccessibilityHazard().contains("noFlashingHazard"));
+        assertTrue(metadata.getAccessibilityHazard().contains("noMotionSimulationHazard"));
+        
+        // 测试可访问性摘要
+        metadata.addAccessibilitySummary("This publication includes markup to enable accessibility and compatibility with assistive technology.");
+        assertEquals("This publication includes markup to enable accessibility and compatibility with assistive technology.", metadata.getAccessibilitySummary());
+    }
+    
+    @Test
+    public void testRenderingProperties() {
+        Metadata metadata = new Metadata();
+        
+        // 测试渲染属性
+        metadata.setLayout("pre-paginated");
+        metadata.setOrientation("landscape");
+        metadata.setSpread("both");
+        
+        assertEquals("pre-paginated", metadata.getLayout());
+        assertEquals("landscape", metadata.getOrientation());
+        assertEquals("both", metadata.getSpread());
     }
     
     @Test
     public void testCopyConstructor() {
-        // 创建一个原始Metadata对象并设置所有字段
         Metadata original = new Metadata();
-        original.setTitle("Test Title");
-        original.setCreator("Test Creator");
-        original.addContributor("Contributor 1");
-        original.addContributor("Contributor 2");
-        original.setPublisher("Test Publisher");
-        original.setIdentifier("Test Identifier");
-        original.addSubject("Subject 1");
-        original.addSubject("Subject 2");
-        original.setDate("2023-01-01");
-        original.setLanguage("en");
-        original.setDescription("Test Description");
-        original.setRights("Test Rights");
-        original.setType("Test Type");
-        original.setFormat("Test Format");
-        original.setSource("Test Source");
-        original.setModified("2023-01-01T12:00:00Z");
-        original.setRightsHolder("Test Rights Holder");
-        original.setCover("cover.jpg");
+        original.addTitle("Original Title");
+        original.addCreator("Original Creator");
+        original.addLanguage("en");
+        original.setCover("cover-image");
+        original.setModified("2023-01-01T00:00:00Z");
+        original.addAccessibilityFeature("alternativeText");
+        original.setLayout("reflowable");
         
-        // 使用复制构造函数创建新对象
         Metadata copy = new Metadata(original);
         
-        // 验证所有字段都被正确复制
-        assertEquals("Test Title", copy.getTitle());
-        assertEquals("Test Creator", copy.getCreator());
-        assertEquals("Test Publisher", copy.getPublisher());
-        assertEquals("Test Identifier", copy.getIdentifier());
-        assertEquals("2023-01-01", copy.getDate());
+        // 验证复制是否成功
+        assertEquals("Original Title", copy.getTitle());
+        assertEquals("Original Creator", copy.getCreator());
         assertEquals("en", copy.getLanguage());
-        assertEquals("Test Description", copy.getDescription());
-        assertEquals("Test Rights", copy.getRights());
-        assertEquals("Test Type", copy.getType());
-        assertEquals("Test Format", copy.getFormat());
-        assertEquals("Test Source", copy.getSource());
-        assertEquals("2023-01-01T12:00:00Z", copy.getModified());
-        assertEquals("Test Rights Holder", copy.getRightsHolder());
-        assertEquals("cover.jpg", copy.getCover());
+        assertEquals("cover-image", copy.getCover());
+        assertEquals("2023-01-01T00:00:00Z", copy.getModified());
+        assertEquals(1, copy.getAccessibilityFeatures().size());
+        assertEquals("alternativeText", copy.getAccessibilityFeatures().get(0));
+        assertEquals("reflowable", copy.getLayout());
         
-        // 验证列表字段
-        assertEquals(2, copy.getContributors().size());
-        assertEquals("Contributor 1", copy.getContributor());
-        assertEquals(2, copy.getSubjects().size());
-        assertEquals("Subject 1", copy.getSubject());
+        // 验证副本的独立性
+        copy.addTitle("Additional Title");
+        assertEquals(2, copy.getTitles().size());
+        assertEquals(1, original.getTitles().size()); // 原始对象不应受影响
     }
     
     @Test
-    public void testTitleGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setTitle("Test Title");
-        assertEquals("Test Title", metadata.getTitle());
-    }
-    
-    @Test
-    public void testCreatorGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setCreator("Test Creator");
-        assertEquals("Test Creator", metadata.getCreator());
-    }
-    
-    @Test
-    public void testPublisherGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setPublisher("Test Publisher");
-        assertEquals("Test Publisher", metadata.getPublisher());
-    }
-    
-    @Test
-    public void testIdentifierGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setIdentifier("Test Identifier");
-        assertEquals("Test Identifier", metadata.getIdentifier());
-    }
-    
-    @Test
-    public void testDateGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setDate("2023-01-01");
-        assertEquals("2023-01-01", metadata.getDate());
-    }
-    
-    @Test
-    public void testLanguageGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setLanguage("en");
-        assertEquals("en", metadata.getLanguage());
-    }
-    
-    @Test
-    public void testDescriptionGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setDescription("Test Description");
-        assertEquals("Test Description", metadata.getDescription());
-    }
-    
-    @Test
-    public void testRightsGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setRights("Test Rights");
-        assertEquals("Test Rights", metadata.getRights());
-    }
-    
-    @Test
-    public void testTypeGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setType("Test Type");
-        assertEquals("Test Type", metadata.getType());
-    }
-    
-    @Test
-    public void testFormatGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setFormat("Test Format");
-        assertEquals("Test Format", metadata.getFormat());
-    }
-    
-    @Test
-    public void testSourceGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setSource("Test Source");
-        assertEquals("Test Source", metadata.getSource());
-    }
-    
-    @Test
-    public void testModifiedGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setModified("2023-01-01T12:00:00Z");
-        assertEquals("2023-01-01T12:00:00Z", metadata.getModified());
-    }
-    
-    @Test
-    public void testRightsHolderGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setRightsHolder("Test Rights Holder");
-        assertEquals("Test Rights Holder", metadata.getRightsHolder());
-    }
-    
-    @Test
-    public void testCoverGetterAndSetter() {
-        Metadata metadata = new Metadata();
-        metadata.setCover("cover.jpg");
-        assertEquals("cover.jpg", metadata.getCover());
-    }
-    
-    @Test
-    public void testContributorsList() {
+    public void testEmptyListHandling() {
         Metadata metadata = new Metadata();
         
-        // 测试添加贡献者
-        metadata.addContributor("Contributor 1");
-        metadata.addContributor("Contributor 2");
+        // 验证空列表处理
+        assertNull(metadata.getTitle());
+        assertTrue(metadata.getTitles().isEmpty());
         
-        // 测试获取贡献者列表
-        List<String> contributors = metadata.getContributors();
-        assertEquals(2, contributors.size());
-        assertEquals("Contributor 1", contributors.get(0));
-        assertEquals("Contributor 2", contributors.get(1));
+        assertNull(metadata.getCreator());
+        assertTrue(metadata.getCreators().isEmpty());
         
-        // 测试获取第一个贡献者
-        assertEquals("Contributor 1", metadata.getContributor());
+        assertNull(metadata.getLanguage());
+        assertTrue(metadata.getLanguages().isEmpty());
         
-        // 验证返回的列表是不可变的
-        assertThrows(UnsupportedOperationException.class, () -> {
-            contributors.add("Another Contributor");
-        });
-    }
-    
-    @Test
-    public void testSubjectsList() {
-        Metadata metadata = new Metadata();
+        assertNull(metadata.getIdentifier());
+        assertTrue(metadata.getIdentifiers().isEmpty());
         
-        // 测试添加主题
-        metadata.addSubject("Subject 1");
-        metadata.addSubject("Subject 2");
+        assertNull(metadata.getPublisher());
+        assertTrue(metadata.getPublishers().isEmpty());
         
-        // 测试获取主题列表
-        List<String> subjects = metadata.getSubjects();
-        assertEquals(2, subjects.size());
-        assertEquals("Subject 1", subjects.get(0));
-        assertEquals("Subject 2", subjects.get(1));
+        assertNull(metadata.getSubject());
+        assertTrue(metadata.getSubjects().isEmpty());
         
-        // 测试获取第一个主题
-        assertEquals("Subject 1", metadata.getSubject());
+        assertNull(metadata.getDate());
+        assertTrue(metadata.getDates().isEmpty());
         
-        // 验证返回的列表是不可变的
-        assertThrows(UnsupportedOperationException.class, () -> {
-            subjects.add("Another Subject");
-        });
-    }
-    
-    @Test
-    public void testGetSubjectAndContributorFromEmptyList() {
-        Metadata metadata = new Metadata();
+        assertNull(metadata.getDescription());
+        assertTrue(metadata.getDescriptions().isEmpty());
         
-        // 测试从空列表获取第一个元素会抛出异常
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            metadata.getSubject();
-        });
+        assertNull(metadata.getRights());
+        assertTrue(metadata.getRightsList().isEmpty());
         
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            metadata.getContributor();
-        });
-    }
-    
-    @Test
-    public void testNewFieldsGettersAndSetters() {
-        Metadata metadata = new Metadata();
+        assertNull(metadata.getType());
+        assertTrue(metadata.getTypes().isEmpty());
         
-        // 测试 modified 字段
-        metadata.setModified("2023-01-01T12:00:00Z");
-        assertEquals("2023-01-01T12:00:00Z", metadata.getModified());
+        assertNull(metadata.getFormat());
+        assertTrue(metadata.getFormats().isEmpty());
         
-        // 测试 rightsHolder 字段
-        metadata.setRightsHolder("Rights Holder Name");
-        assertEquals("Rights Holder Name", metadata.getRightsHolder());
+        assertNull(metadata.getSource());
+        assertTrue(metadata.getSources().isEmpty());
+        
+        assertNull(metadata.getContributor());
+        assertTrue(metadata.getContributors().isEmpty());
+        
+        assertNull(metadata.getAccessibilitySummary());
+        assertTrue(metadata.getAccessibilityFeatures().isEmpty());
+        assertTrue(metadata.getAccessibilityHazard().isEmpty());
     }
 }
