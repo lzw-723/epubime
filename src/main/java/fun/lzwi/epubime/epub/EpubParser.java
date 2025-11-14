@@ -226,13 +226,12 @@ public class EpubParser {
     protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
         Objects.requireNonNull(opfContent);
         
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-        @SuppressWarnings("unchecked")
-        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResultCache().get(cacheKey);
-        if (cachedResult != null) {
-            return new ArrayList<>(cachedResult);
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+        @SuppressWarnings("unchecked")
+        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
+        if (cachedResult != null) {
+            return new ArrayList<>(cachedResult);
         }
         
         Document document = Jsoup.parse(opfContent);
@@ -249,8 +248,8 @@ public class EpubParser {
             resources.add(res);
         }
         
-        // Cache result
-        cache.getParsedResultCache().put(cacheKey, new ArrayList<>(resources));
+        // Cache result
+        cache.setParsedResult(cacheKey, new ArrayList<>(resources));
         return resources;
     }
 
@@ -266,10 +265,10 @@ public class EpubParser {
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
         
-        // Try to get complete parsing result from cache
-        EpubBook cachedBook = (EpubBook) cache.getParsedResultCache().get(cacheKey);
-        if (cachedBook != null) {
-            return new EpubBook(cachedBook);
+        // Try to get complete parsing result from cache
+        EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
+        if (cachedBook != null) {
+            return new EpubBook(cachedBook);
         }
         
         try {
@@ -284,10 +283,10 @@ public class EpubParser {
             String opfPath = getRootFilePath(container);
             String opfDir = getRootFileDir(opfPath);
             
-            // Reset file path list to include OPF file
-            firstBatchPaths.add(opfPath);
-            firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile, firstBatchPaths);
-            container = firstBatchContents.get(CONTAINER_FILE_PATH);
+            // Reset file path list to include OPF file
+            firstBatchPaths.add(opfPath);
+            firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile, firstBatchPaths);
+            // No need to reassign container as it's not used after this point
             String opfContent = firstBatchContents.get(opfPath);
             
             // Metadata
@@ -324,8 +323,8 @@ public class EpubParser {
             List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
             book.setResources(resources);
             
-            // Cache complete parsing result
-            cache.getParsedResultCache().put(cacheKey, new EpubBook(book));
+            // Cache complete parsing result
+            cache.setParsedResult(cacheKey, new EpubBook(book));
         } catch (IOException e) {
             throw new EpubParseException("Failed to read EPUB file", e);
         } finally {

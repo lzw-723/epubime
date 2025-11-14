@@ -39,11 +39,11 @@ public class ZipUtils {
      * @throws IOException IO异常
      */
     public static String getZipFileContent(File zipFile, String fileName) throws IOException {
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        String cachedContent = cache.getTextContentCache().get(fileName);
-        if (cachedContent != null) {
-            return cachedContent;
+        // Try to get from cache
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        String cachedContent = cache.getTextContent(fileName);
+        if (cachedContent != null) {
+            return cachedContent;
         }
         
         // Cache miss, read from ZIP file
@@ -54,12 +54,12 @@ public class ZipUtils {
         }
         try (InputStream in = zip.getInputStream(entry); BufferedReader reader =
                 new BufferedReader(new InputStreamReader(in, DEFAULT_CHARSET))) {
-            String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
-            // Cache result
-            cache.getTextContentCache().put(fileName, content);
-            return content;
-        } finally {
-            // Note: We don't close the ZIP file because it may be reused
+            String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+            // Cache result
+            cache.setTextContent(fileName, content);
+            return content;
+        } finally {
+            // Note: We don't close the ZIP file because it may be reused
         }
     }
 
@@ -71,11 +71,11 @@ public class ZipUtils {
      * @throws IOException IO异常
      */
     public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        byte[] cachedData = cache.getBinaryContentCache().get(fileName);
-        if (cachedData != null) {
-            return cachedData.clone(); // Return clone to avoid modifying cache data
+        // Try to get from cache
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        byte[] cachedData = cache.getBinaryContent(fileName);
+        if (cachedData != null) {
+            return cachedData.clone(); // Return clone to avoid modifying cache data
         }
         
         // Cache miss, read from ZIP file
@@ -91,12 +91,12 @@ public class ZipUtils {
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
-            byte[] data = out.toByteArray();
-            // Cache result
-            cache.getBinaryContentCache().put(fileName, data.clone());
-            return data;
-        } finally {
-            // Note: We don't close the ZIP file because it may be reused
+            byte[] data = out.toByteArray();
+            // Cache result
+            cache.setBinaryContent(fileName, data.clone());
+            return data;
+        } finally {
+            // Note: We don't close the ZIP file because it may be reused
         }
     }
 

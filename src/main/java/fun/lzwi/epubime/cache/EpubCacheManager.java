@@ -11,9 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 提供对ZIP文件内容、解析结果等的缓存，避免重复解析相同内容
  */
 public class EpubCacheManager {
-    // 单例实例
-    private static final EpubCacheManager INSTANCE = new EpubCacheManager();
-    
     // 每个EPUB文件的缓存，使用WeakHashMap避免内存泄漏
     private final Map<File, EpubFileCache> fileCaches = new WeakHashMap<>();
     
@@ -23,11 +20,18 @@ public class EpubCacheManager {
     private EpubCacheManager() {}
     
     /**
+     * 静态内部类实现延迟初始化的单例模式
+     */
+    private static class SingletonHolder {
+        private static final EpubCacheManager INSTANCE = new EpubCacheManager();
+    }
+    
+    /**
      * 获取缓存管理器实例
      * @return 缓存管理器实例
      */
     public static EpubCacheManager getInstance() {
-        return INSTANCE;
+        return SingletonHolder.INSTANCE;
     }
     
     /**
@@ -78,26 +82,100 @@ public class EpubCacheManager {
         
         /**
          * 获取文本内容缓存
-         * @return 文本内容缓存
+         * @return 文本内容缓存的不可修改视图
          */
         public Map<String, String> getTextContentCache() {
-            return textContentCache;
+            return java.util.Collections.unmodifiableMap(textContentCache);
+        }
+        
+        /**
+         * 获取指定键的文本内容
+         * @param key 键
+         * @return 文本内容
+         */
+        public String getTextContent(String key) {
+            return textContentCache.get(key);
+        }
+        
+        /**
+         * 设置文本内容缓存
+         * @param key 键
+         * @param content 内容
+         */
+        public void setTextContent(String key, String content) {
+            if (key != null) {
+                if (content != null) {
+                    textContentCache.put(key, content);
+                } else {
+                    textContentCache.remove(key);
+                }
+            }
         }
         
         /**
          * 获取二进制内容缓存
-         * @return 二进制内容缓存
+         * @return 二进制内容缓存的不可修改视图
          */
         public Map<String, byte[]> getBinaryContentCache() {
-            return binaryContentCache;
+            return java.util.Collections.unmodifiableMap(binaryContentCache);
+        }
+        
+        /**
+         * 获取指定键的二进制内容
+         * @param key 键
+         * @return 二进制内容
+         */
+        public byte[] getBinaryContent(String key) {
+            byte[] data = binaryContentCache.get(key);
+            return data != null ? data.clone() : null;
+        }
+        
+        /**
+         * 设置二进制内容缓存
+         * @param key 键
+         * @param data 数据
+         */
+        public void setBinaryContent(String key, byte[] data) {
+            if (key != null) {
+                if (data != null) {
+                    binaryContentCache.put(key, data.clone());
+                } else {
+                    // 不存储null值，而是移除对应的键
+                    binaryContentCache.remove(key);
+                }
+            }
         }
         
         /**
          * 获取解析结果缓存
-         * @return 解析结果缓存
+         * @return 解析结果缓存的不可修改视图
          */
         public Map<String, Object> getParsedResultCache() {
-            return parsedResultCache;
+            return java.util.Collections.unmodifiableMap(parsedResultCache);
+        }
+        
+        /**
+         * 获取指定键的解析结果
+         * @param key 键
+         * @return 解析结果
+         */
+        public Object getParsedResult(String key) {
+            return parsedResultCache.get(key);
+        }
+        
+        /**
+         * 设置解析结果缓存
+         * @param key 键
+         * @param result 结果
+         */
+        public void setParsedResult(String key, Object result) {
+            if (key != null) {
+                if (result != null) {
+                    parsedResultCache.put(key, result);
+                } else {
+                    parsedResultCache.remove(key);
+                }
+            }
         }
         
         /**

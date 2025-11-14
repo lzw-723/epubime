@@ -39,10 +39,10 @@ public class EpubCacheTest {
         assertEquals(book1.getMetadata().getTitle(), book2.getMetadata().getTitle());
         assertEquals(book1.getMetadata().getCreator(), book2.getMetadata().getCreator());
         
-        // 驗证缓存存在
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
-        assertNotNull("完整解析结果应被缓存", cache.getParsedResultCache().get(cacheKey));
+        // 驗证缓存存在
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
+        assertNotNull("完整解析结果应被缓存", cache.getParsedResult(cacheKey));
     }
 
     @Test
@@ -60,9 +60,9 @@ public class EpubCacheTest {
         // 验证内容一致
         assertEquals(content1, content2);
         
-        // 验证缓存存在
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        assertNotNull("文本内容应被缓存", cache.getTextContentCache().get("mimetype"));
+        // 验证缓存存在
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        assertNotNull("文本内容应被缓存", cache.getTextContent("mimetype"));
     }
 
     @Test
@@ -92,10 +92,10 @@ public class EpubCacheTest {
         // 驗证结果一致
         assertEquals(resources1.size(), resources2.size());
         
-        // 驗证缓存存在
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-        assertNotNull("资源解析结果应被缓存", cache.getParsedResultCache().get(cacheKey));
+        // 驗证缓存存在
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+        assertNotNull("资源解析结果应被缓存", cache.getParsedResult(cacheKey));
     }
 
     @Test
@@ -107,10 +107,10 @@ public class EpubCacheTest {
         EpubBook book = parser.parse();
         assertNotNull(book);
         
-        // 验证缓存存在
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
-        assertNotNull("缓存应存在", cache.getParsedResultCache().get(cacheKey));
+        // 验证缓存存在
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
+        assertNotNull("缓存应存在", cache.getParsedResult(cacheKey));
         
         // 清除缓存
         EpubCacheManager.getInstance().clearFileCache(epubFile);
