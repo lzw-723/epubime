@@ -106,34 +106,55 @@ public class EpubResourceTest {
         assertTrue("Resource list should remain empty", emptyResources.isEmpty());
     }
     
-    @Test
-    public void testProcessContent() throws Exception {
-        // 测试流式处理资源内容的功能
-        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        EpubResource resource = new EpubResource();
-        resource.setEpubFile(epubFile);
-        resource.setHref("mimetype");
-        
-        StringBuilder content = new StringBuilder();
-        boolean[] processed = {false};
-        
-        resource.processContent(new Consumer<java.io.InputStream>() {
-            @Override
-            public void accept(java.io.InputStream inputStream) {
-                try {
-                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        content.append(line);
-                    }
-                    processed[0] = true;
-                } catch (java.io.IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        
-        assertTrue("Resource content should be processed", processed[0]);
-        assertEquals("application/epub+zip", content.toString());
+    @Test
+    public void testProcessContent() throws Exception {
+        // 测试流式处理资源内容的功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        EpubResource resource = new EpubResource();
+        resource.setEpubFile(epubFile);
+        resource.setHref("mimetype");
+        
+        StringBuilder content = new StringBuilder();
+        boolean[] processed = {false};
+        
+        resource.processContent(new Consumer<java.io.InputStream>() {
+            @Override
+            public void accept(java.io.InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    processed[0] = true;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        
+        assertTrue("Resource content should be processed", processed[0]);
+        assertEquals("application/epub+zip", content.toString());
+    }
+    
+    @Test
+    public void testPropertiesAttribute() throws Exception {
+        // 测试properties属性的解析功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        EpubBook book = new EpubParser(epubFile).parse();
+        
+        // 验证资源列表不为空
+        assertFalse(book.getResources().isEmpty());
+        
+        // 检查是否正确解析了properties属性
+        for (EpubResource resource : book.getResources()) {
+            // 属性可能为null，这是正常的
+            // 验证可以获取和设置properties属性
+            String originalProperties = resource.getProperties();
+            String testProperties = "test-property";
+            resource.setProperties(testProperties);
+            assertEquals(testProperties, resource.getProperties());
+            resource.setProperties(originalProperties); // 恢复原始值
+        }
     }
 }

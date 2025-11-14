@@ -1,45 +1,47 @@
-package fun.lzwi.epubime.epub;
-
-import fun.lzwi.epubime.zip.ZipUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
-/**
- * EPUB资源模型类
- * 表示EPUB电子书中的单个资源文件，如图片、CSS样式表等
- */
-public class EpubResource {
-    private String id;
-    private String type;
-    private String href;
-    private byte[] data;
-    private File epubFile; // EPUB文件引用用于流处理
-
-    /**
-     * 默认构造函数
-     */
-    public EpubResource() {
-        // Default constructor
-    }
-    
-    /**
-     * 复制构造函数
-     * @param other 要复制的EpubResource对象
-     */
-    public EpubResource(EpubResource other) {
-        this.id = other.id;
-        this.type = other.type;
-        this.href = other.href;
-        this.epubFile = other.epubFile;
-        if (other.data != null) {
-            this.data = other.data.clone();
-        }
-    }
+package fun.lzwi.epubime.epub;
+
+import fun.lzwi.epubime.zip.ZipUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+/**
+ * EPUB资源模型类
+ * 表示EPUB电子书中的单个资源文件，如图片、CSS样式表等
+ */
+public class EpubResource {
+    private String id;
+    private String type;
+    private String href;
+    private String properties;
+    private byte[] data;
+    private File epubFile; // EPUB文件引用用于流处理
+
+    /**
+     * 默认构造函数
+     */
+    public EpubResource() {
+        // Default constructor
+    }
+    
+    /**
+     * 复制构造函数
+     * @param other 要复制的EpubResource对象
+     */
+    public EpubResource(EpubResource other) {
+        this.id = other.id;
+        this.type = other.type;
+        this.href = other.href;
+        this.properties = other.properties;
+        this.epubFile = other.epubFile;
+        if (other.data != null) {
+            this.data = other.data.clone();
+        }
+    }
 
     /**
      * 获取资源ID
@@ -122,6 +124,22 @@ public class EpubResource {
      */
     public void setHref(String href) {
         this.href = href;
+    }
+
+    /**
+     * 获取资源属性
+     * @return 资源属性
+     */
+    public String getProperties() {
+        return properties;
+    }
+
+    /**
+     * 设置资源属性
+     * @param properties 资源属性
+     */
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     /**

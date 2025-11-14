@@ -153,6 +153,66 @@ public class EpubParserTest {
     }
 
     @Test
+    public void parseResourcesWithProperties() throws EpubParseException {
+        // 创建一个模拟的OPF内容用于测试properties属性解析
+        String sampleOpfContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\"> " +
+                "  <manifest> " +
+                "    <item id=\"nav\" href=\"nav.xhtml\" media-type=\"application/xhtml+xml\" properties=\"nav\"/> " +
+                "    <item id=\"cover\" href=\"cover.xhtml\" media-type=\"application/xhtml+xml\" properties=\"cover-image\"/> " +
+                "    <item id=\"chapter1\" href=\"chapter1.xhtml\" media-type=\"application/xhtml+xml\"/> " +
+                "    <item id=\"css\" href=\"style.css\" media-type=\"text/css\" properties=\"css\"/> " +
+                "  </manifest> " +
+                "</package>";
+
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub"); // 用于测试，实际使用模拟内容
+        List<EpubResource> resources = EpubParser.parseResources(sampleOpfContent, "", epubFile);
+        assertNotNull(resources);
+        assertEquals(4, resources.size());
+
+        // 验证每个资源的properties属性
+        EpubResource navResource = null;
+        for (EpubResource resource : resources) {
+            if ("nav".equals(resource.getId())) {
+                navResource = resource;
+                break;
+            }
+        }
+        assertNotNull(navResource);
+        assertEquals("nav", navResource.getProperties());
+
+        EpubResource coverResource = null;
+        for (EpubResource resource : resources) {
+            if ("cover".equals(resource.getId())) {
+                coverResource = resource;
+                break;
+            }
+        }
+        assertNotNull(coverResource);
+        assertEquals("cover-image", coverResource.getProperties());
+
+        EpubResource chapterResource = null;
+        for (EpubResource resource : resources) {
+            if ("chapter1".equals(resource.getId())) {
+                chapterResource = resource;
+                break;
+            }
+        }
+        assertNotNull(chapterResource);
+        assertNull(chapterResource.getProperties()); // 没有properties属性，应该是null
+
+        EpubResource cssResource = null;
+        for (EpubResource resource : resources) {
+            if ("css".equals(resource.getId())) {
+                cssResource = resource;
+                break;
+            }
+        }
+        assertNotNull(cssResource);
+        assertEquals("css", cssResource.getProperties());
+    }
+
+    @Test
     public void parse() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
