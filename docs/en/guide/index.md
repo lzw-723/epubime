@@ -1,0 +1,24 @@
+# Guide
+
+Welcome to EPUBime's user guide! EPUBime is a pure Java library for parsing EPUB file format, supporting both EPUB 2 and EPUB 3 formats.
+
+## Contents
+
+- [Quick Start](/en/guide/quick-start) - Introduction to getting started with EPUBime quickly
+- [Basic Usage](/en/guide/basic-usage) - Detailed introduction to basic EPUBime usage
+- [Advanced Features](/en/guide/advanced-features) - Introduction to EPUBime's advanced features and usage
+- [Exception Handling](/en/guide/exception-handling) - Instructions on how to handle various exceptions in EPUBime
+- [Performance Optimization](/en/guide/performance) - Performance optimization suggestions and best practices
+
+## Introduction
+
+EPUBime provides complete EPUB file parsing functionality, including metadata extraction, chapter content reading, and resource file processing. The library has the following features:
+
+- **Complete EPUB Support**: Supports EPUB 2 and EPUB 3 (including EPUB 3.3 specification) format parsing
+- **High Performance**: Smart caching mechanism and streaming processing for optimized memory usage
+- **Comprehensive Exception Handling**: Detailed exception classification and error information for debugging
+- **Rich Features**: Metadata extraction, chapter parsing, resource handling, TOC parsing, and more
+- **Simple API**: Easy-to-use and integrate API design
+- **High Quality Code**: Strict test coverage and static code analysis
+
+Select a topic from the left navigation bar to start learning how to use EPUBime.
