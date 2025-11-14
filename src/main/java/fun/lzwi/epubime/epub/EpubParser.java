@@ -54,8 +54,7 @@ public class EpubParser {
 
     protected static Metadata parseMetadata(String opfContent) {
         Objects.requireNonNull(opfContent);
-        Metadata metadata = new Metadata();
-        Jsoup.parse(opfContent, Parser.xmlParser()).select("metadata").forEach(meta -> {
+        Metadata metadata = new Metadata();        Jsoup.parse(opfContent, Parser.xmlParser()).select("metadata").forEach(meta -> {
             meta.children().forEach(child -> {
                 switch (child.tagName()) {
                     case "dc:title":
@@ -173,12 +172,10 @@ public class EpubParser {
             res.setId(item.attr("id"));
             res.setHref(opfDir + item.attr("href"));
             res.setType(item.attr("media-type"));
-            try {
-                res.setData(ZipUtils.getZipFileBytes(epubFile, res.getHref()));
-                resources.add(res);
-            } catch (IOException e) {
-                throw new EpubParseException("Failed to parse resource: " + res.getHref(), e);
-            }
+            // 设置EPUB文件引用，以便按需流式加载资源
+            res.setEpubFile(epubFile);
+            // 不立即加载数据，仅设置文件引用，提供按需加载的能力
+            resources.add(res);
         }
         return resources;
     }
@@ -214,7 +211,7 @@ public class EpubParser {
             book.setNav(nav);
         }
 
-        // 解析资源文件，获取资源数据
+        // 解析资源文件，获取资源数据 - 现在只设置引用，不加载数据
         List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
         book.setResources(resources);
         return book;
