@@ -529,44 +529,44 @@ public class EpubParser {
 
     }
 
-    /**
-     * 解析OPF内容中的资源文件列表
-     * @param opfContent OPF文件内容
-     * @param opfDir OPF文件目录
-     * @param epubFile EPUB文件
-     * @return 资源文件列表
-     * @throws EpubParseException 解析异常
-     */
-    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
-        Objects.requireNonNull(opfContent);
-        
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-        @SuppressWarnings("unchecked")
-        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
-        if (cachedResult != null) {
-            return new ArrayList<>(cachedResult);
-        }
-        
-        Document document = Jsoup.parse(opfContent);
-        List<EpubResource> resources = new ArrayList<>();
-        
-        for (Element item : document.select("manifest>item")) {
-            EpubResource res = new EpubResource();
-            res.setId(item.attr("id"));
-            res.setHref(opfDir + item.attr("href"));
-            res.setType(item.attr("media-type"));
-
-            res.setProperties(item.attr("properties").isEmpty() ? null : item.attr("properties"));
-            // Set EPUB file reference for on-demand streaming loading of resources
-            res.setEpubFile(epubFile);
-            // Do not load data immediately, only set file reference, provide on-demand loading capability
-            resources.add(res);
-        }
-        
-        // Cache result
-        cache.setParsedResult(cacheKey, new ArrayList<>(resources));
-        return resources;
+    /**
+     * 解析OPF内容中的资源文件列表
+     * @param opfContent OPF文件内容
+     * @param opfDir OPF文件目录
+     * @param epubFile EPUB文件
+     * @return 资源文件列表
+     * @throws EpubParseException 解析异常
+     */
+    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
+        Objects.requireNonNull(opfContent);
+        
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+        @SuppressWarnings("unchecked")
+        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
+        if (cachedResult != null) {
+            return new ArrayList<>(cachedResult);
+        }
+        
+        Document document = Jsoup.parse(opfContent);
+        List<EpubResource> resources = new ArrayList<>();
+        
+        for (Element item : document.select("manifest>item")) {
+            EpubResource res = new EpubResource();
+            res.setId(item.attr("id"));
+            res.setHref(opfDir + item.attr("href"));
+            res.setType(item.attr("media-type"));
+            res.setProperties(item.attr("properties").isEmpty() ? null : item.attr("properties"));
+            res.setFallback(item.attr("fallback").isEmpty() ? null : item.attr("fallback"));
+            // Set EPUB file reference for on-demand streaming loading of resources
+            res.setEpubFile(epubFile);
+            // Do not load data immediately, only set file reference, provide on-demand loading capability
+            resources.add(res);
+        }
+        
+        // Cache result
+        cache.setParsedResult(cacheKey, new ArrayList<>(resources));
+        return resources;
     }
 
     /**

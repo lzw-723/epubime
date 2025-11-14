@@ -1,84 +1,86 @@
-package fun.lzwi.epubime.epub;
-
-import fun.lzwi.epubime.zip.ZipUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
-/**
- * EPUB资源模型类
- * 表示EPUB电子书中的单个资源文件，如图片、CSS样式表等
- */
-public class EpubResource {
-    private String id;
-    private String type;
-    private String href;
-    private String properties;
-    private byte[] data;
-    private File epubFile; // EPUB文件引用用于流处理
-
-    /**
-     * 默认构造函数
-     */
-    public EpubResource() {
-        // Default constructor
-    }
-    
-    /**
-     * 复制构造函数
-     * @param other 要复制的EpubResource对象
-     */
-    public EpubResource(EpubResource other) {
-        this.id = other.id;
-        this.type = other.type;
-        this.href = other.href;
-        this.properties = other.properties;
-        this.epubFile = other.epubFile;
-        if (other.data != null) {
-            this.data = other.data.clone();
-        }
-    }
+package fun.lzwi.epubime.epub;
+
+import fun.lzwi.epubime.zip.ZipUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+/**
+ * EPUB Resource Model Class
+ * Represents a single resource file in an EPUB e-book, such as images, CSS stylesheets, etc.
+ */
+public class EpubResource {
+    private String id;
+    private String type;
+    private String href;
+    private String properties;
+    private String fallback; // Fallback resource ID for core media type fallback mechanism
+    private byte[] data;
+    private File epubFile; // EPUB file reference for streaming processing
 
     /**
-     * 获取资源ID
-     * @return 资源ID
+     * Default constructor
+     */
+    public EpubResource() {
+        // Default constructor
+    }
+    
+    /**
+     * Copy constructor
+     * @param other EpubResource object to copy
+     */
+    public EpubResource(EpubResource other) {
+        this.id = other.id;
+        this.type = other.type;
+        this.href = other.href;
+        this.properties = other.properties;
+        this.fallback = other.fallback;
+        this.epubFile = other.epubFile;
+        if (other.data != null) {
+            this.data = other.data.clone();
+        }
+    }
+
+    /**
+     * Get resource ID
+     * @return resource ID
      */
     public String getId() {
         return id;
     }
 
     /**
-     * 设置资源ID
-     * @param id 资源ID
+     * Set resource ID
+     * @param id resource ID
      */
     public void setId(String id) {
         this.id = id;
     }
 
     /**
-     * 获取资源类型（MIME类型）
-     * @return 资源类型
+     * Get resource type (MIME type)
+     * @return resource type
      */
     public String getType() {
         return type;
     }
 
     /**
-     * 设置资源类型（MIME类型）
-     * @param type 资源类型
+     * Set resource type (MIME type)
+     * @param type resource type
      */
     public void setType(String type) {
         this.type = type;
     }
 
     /**
-     * 获取资源数据
-     * 如果数据已存在则直接返回，否则尝试从EPUB文件中流式读取
-     * @return 资源数据字节数组
+     * Get resource data
+     * If data already exists, return directly, otherwise try to stream read from EPUB file
+     * @return resource data byte array
      */
     public byte[] getData() {
         // If data already exists, return directly
@@ -101,8 +103,8 @@ public class EpubResource {
     }
 
     /**
-     * 设置资源数据
-     * @param data 资源数据字节数组
+     * Set resource data
+     * @param data resource data byte array
      */
     public void setData(byte[] data) {
         if (data != null) {
@@ -111,57 +113,98 @@ public class EpubResource {
     }
 
     /**
-     * 获取资源文件路径
-     * @return 资源文件路径
+     * Get resource file path
+     * @return resource file path
      */
     public String getHref() {
         return href;
     }
 
     /**
-     * 设置资源文件路径
-     * @param href 资源文件路径
+     * Set resource file path
+     * @param href resource file path
      */
     public void setHref(String href) {
         this.href = href;
     }
 
     /**
-     * 获取资源属性
-     * @return 资源属性
+     * Get resource properties
+     * @return resource properties
      */
     public String getProperties() {
         return properties;
     }
 
     /**
-     * 设置资源属性
-     * @param properties 资源属性
+     * Set resource properties
+     * @param properties resource properties
      */
     public void setProperties(String properties) {
         this.properties = properties;
     }
 
     /**
-     * 获取EPUB文件引用
-     * @return EPUB文件引用
+     * Get fallback resource ID
+     * @return fallback resource ID
+     */
+    public String getFallback() {
+        return fallback;
+    }
+
+    /**
+     * Set fallback resource ID
+     * @param fallback fallback resource ID
+     */
+    public void setFallback(String fallback) {
+        this.fallback = fallback;
+    }
+
+    /**
+     * Get the final available resource based on the fallback chain
+     * @param allResources all resource list
+     * @return final available resource, return itself if no fallback
+     */
+    public EpubResource getFallbackResource(List<EpubResource> allResources) {
+        if (fallback == null || fallback.isEmpty()) {
+            return this;
+        }
+        
+        // Find fallback resource
+        EpubResource fallbackResource = allResources.stream()
+                .filter(r -> fallback.equals(r.getId()))
+                .findFirst()
+                .orElse(null);
+        
+        // If fallback resource is found, recursively find its fallback resource
+        if (fallbackResource != null) {
+            return fallbackResource.getFallbackResource(allResources);
+        }
+        
+        // If fallback resource is not found, return itself
+        return this;
+    }
+
+    /**
+     * Get EPUB file reference
+     * @return EPUB file reference
      */
     public File getEpubFile() {
         return epubFile;
     }
 
     /**
-     * 设置EPUB文件引用
-     * @param epubFile EPUB文件引用
+     * Set EPUB file reference
+     * @param epubFile EPUB file reference
      */
     public void setEpubFile(File epubFile) {
         this.epubFile = epubFile;
     }
 
     /**
-     * 获取资源的输入流，用于大文件的流式处理
-     * @return 输入流
-     * @throws IOException IO异常
+     * Get resource input stream for streaming processing of large files
+     * @return input stream
+     * @throws IOException IO exception
      */
     public InputStream getInputStream() throws IOException {
         if (epubFile != null && href != null) {
@@ -172,10 +215,10 @@ public class EpubResource {
     }
     
     /**
-     * 批量加载资源数据
-     * @param resources 资源列表
-     * @param epubFile EPUB文件
-     * @throws IOException IO异常
+     * Load resource data in batch
+     * @param resources resource list
+     * @param epubFile EPUB file
+     * @throws IOException IO exception
      */
     public static void loadResourceData(List<EpubResource> resources, File epubFile) throws IOException {
         // Collect all resource paths that need to be loaded
@@ -201,9 +244,9 @@ public class EpubResource {
     }
     
     /**
-     * 流式处理资源内容以避免将整个文件加载到内存中
-     * @param processor 消费者函数，用于处理资源内容
-     * @throws IOException IO异常
+     * Stream process resource content to avoid loading entire file into memory
+     * @param processor consumer function for processing resource content
+     * @throws IOException IO exception
      */
     public void processContent(java.util.function.Consumer<InputStream> processor) throws IOException {
         if (epubFile != null && href != null) {

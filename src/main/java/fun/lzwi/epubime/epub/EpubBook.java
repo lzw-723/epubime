@@ -177,17 +177,17 @@ public class EpubBook {
     }
 
     /**
-     * 获取封面资源
-     * @return 封面资源对象
+     * Get cover resource
+     * @return cover resource object
      */
     public EpubResource getCover() {
-        // 优先使用properties="cover-image"属性查找封面图片
+        // Prioritize using properties="cover-image" attribute to find cover image
         EpubResource coverResource = resources.stream()
             .filter(r -> r.getProperties() != null && r.getProperties().contains("cover-image"))
             .findFirst()
             .orElse(null);
         
-        // 如果没有找到properties="cover-image"的资源，尝试使用旧的meta标签方式
+        // If no resource with properties="cover-image" is found, try the old meta tag method
         if (coverResource == null && metadata.getCover() != null) {
             coverResource = resources.stream()
                 .filter(r -> r.getId().equals(metadata.getCover()))
@@ -195,22 +195,51 @@ public class EpubBook {
                 .orElse(null);
         }
         
+        // Apply fallback mechanism to get the final available resource
+        if (coverResource != null) {
+            return coverResource.getFallbackResource(resources);
+        }
         return coverResource;
     }
-    
+
     /**
-     * 批量加载所有资源的数据
-     * @param epubFile EPUB文件
-     * @throws IOException 文件读取异常
+     * Get resource by ID, automatically applying fallback mechanism
+     * @param resourceId resource ID
+     * @return resource after applying fallback mechanism
+     */
+    public EpubResource getResourceWithFallback(String resourceId) {
+        return resources.stream()
+                .filter(r -> resourceId.equals(r.getId()))
+                .findFirst()
+                .map(r -> r.getFallbackResource(resources))
+                .orElse(null);
+    }
+
+    /**
+     * Get resource by ID
+     * @param resourceId resource ID
+     * @return resource object
+     */
+    public EpubResource getResource(String resourceId) {
+        return resources.stream()
+                .filter(r -> resourceId.equals(r.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Load all resource data in batch
+     * @param epubFile EPUB file
+     * @throws IOException file read exception
      */
     public void loadAllResourceData(File epubFile) throws IOException {
         EpubResource.loadResourceData(resources, epubFile);
     }
     
     /**
-     * 流式处理HTML章节内容以避免将整个文件加载到内存中
-     * @param processor 消费者函数，用于处理HTML内容
-     * @throws EpubParseException 解析异常
+     * Stream process HTML chapter content to avoid loading entire file into memory
+     * @param processor consumer function for processing HTML content
+     * @throws EpubParseException parse exception
      */
     public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws EpubParseException {
         File epubFile = this.resources.isEmpty() ? null : this.resources.get(0).getEpubFile();
