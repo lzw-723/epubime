@@ -135,7 +135,21 @@ public class EpubBook {
      * @return 封面资源对象
      */
     public EpubResource getCover() {
-        return resources.stream().filter(r -> r.getId().equals(metadata.getCover())).findFirst().get();
+        // 优先使用properties="cover-image"属性查找封面图片
+        EpubResource coverResource = resources.stream()
+            .filter(r -> r.getProperties() != null && r.getProperties().contains("cover-image"))
+            .findFirst()
+            .orElse(null);
+        
+        // 如果没有找到properties="cover-image"的资源，尝试使用旧的meta标签方式
+        if (coverResource == null && metadata.getCover() != null) {
+            coverResource = resources.stream()
+                .filter(r -> r.getId().equals(metadata.getCover()))
+                .findFirst()
+                .orElse(null);
+        }
+        
+        return coverResource;
     }
     
     /**
