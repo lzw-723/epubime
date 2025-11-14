@@ -1,6 +1,8 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
+import fun.lzwi.epubime.cache.EpubCacheManager;
+import fun.lzwi.epubime.zip.ZipFileManager;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,6 +20,16 @@ public class PerformanceBenchmarkTest {
 
     // Records execution time for each operation
     private Map<String, Long> benchmarkResults = new HashMap<>();
+
+    /**
+     * 在测试前清除EPUBime的缓存，确保测试公平性
+     */
+    private void clearEpubimeCaches() {
+        // 清除EPUBime的缓存
+        EpubCacheManager.getInstance().clearAllCaches();
+        // 清理ZIP文件管理器的句柄
+        ZipFileManager.getInstance().cleanup();
+    }
 
     /**
      * Tests the performance of parsing EPUB files
@@ -47,6 +59,10 @@ public class PerformanceBenchmarkTest {
     @Test
     public void testReadEpubContentPerformance() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 清除EPUBime缓存，确保测试公平性
+        clearEpubimeCaches();
+        
         long startTime = System.nanoTime();
         String content = EpubParser.readEpubContent(epubFile, "mimetype");
         long endTime = System.nanoTime();
@@ -61,25 +77,29 @@ public class PerformanceBenchmarkTest {
         assertTrue("Reading content time exceeds 1 second, performance needs optimization", duration < 1_000_000_000L); // 1 second
     }
 
-    /**
-     * Tests the performance of parsing metadata
-     */
-    @Test
-    public void testParseMetadataPerformance() throws EpubParseException {
-        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
-        long startTime = System.nanoTime();
-        Metadata metadata = EpubParser.parseMetadata(opfContent);
-        long endTime = System.nanoTime();
-        long duration = endTime - startTime;
-        
-        System.out.println("Parsing metadata time: " + duration / 1_000_000.0 + " ms");
-        benchmarkResults.put("parse_metadata", duration);
-        
-        assertNotNull(metadata);
-        
-        // Performance threshold check
-        assertTrue("Parsing metadata time exceeds 500 milliseconds, performance needs optimization", duration < 500_000_000L); // 500 milliseconds
+    /**
+     * Tests the performance of parsing metadata
+     */
+    @Test
+    public void testParseMetadataPerformance() throws EpubParseException {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 清除EPUBime缓存，确保测试公平性
+        clearEpubimeCaches();
+        
+        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        long startTime = System.nanoTime();
+        Metadata metadata = EpubParser.parseMetadata(opfContent);
+        long endTime = System.nanoTime();
+        long duration = endTime - startTime;
+        
+        System.out.println("Parsing metadata time: " + duration / 1_000_000.0 + " ms");
+        benchmarkResults.put("parse_metadata", duration);
+        
+        assertNotNull(metadata);
+        
+        // Performance threshold check
+        assertTrue("Parsing metadata time exceeds 500 milliseconds, performance needs optimization", duration < 500_000_000L); // 500 milliseconds
     }
 
     /**
@@ -88,6 +108,10 @@ public class PerformanceBenchmarkTest {
     @Test
     public void testCachePerformance() throws EpubParseException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 清除EPUBime缓存，确保测试公平性
+        clearEpubimeCaches();
+        
         EpubParser parser = new EpubParser(epubFile);
         
         // First parse
@@ -124,20 +148,23 @@ public class PerformanceBenchmarkTest {
         assertTrue("Parse durations should be non-negative", firstParseDuration >= 0 && secondParseDuration >= 0);
     }
 
-    /**
-     * Tests performance with different size EPUB files
-     */
-    @Test
-    public void testDifferentSizeEpubPerformance() throws EpubParseException {
-        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        
-        // Test small file performance (only read mimetype)
-        long startTime = System.nanoTime();
-        String mimetype = EpubParser.readEpubContent(epubFile, "mimetype");
-        long endTime = System.nanoTime();
-        long mimetypeDuration = endTime - startTime;
-        
-        System.out.println("Reading small file (mimetype) time: " + mimetypeDuration / 1_000_000.0 + " ms");
+    /**
+     * Tests performance with different size EPUB files
+     */
+    @Test
+    public void testDifferentSizeEpubPerformance() throws EpubParseException {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 清除EPUBime缓存，确保测试公平性
+        clearEpubimeCaches();
+        
+        // Test small file performance (only read mimetype)
+        long startTime = System.nanoTime();
+        String mimetype = EpubParser.readEpubContent(epubFile, "mimetype");
+        long endTime = System.nanoTime();
+        long mimetypeDuration = endTime - startTime;
+        
+        System.out.println("Reading small file (mimetype) time: " + mimetypeDuration / 1_000_000.0 + " ms");
         benchmarkResults.put("read_small_file", mimetypeDuration);
         
         // Test medium file performance (read OPF file)
