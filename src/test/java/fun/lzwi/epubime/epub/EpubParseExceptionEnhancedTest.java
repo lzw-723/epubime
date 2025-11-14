@@ -11,7 +11,7 @@ public class EpubParseExceptionEnhancedTest {
     public void testEpubParseExceptionWithDetails() {
         // Test basic constructor
         EpubParseException exception = new EpubParseException("Test Exception");
-        assertEquals("Test Exception", exception.getMessage());
+        assertEquals("[9001: Unknown error occurred] Test Exception", exception.getMessage());
         assertNull(exception.getFileName());
         assertNull(exception.getFilePath());
         assertNull(exception.getOperation());
@@ -22,7 +22,7 @@ public class EpubParseExceptionEnhancedTest {
         // Test constructor with cause
         Exception cause = new Exception("Root cause");
         EpubParseException exception = new EpubParseException("Test Exception", cause);
-        assertEquals("Test Exception", exception.getMessage());
+        assertEquals("[9001: Unknown error occurred] Test Exception", exception.getMessage());
         assertEquals(cause, exception.getCause());
         assertNull(exception.getFileName());
         assertNull(exception.getFilePath());
@@ -40,7 +40,7 @@ public class EpubParseExceptionEnhancedTest {
                 "readEpubContent", 
                 cause);
         
-        assertEquals("Failed to read file [File: test.epub, Path: path/to/test.epub, Operation: readEpubContent]", exception.getMessage());
+        assertEquals("[9001: Unknown error occurred] Failed to read file [File: test.epub, Path: path/to/test.epub, Operation: readEpubContent]", exception.getMessage());
         assertEquals(cause, exception.getCause());
         assertEquals("test.epub", exception.getFileName());
         assertEquals("path/to/test.epub", exception.getFilePath());
@@ -56,7 +56,7 @@ public class EpubParseExceptionEnhancedTest {
                 "path/to/missing.epub", 
                 "parse");
         
-        assertEquals("File not found [File: missing.epub, Path: path/to/missing.epub, Operation: parse]", exception.getMessage());
+        assertEquals("[9001: Unknown error occurred] File not found [File: missing.epub, Path: path/to/missing.epub, Operation: parse]", exception.getMessage());
         assertNull(exception.getCause());
         assertEquals("missing.epub", exception.getFileName());
         assertEquals("path/to/missing.epub", exception.getFilePath());
@@ -72,7 +72,7 @@ public class EpubParseExceptionEnhancedTest {
                 null, 
                 "processHtmlChapterContent");
         
-        assertEquals("Processing error [File: test.epub, Operation: processHtmlChapterContent]", exception.getMessage());
+        assertEquals("[9001: Unknown error occurred] Processing error [File: test.epub, Operation: processHtmlChapterContent]", exception.getMessage());
         assertEquals("test.epub", exception.getFileName());
         assertNull(exception.getFilePath());
         assertEquals("processHtmlChapterContent", exception.getOperation());

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- 排除暴露内部表示的警告，这些在我们的设计中是合理的 -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Package name="fun.lzwi.epubime.exception"/>
+    </Match>
+    
+    <!-- 排除重复分支警告 -->
+    <Match>
+        <Bug pattern="DB_DUPLICATE_BRANCHES"/>
+        <Class name="fun.lzwi.epubime.exception.ErrorContext"/>
+        <Method name="exception"/>
+    </Match>
+</FindBugsFilter>

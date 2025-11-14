@@ -15,7 +15,7 @@ public class EpubZipExceptionTest {
                 "test.epub", 
                 "path/to/test.epub");
         
-        assertEquals("ZIP processing error [File: test.epub, Path: path/to/test.epub, Operation: zipProcessing]", exception.getMessage());
+        assertEquals("[2001: Invalid ZIP file format] ZIP processing error [File: test.epub, Path: path/to/test.epub, Operation: zipProcessing]", exception.getMessage());
         assertEquals("test.epub", exception.getFileName());
         assertEquals("path/to/test.epub", exception.getFilePath());
         assertEquals("zipProcessing", exception.getOperation());
@@ -31,7 +31,7 @@ public class EpubZipExceptionTest {
                 "path/to/test.epub", 
                 cause);
         
-        assertEquals("ZIP processing error [File: test.epub, Path: path/to/test.epub, Operation: zipProcessing]", exception.getMessage());
+        assertEquals("[2001: Invalid ZIP file format] ZIP processing error [File: test.epub, Path: path/to/test.epub, Operation: zipProcessing]", exception.getMessage());
         assertEquals(cause, exception.getCause());
         assertEquals("test.epub", exception.getFileName());
         assertEquals("path/to/test.epub", exception.getFilePath());

@@ -15,10 +15,10 @@ public class EpubFormatExceptionTest {
                 "test.epub", 
                 "path/to/test.epub");
         
-        assertEquals("EPUB format error [File: test.epub, Path: path/to/test.epub, Operation: formatParsing]", exception.getMessage());
+        assertEquals("[4001: Invalid EPUB container] EPUB format error [File: test.epub, Path: path/to/test.epub, Operation: formatValidation]", exception.getMessage());
         assertEquals("test.epub", exception.getFileName());
         assertEquals("path/to/test.epub", exception.getFilePath());
-        assertEquals("formatParsing", exception.getOperation());
+        assertEquals("formatValidation", exception.getOperation());
     }
 
     @Test
@@ -31,10 +31,10 @@ public class EpubFormatExceptionTest {
                 "path/to/test.epub", 
                 cause);
         
-        assertEquals("EPUB format error [File: test.epub, Path: path/to/test.epub, Operation: formatParsing]", exception.getMessage());
+        assertEquals("[4001: Invalid EPUB container] EPUB format error [File: test.epub, Path: path/to/test.epub, Operation: formatValidation]", exception.getMessage());
         assertEquals(cause, exception.getCause());
         assertEquals("test.epub", exception.getFileName());
         assertEquals("path/to/test.epub", exception.getFilePath());
-        assertEquals("formatParsing", exception.getOperation());
+        assertEquals("formatValidation", exception.getOperation());
     }
 }

@@ -9,6 +9,6 @@ public class EpubParseExceptionTest {
     @org.junit.Test
     public void testEpubParseException() {
         EpubParseException exception = new EpubParseException("Test Exception");
-        assertEquals("Test Exception", exception.getMessage());
+        assertEquals("[9001: Unknown error occurred] Test Exception", exception.getMessage());
     }
 }
