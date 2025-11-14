@@ -1,6 +1,8 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
+import fun.lzwi.epubime.cache.EpubCacheManager;
+import fun.lzwi.epubime.zip.ZipFileManager;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import org.junit.Test;
@@ -23,11 +25,24 @@ public class EpubimeVsEpublibBenchmarkTest {
     private Map<String, Long> benchmarkResults = new HashMap<>();
 
     /**
+     * 在测试前清除EPUBime的缓存，确保测试公平性
+     */
+    private void clearEpubimeCaches() {
+        // 清除EPUBime的缓存
+        EpubCacheManager.getInstance().clearAllCaches();
+        // 清理ZIP文件管理器的句柄
+        ZipFileManager.getInstance().cleanup();
+    }
+
+    /**
      * Tests the performance of parsing EPUB files with both libraries
      */
     @Test
     public void testParsePerformanceComparison() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 清除EPUBime缓存，确保测试公平性
+        clearEpubimeCaches();
         
         // Test EPUBime parsing performance
         long startTime = System.nanoTime();
@@ -37,6 +52,9 @@ public class EpubimeVsEpublibBenchmarkTest {
         
         System.out.println("EPUBime parsing EPUB file time: " + epubimeDuration / 1_000_000.0 + " ms");
         benchmarkResults.put("epubime_parse_full_epub", epubimeDuration);
+        
+        // 清除EPUBime缓存，确保对epublib的测试公平性
+        clearEpubimeCaches();
         
         // Test epublib parsing performance
         startTime = System.nanoTime();
@@ -68,6 +86,9 @@ public class EpubimeVsEpublibBenchmarkTest {
     public void testReadEpubContentPerformanceComparison() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         
+        // 清除EPUBime缓存，确保测试公平性
+        clearEpubimeCaches();
+        
         // Test EPUBime reading performance
         long startTime = System.nanoTime();
         String epubimeContent = EpubParser.readEpubContent(epubFile, "mimetype");
@@ -76,6 +97,9 @@ public class EpubimeVsEpublibBenchmarkTest {
         
         System.out.println("EPUBime reading EPUB content time: " + epubimeDuration / 1_000_000.0 + " ms");
         benchmarkResults.put("epubime_read_epub_content", epubimeDuration);
+        
+        // 清除EPUBime缓存，确保对epublib的测试公平性
+        clearEpubimeCaches();
         
         // Test epublib reading performance (need to manually extract content)
         startTime = System.nanoTime();
@@ -117,6 +141,9 @@ public class EpubimeVsEpublibBenchmarkTest {
     @Test
     public void testCachePerformanceComparison() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 清除EPUBime缓存，确保第一次测试的公平性
+        clearEpubimeCaches();
         
         // Test EPUBime cache performance
         EpubParser epubimeParser = new EpubParser(epubFile);
