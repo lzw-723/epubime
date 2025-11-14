@@ -1,53 +1,27 @@
 package fun.lzwi.epubime.epub;
 
 
-
 import fun.lzwi.epubime.cache.EpubCacheManager;
-
 import fun.lzwi.epubime.exception.EpubParseException;
 import fun.lzwi.epubime.exception.EpubPathValidationException;
-import fun.lzwi.epubime.zip.ZipFileManager;
-
-import fun.lzwi.epubime.zip.ZipUtils;
-
+import fun.lzwi.epubime.exception.EpubZipException;
 import fun.lzwi.epubime.zip.PathValidator;
-
+import fun.lzwi.epubime.zip.ZipFileManager;
+import fun.lzwi.epubime.zip.ZipUtils;
 import org.jsoup.Jsoup;
-
-
-
 import org.jsoup.nodes.Document;
-
-
-
 import org.jsoup.nodes.Element;
-
-
-
 import org.jsoup.parser.Parser;
-
 import org.jsoup.select.Elements;
 
-
-
 import java.io.File;
-
 import java.io.IOException;
-
 import java.io.InputStream;
-
 import java.util.ArrayList;
-
 import java.util.List;
-
 import java.util.Objects;
-
 import java.util.function.BiConsumer;
-
 import java.util.function.Consumer;
-
-
-import fun.lzwi.epubime.exception.EpubZipException;
 
 
 
@@ -64,7 +38,7 @@ public class EpubParser {
      * Container file path
      */
     public static final String CONTAINER_FILE_PATH = "META-INF/container.xml";
-    private File epubFile;
+    private final File epubFile;
 
     /**
      * Constructor
@@ -153,119 +127,117 @@ public class EpubParser {
             }
         }
 
-        opfDocument.select("metadata").forEach(meta -> {
-            meta.children().forEach(child -> {
-                switch (child.tagName()) {
-                    case "dc:title":
-                        metadata.addTitle(child.text());
-                        break;
-                    case "dc:creator":
-                        metadata.addCreator(child.text());
-                        break;
-                    case "dc:language":
-                        metadata.addLanguage(child.text());
-                        break;
-                    case "dc:identifier":
-                        metadata.addIdentifier(child.text());
-                        break;
-                    case "dc:publisher":
-                        metadata.addPublisher(child.text());
-                        break;
-                    case "dc:date":
-                        metadata.addDate(child.text());
-                        break;
-                    case "dc:description":
-                        metadata.addDescription(child.text());
-                        break;
-                    case "dc:subject":
-                        metadata.addSubject(child.text());
-                        break;
-                    case "dc:type":
-                        metadata.addType(child.text());
-                        break;
-                    case "dc:format":
-                        metadata.addFormat(child.text());
-                        break;
-                    case "dc:source":
-                        metadata.addSource(child.text());
-                        break;
-                    //                    case "dc:relation":
+        opfDocument.select("metadata").forEach(meta -> meta.children().forEach(child -> {
+            switch (child.tagName()) {
+                case "dc:title":
+                    metadata.addTitle(child.text());
+                    break;
+                case "dc:creator":
+                    metadata.addCreator(child.text());
+                    break;
+                case "dc:language":
+                    metadata.addLanguage(child.text());
+                    break;
+                case "dc:identifier":
+                    metadata.addIdentifier(child.text());
+                    break;
+                case "dc:publisher":
+                    metadata.addPublisher(child.text());
+                    break;
+                case "dc:date":
+                    metadata.addDate(child.text());
+                    break;
+                case "dc:description":
+                    metadata.addDescription(child.text());
+                    break;
+                case "dc:subject":
+                    metadata.addSubject(child.text());
+                    break;
+                case "dc:type":
+                    metadata.addType(child.text());
+                    break;
+                case "dc:format":
+                    metadata.addFormat(child.text());
+                    break;
+                case "dc:source":
+                    metadata.addSource(child.text());
+                    break;
+                //                    case "dc:relation":
 
-                    //                        metadata.addRelation(child.text());
+                //                        metadata.addRelation(child.text());
 
-                    //                        break;
+                //                        break;
 
-                    //                    case "dc:coverage":
+                //                    case "dc:coverage":
 
-                    //                        metadata.addCoverage(child.text());
+                //                        metadata.addCoverage(child.text());
 
-                    //                        break;
-                    case "dc:rights":
-                        metadata.addRights(child.text());
-                        break;
-                    case "dc:contributor":
-                        metadata.addContributor(child.text());
-                        break;
-                    case "meta":
-                        String property = child.attr("property");
-                        String name = child.attr("name");
-                        String content = child.text(); // Use text() for meta elements with property attributes
+                //                        break;
+                case "dc:rights":
+                    metadata.addRights(child.text());
+                    break;
+                case "dc:contributor":
+                    metadata.addContributor(child.text());
+                    break;
+                case "meta":
+                    String property = child.attr("property");
+                    String name = child.attr("name");
+                    String content = child.text(); // Use text() for meta elements with property attributes
 
-                        if (name.equals("cover")) {
+                    if (name.equals("cover")) {
 
-                            // Maintain support for old meta name="cover" method, but with lower priority
+                        // Maintain support for old meta name="cover" method, but with lower priority
 
-                            if (metadata.getCover() == null || metadata.getCover().isEmpty()) {
+                        if (metadata.getCover() == null || metadata.getCover().isEmpty()) {
 
-                                metadata.setCover(child.attr("content"));
-
-                            }
-
-                        } else if (property.equals("dcterms:rightsHolder")) {
-                            metadata.setRightsHolder(content);
-                        } else if (property.equals("dcterms:modified")) {
-                            metadata.setModified(content);
-                        } else if (property.equals("rendition:layout")) {
-                            metadata.setLayout(content);
-                        } else if (property.equals("rendition:orientation")) {
-                            metadata.setOrientation(content);
-                        } else if (property.equals("rendition:spread")) {
-                            metadata.setSpread(content);
-                        } else if (property.equals("rendition:viewport")) {
-
-                            metadata.setViewport(content);
-
-                        } else if (property.equals("rendition:media")) {
-
-                            metadata.setMedia(content);
-
-                        } else if (property.equals("rendition:flow")) {
-
-                            metadata.setFlow(content);
-
-                        } else if (property.equals("rendition:align-x-center")) {
-
-                            metadata.setAlignXCenter("true".equalsIgnoreCase(content) || "yes".equalsIgnoreCase(content) || "1".equals(content));
-
-                        } else if (property.equals("schema:accessibilityFeature")) {
-
-                            metadata.addAccessibilityFeature(content);
-
-                        } else if (property.equals("schema:accessibilityHazard")) {
-
-                            metadata.addAccessibilityHazard(content);
-
-                        } else if (property.equals("schema:accessibilitySummary")) {
-
-                            metadata.addAccessibilitySummary(content);
+                            metadata.setCover(child.attr("content"));
 
                         }
-                        break;
-                    default:
-                        break;
-                }
-            });
-        });
+
+                    } else if (property.equals("dcterms:rightsHolder")) {
+                        metadata.setRightsHolder(content);
+                    } else if (property.equals("dcterms:modified")) {
+                        metadata.setModified(content);
+                    } else if (property.equals("rendition:layout")) {
+                        metadata.setLayout(content);
+                    } else if (property.equals("rendition:orientation")) {
+                        metadata.setOrientation(content);
+                    } else if (property.equals("rendition:spread")) {
+                        metadata.setSpread(content);
+                    } else if (property.equals("rendition:viewport")) {
+
+                        metadata.setViewport(content);
+
+                    } else if (property.equals("rendition:media")) {
+
+                        metadata.setMedia(content);
+
+                    } else if (property.equals("rendition:flow")) {
+
+                        metadata.setFlow(content);
+
+                    } else if (property.equals("rendition:align-x-center")) {
+
+                        metadata.setAlignXCenter("true".equalsIgnoreCase(content) || "yes".equalsIgnoreCase(content) || "1".equals(content));
+
+                    } else if (property.equals("schema:accessibilityFeature")) {
+
+                        metadata.addAccessibilityFeature(content);
+
+                    } else if (property.equals("schema:accessibilityHazard")) {
+
+                        metadata.addAccessibilityHazard(content);
+
+                    } else if (property.equals("schema:accessibilitySummary")) {
+
+                        metadata.addAccessibilitySummary(content);
+
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }));
         return metadata;
     }
 
@@ -525,10 +497,9 @@ public class EpubParser {
      * @param opfDir     OPF file directory
      * @param epubFile   EPUB file
      * @return list of resource files
-     * @throws EpubParseException parsing exception
      */
 
-    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
+    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) {
 
         Objects.requireNonNull(opfContent);
 

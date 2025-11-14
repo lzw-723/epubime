@@ -23,7 +23,7 @@ public class EpubBookTest {
     }
 
     @Test
-    public void getCoverWithPropertiesAttribute() throws EpubParseException {
+    public void getCoverWithPropertiesAttribute() {
         // 创建一个模拟的EPUB内容用于测试properties="cover-image"属性
         String sampleOpfContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\"> " +

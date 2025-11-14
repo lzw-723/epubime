@@ -4,8 +4,9 @@ import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.exception.EpubParseException;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -315,20 +316,17 @@ public class EpubParserTest {
         StringBuilder content = new StringBuilder();
         boolean[] processed = {false};
 
-        EpubParser.processHtmlChapterContent(epubFile, "mimetype", new Consumer<InputStream>() {
-            @Override
-            public void accept(InputStream inputStream) {
-                try {
-                    java.io.BufferedReader reader =
-                            new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        content.append(line);
-                    }
-                    processed[0] = true;
-                } catch (java.io.IOException e) {
-                    throw new RuntimeException(e);
+        EpubParser.processHtmlChapterContent(epubFile, "mimetype", (Consumer<InputStream>) inputStream -> {
+            try {
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
                 }
+                processed[0] = true;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
 
@@ -340,38 +338,32 @@ public class EpubParserTest {
     public void processHtmlChapterContentWithTraversalPathShouldThrowException() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         // 测试使用目录穿越路径时应抛出异常
-        EpubParser.processHtmlChapterContent(epubFile, "../../../etc/passwd", new Consumer<InputStream>() {
-            @Override
-            public void accept(InputStream inputStream) {
-                // 不应该执行到这里
-                fail("Should have thrown EpubParseException");
-            }
+        EpubParser.processHtmlChapterContent(epubFile, "../../../etc/passwd", (Consumer<InputStream>) inputStream -> {
+            // 不应该执行到这里
+            fail("Should have thrown EpubParseException");
         });
     }
 
     @Test
     public void processMultipleHtmlChapters() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype");
+        java.util.List<String> filePaths = Collections.singletonList("mimetype");
         java.util.Map<String, String> contents = new java.util.HashMap<>();
         int[] processedCount = {0};
 
-        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, new BiConsumer<String, InputStream>() {
-            @Override
-            public void accept(String fileName, InputStream inputStream) {
-                try {
-                    java.io.BufferedReader reader =
-                            new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
-                    StringBuilder content = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        content.append(line);
-                    }
-                    contents.put(fileName, content.toString());
-                    processedCount[0]++; 
-                } catch (java.io.IOException e) {
-                    throw new RuntimeException(e);
+        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, (BiConsumer<String, InputStream>) (fileName, inputStream) -> {
+            try {
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
                 }
+                contents.put(fileName, content.toString());
+                processedCount[0]++;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
 
@@ -385,12 +377,9 @@ public class EpubParserTest {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         java.util.List<String> filePaths = java.util.Arrays.asList("mimetype", "../../../etc/passwd");
         // 测试使用目录穿越路径时应抛出异常
-        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, new BiConsumer<String, InputStream>() {
-            @Override
-            public void accept(String fileName, InputStream inputStream) {
-                // 不应该执行到这里
-                fail("Should have thrown EpubParseException");
-            }
+        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, (BiConsumer<String, InputStream>) (fileName, inputStream) -> {
+            // 不应该执行到这里
+            fail("Should have thrown EpubParseException");
         });
     }
     

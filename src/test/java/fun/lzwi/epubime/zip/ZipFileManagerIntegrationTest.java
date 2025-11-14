@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class ZipFileManagerIntegrationTest {
     
     @Test
-    public void testZipFileManagerInEpubParsing() throws EpubParseException, IOException {
+    public void testZipFileManagerInEpubParsing() throws EpubParseException {
         // 获取EPUB文件
         File epubFile = new File("src/test/resources/fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         if (!epubFile.exists()) {

@@ -1,22 +1,14 @@
 package fun.lzwi.epubime.epub;
 
+import fun.lzwi.epubime.exception.EpubResourceException;
 import fun.lzwi.epubime.zip.ZipUtils;
 
 import java.io.File;
-
 import java.io.IOException;
-
 import java.io.InputStream;
-
 import java.util.List;
-
 import java.util.Map;
-
 import java.util.function.Consumer;
-
-
-
-import fun.lzwi.epubime.exception.EpubResourceException;
 
 /**
  * EPUB Resource Model Class
@@ -269,11 +261,9 @@ public class EpubResource {
 
      * @param processor consumer function for processing resource content
 
-     * @throws IOException IO exception
-
      */
 
-    public void processContent(Consumer<InputStream> processor) throws IOException, EpubResourceException {
+    public void processContent(Consumer<InputStream> processor) throws EpubResourceException {
 
         if (epubFile != null && href != null) {
 

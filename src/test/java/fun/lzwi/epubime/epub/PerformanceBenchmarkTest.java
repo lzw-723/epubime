@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 public class PerformanceBenchmarkTest {
 
     // Records execution time for each operation
-    private Map<String, Long> benchmarkResults = new HashMap<>();
+    private final Map<String, Long> benchmarkResults = new HashMap<>();
 
     /**
      * 在测试前清除EPUBime的缓存，确保测试公平性

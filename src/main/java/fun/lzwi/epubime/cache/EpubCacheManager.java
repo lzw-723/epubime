@@ -1,7 +1,6 @@
 package fun.lzwi.epubime.cache;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
