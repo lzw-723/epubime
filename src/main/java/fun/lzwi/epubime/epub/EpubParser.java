@@ -50,11 +50,18 @@ public class EpubParser {
      * @throws EpubParseException 解析异常
      */
     protected static String readEpubContent(File epubFile, String path) throws EpubParseException {
+
         try {
+
             return ZipUtils.getZipFileContent(epubFile, path);
+
         } catch (IOException e) {
-            throw new EpubParseException("Failed to read EPUB file", e);
+
+            throw new EpubParseException("Failed to read EPUB file content", epubFile.getName(), path,
+                    "readEpubContent", e);
+
         }
+
     }
 
     /**
@@ -274,15 +281,10 @@ public class EpubParser {
     }
 
     /**
-
      * 解析NAV目录内容
-
      *
-
      * @param navContent NAV目录内容
-
      * @return 章节列表
-
      */
 
     protected static List<EpubChapter> parseNav(String navContent) {
@@ -290,13 +292,10 @@ public class EpubParser {
         Objects.requireNonNull(navContent);
 
 
-
         Document doc = Jsoup.parse(navContent);
 
 
-
         List<EpubChapter> chapters = new ArrayList<>();
-
 
 
         // 首先查找toc类型的nav元素（这是主要内容导航）
@@ -326,77 +325,56 @@ public class EpubParser {
         }
 
 
-
         if (navElement != null) {
-
 
 
             // 查找顶级的ol或ul元素
 
 
-
             Elements topLists = navElement.select("> ol, > ul");
-
 
 
             for (Element list : topLists) {
 
 
-
                 chapters.addAll(parseNavList(list));
 
 
-
             }
-
 
 
         }
 
 
-
         return chapters;
-
 
 
     }
 
 
-
     /**
-
      * 递归解析导航列表
-
      *
-
      * @param listElement ol或ul元素
-
      * @return 章节列表
-
      */
 
     private static List<EpubChapter> parseNavList(Element listElement) {
 
 
-
         List<EpubChapter> chapters = new ArrayList<>();
-
 
 
         for (Element li : listElement.children()) {
 
 
-
             if (!"li".equalsIgnoreCase(li.tagName())) {
-
 
 
                 continue;
 
 
-
             }
-
 
 
             EpubChapter chapter = null;
@@ -404,13 +382,10 @@ public class EpubParser {
             Element link = li.selectFirst("a");
 
 
-
             if (link != null) {
 
 
-
                 chapter = new EpubChapter();
-
 
 
                 // 设置章节ID（如果存在）
@@ -424,11 +399,9 @@ public class EpubParser {
                 }
 
 
-
                 chapter.setTitle(link.text());
 
                 chapter.setContent(link.attr("href"));
-
 
 
                 // 处理epub:type属性
@@ -444,9 +417,7 @@ public class EpubParser {
                 }
 
 
-
             }
-
 
 
             // 查找嵌套的列表（子章节）
@@ -454,227 +425,305 @@ public class EpubParser {
             Elements nestedLists = li.select("> ol, > ul");
 
 
-
             for (Element nestedList : nestedLists) {
-
 
 
                 if (chapter != null) {
 
 
-
                     List<EpubChapter> children = parseNavList(nestedList);
-
 
 
                     for (EpubChapter child : children) {
 
 
-
                         chapter.addChild(child);
-
 
 
                     }
 
 
-
                 } else {
-
 
 
                     // 如果li标签中没有a标签但有嵌套列表，解析这些嵌套列表
 
 
-
                     List<EpubChapter> children = parseNavList(nestedList);
-
 
 
                     chapters.addAll(children);
 
 
-
                 }
 
 
-
             }
-
 
 
             // 如果当前li标签包含链接，则添加到章节列表中
 
 
-
             if (chapter != null) {
-
 
 
                 chapters.add(chapter);
 
 
-
             }
-
 
 
         }
 
 
-
         return chapters;
 
 
+    }
+
+    /**
+     * 解析OPF内容中的资源文件列表
+     *
+     * @param opfContent OPF文件内容
+     * @param opfDir     OPF文件目录
+     * @param epubFile   EPUB文件
+     * @return 资源文件列表
+     * @throws EpubParseException 解析异常
+     */
+
+    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
+
+        Objects.requireNonNull(opfContent);
+
+
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+
+        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+
+        @SuppressWarnings("unchecked")
+
+        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
+
+        if (cachedResult != null) {
+
+            return new ArrayList<>(cachedResult);
+
+        }
+
+
+        Document document = Jsoup.parse(opfContent);
+
+        List<EpubResource> resources = new ArrayList<>();
+
+
+        for (Element item : document.select("manifest>item")) {
+
+            EpubResource res = new EpubResource();
+
+            res.setId(item.attr("id"));
+
+            res.setHref(opfDir + item.attr("href"));
+
+            res.setType(item.attr("media-type"));
+
+            res.setProperties(item.attr("properties").isEmpty() ? null : item.attr("properties"));
+
+            res.setFallback(item.attr("fallback").isEmpty() ? null : item.attr("fallback"));
+
+            // Set EPUB file reference for on-demand streaming loading of resources
+
+            res.setEpubFile(epubFile);
+
+            // Do not load data immediately, only set file reference, provide on-demand loading capability
+
+            resources.add(res);
+
+        }
+
+
+        // Cache result
+
+        cache.setParsedResult(cacheKey, new ArrayList<>(resources));
+
+        return resources;
 
     }
 
-    /**
-     * 解析OPF内容中的资源文件列表
-     * @param opfContent OPF文件内容
-     * @param opfDir OPF文件目录
-     * @param epubFile EPUB文件
-     * @return 资源文件列表
-     * @throws EpubParseException 解析异常
-     */
-    protected static List<EpubResource> parseResources(String opfContent, String opfDir, File epubFile) throws EpubParseException {
-        Objects.requireNonNull(opfContent);
-        
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-        @SuppressWarnings("unchecked")
-        List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
-        if (cachedResult != null) {
-            return new ArrayList<>(cachedResult);
-        }
-        
-        Document document = Jsoup.parse(opfContent);
-        List<EpubResource> resources = new ArrayList<>();
-        
-        for (Element item : document.select("manifest>item")) {
-            EpubResource res = new EpubResource();
-            res.setId(item.attr("id"));
-            res.setHref(opfDir + item.attr("href"));
-            res.setType(item.attr("media-type"));
-            res.setProperties(item.attr("properties").isEmpty() ? null : item.attr("properties"));
-            res.setFallback(item.attr("fallback").isEmpty() ? null : item.attr("fallback"));
-            // Set EPUB file reference for on-demand streaming loading of resources
-            res.setEpubFile(epubFile);
-            // Do not load data immediately, only set file reference, provide on-demand loading capability
-            resources.add(res);
-        }
-        
-        // Cache result
-        cache.setParsedResult(cacheKey, new ArrayList<>(resources));
-        return resources;
-    }
+    /**
+     * 解析EPUB文件并返回EpubBook对象
+     *
+     * @return 解析后的EpubBook对象
+     * @throws EpubParseException 解析异常
+     */
 
-    /**
-     * 解析EPUB文件并返回EpubBook对象
-     *
-     * @return 解析后的EpubBook对象
-     * @throws EpubParseException 解析异常
-     */
-    public EpubBook parse() throws EpubParseException {
-        EpubBook book = new EpubBook();
-
-        // Get cache for current EPUB file
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
-
-        // Try to get complete parsing result from cache
-
-        EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
-
-        if (cachedBook != null) {
-
-            return new EpubBook(cachedBook);
-
-        }
-
-        try {
-            // First ZIP access: read container.xml and OPF file
-            List<String> firstBatchPaths = new ArrayList<>();
-            firstBatchPaths.add(CONTAINER_FILE_PATH);
-
-            // First read container.xml to get OPF file path
-            java.util.Map<String, String> firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile,
-                    firstBatchPaths);
-            String container = firstBatchContents.get(CONTAINER_FILE_PATH);
-            Objects.requireNonNull(container);
-            String opfPath = getRootFilePath(container);
-            String opfDir = getRootFileDir(opfPath);
-
-            // Reset file path list to include OPF file
-
-            firstBatchPaths.add(opfPath);
-
-            firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile, firstBatchPaths);
-
-            // No need to reassign container as it's not used after this point
-
-            String opfContent = firstBatchContents.get(opfPath);
-
-            // Metadata
-            Metadata metadata = parseMetadata(opfContent);
-            book.setMetadata(metadata);
-
-            // Get chapter file paths
-            String ncxPath = getNcxPath(opfContent, opfDir);
-
-            String navPath = getNavPath(opfContent, opfDir);
-
-            // Second ZIP access: read chapter files
-            List<String> secondBatchPaths = new ArrayList<>();
-            secondBatchPaths.add(ncxPath);
-            if (navPath != null) {
-                secondBatchPaths.add(navPath);
-            }
-
-            java.util.Map<String, String> secondBatchContents = ZipUtils.getMultipleZipFileContents(epubFile,
-                    secondBatchPaths);
-            String ncxContent = secondBatchContents.get(ncxPath);
-            String navContent = navPath != null ? secondBatchContents.get(navPath) : null;
-
-            // Parse chapter files to get chapter content
-            List<EpubChapter> ncx = parseNcx(ncxContent);
-            book.setNcx(ncx);
-
-            // Parse nav
-            if (navContent != null) {
-                List<EpubChapter> nav = parseNav(navContent);
-                book.setNav(nav);
-                
-                // 解析其他类型的导航（地标、页面列表等）
-                List<EpubChapter> landmarks = parseNavByType(navContent, "landmarks");
-                book.setLandmarks(landmarks);
-                
-                List<EpubChapter> pageList = parseNavByType(navContent, "page-list");
-                book.setPageList(pageList);
-            }
-
-            // Parse resource files to get resource data - now only set references, do not load data
-            List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
-            book.setResources(resources);
-
-            // Cache complete parsing result
-
-            cache.setParsedResult(cacheKey, new EpubBook(book));
-        } catch (IOException e) {
-            throw new EpubParseException("Failed to read EPUB file", e);
-        } finally {
-            // Clean up ZIP file handle after parsing
-            ZipFileManager.getInstance().closeCurrentZipFile();
-        }
-
-        return book;
+    public EpubBook parse() throws EpubParseException {
+
+        EpubBook book = new EpubBook();
+
+
+        // Get cache for current EPUB file
+
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+
+        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
+
+
+        // Try to get complete parsing result from cache
+
+
+        EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
+
+
+        if (cachedBook != null) {
+
+
+            return new EpubBook(cachedBook);
+
+
+        }
+
+
+        try {
+
+            // First ZIP access: read container.xml and OPF file
+
+            List<String> firstBatchPaths = new ArrayList<>();
+
+            firstBatchPaths.add(CONTAINER_FILE_PATH);
+
+
+            // First read container.xml to get OPF file path
+
+            java.util.Map<String, String> firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile,
+
+                    firstBatchPaths);
+
+            String container = firstBatchContents.get(CONTAINER_FILE_PATH);
+
+            Objects.requireNonNull(container);
+
+            String opfPath = getRootFilePath(container);
+
+            String opfDir = getRootFileDir(opfPath);
+
+
+            // Reset file path list to include OPF file
+
+
+            firstBatchPaths.add(opfPath);
+
+
+            firstBatchContents = ZipUtils.getMultipleZipFileContents(epubFile, firstBatchPaths);
+
+
+            // No need to reassign container as it's not used after this point
+
+
+            String opfContent = firstBatchContents.get(opfPath);
+
+
+            // Metadata
+
+            Metadata metadata = parseMetadata(opfContent);
+
+            book.setMetadata(metadata);
+
+
+            // Get chapter file paths
+
+            String ncxPath = getNcxPath(opfContent, opfDir);
+
+
+            String navPath = getNavPath(opfContent, opfDir);
+
+
+            // Second ZIP access: read chapter files
+
+            List<String> secondBatchPaths = new ArrayList<>();
+
+            secondBatchPaths.add(ncxPath);
+
+            if (navPath != null) {
+
+                secondBatchPaths.add(navPath);
+
+            }
+
+
+            java.util.Map<String, String> secondBatchContents = ZipUtils.getMultipleZipFileContents(epubFile,
+
+                    secondBatchPaths);
+
+            String ncxContent = secondBatchContents.get(ncxPath);
+
+            String navContent = navPath != null ? secondBatchContents.get(navPath) : null;
+
+
+            // Parse chapter files to get chapter content
+
+            List<EpubChapter> ncx = parseNcx(ncxContent);
+
+            book.setNcx(ncx);
+
+
+            // Parse nav
+
+            if (navContent != null) {
+
+                List<EpubChapter> nav = parseNav(navContent);
+
+                book.setNav(nav);
+
+
+                // 解析其他类型的导航（地标、页面列表等）
+
+                List<EpubChapter> landmarks = parseNavByType(navContent, "landmarks");
+
+                book.setLandmarks(landmarks);
+
+
+                List<EpubChapter> pageList = parseNavByType(navContent, "page-list");
+
+                book.setPageList(pageList);
+
+            }
+
+
+            // Parse resource files to get resource data - now only set references, do not load data
+
+            List<EpubResource> resources = parseResources(opfContent, opfDir, epubFile);
+
+            book.setResources(resources);
+
+
+            // Cache complete parsing result
+
+
+            cache.setParsedResult(cacheKey, new EpubBook(book));
+
+        } catch (IOException e) {
+
+            throw new EpubParseException("Failed to read EPUB file during parsing", epubFile.getName(),
+                    "multiple " + "files", "parse", e);
+
+        } finally {
+
+            // Clean up ZIP file handle after parsing
+
+            ZipFileManager.getInstance().closeCurrentZipFile();
+
+        }
+
+
+        return book;
+
     }
 
     /**
      * 根据nav类型解析导航内容
      *
      * @param navContent NAV目录内容
-     * @param navType 导航类型（如toc、landmarks、page-list等）
+     * @param navType    导航类型（如toc、landmarks、page-list等）
      * @return 章节列表
      */
     protected static List<EpubChapter> parseNavByType(String navContent, String navType) {
@@ -732,12 +781,19 @@ public class EpubParser {
      * @param processor    消费者函数，用于处理HTML内容
      * @throws EpubParseException 解析异常
      */
-    public static void processHtmlChapterContent(File epubFile, String htmlFileName, Consumer<InputStream> processor) throws EpubParseException {
+    public static void processHtmlChapterContent(File epubFile, String htmlFileName,
+                                                 Consumer<InputStream> processor) throws EpubParseException {
         try {
+
             ZipUtils.processHtmlContent(epubFile, htmlFileName, processor);
+
         } catch (IOException e) {
-            throw new EpubParseException("Failed to process HTML chapter content", e);
+
+            throw new EpubParseException("Failed to process HTML chapter content", epubFile.getName(), htmlFileName,
+                    "processHtmlChapterContent", e);
+
         }
+
     }
 
     /**
@@ -751,9 +807,15 @@ public class EpubParser {
     public static void processMultipleHtmlChapters(File epubFile, List<String> htmlFileNames, BiConsumer<String,
             InputStream> processor) throws EpubParseException {
         try {
+
             ZipUtils.processMultipleHtmlContents(epubFile, htmlFileNames, processor);
+
         } catch (IOException e) {
-            throw new EpubParseException("Failed to process multiple HTML chapters", e);
+
+            throw new EpubParseException("Failed to process multiple HTML chapters", epubFile.getName(),
+                    "multiple " + "files", "processMultipleHtmlChapters", e);
+
         }
+
     }
 }

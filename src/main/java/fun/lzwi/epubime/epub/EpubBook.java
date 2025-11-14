@@ -244,7 +244,7 @@ public class EpubBook {
     public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws EpubParseException {
         File epubFile = this.resources.isEmpty() ? null : this.resources.get(0).getEpubFile();
         if (epubFile == null) {
-            throw new EpubParseException("No EPUB file reference available for streaming");
+            throw new EpubParseException("No EPUB file reference available for streaming", "unknown", "unknown", "processHtmlChapters");
         }
         
         List<EpubChapter> chapters = getChapters();
@@ -254,7 +254,7 @@ public class EpubBook {
                     processor.accept(chapter, inputStream);
                 });
             } catch (Exception e) {
-                throw new EpubParseException("Failed to process chapter: " + chapter.getContent(), e);
+                throw new EpubParseException("Failed to process chapter: " + chapter.getContent(), epubFile.getName(), chapter.getContent(), "processHtmlChapters", e);
             }
         }
     }
