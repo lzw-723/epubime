@@ -8,15 +8,33 @@ EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供
 - **目录解析**: 支持 NCX 和 NAV 两种目录格式
 - **资源提取**: 提取 EPUB 文件中的所有资源（图片、CSS、样式等）
 - **ZIP 处理**: 基于 ZIP 文件格式的 EPUB 文档解析
-- **错误处理**: 专门的异常处理机制
+- **错误处理**: 完善的异常处理体系，包括格式异常、解析异常、路径验证异常、资源异常和 ZIP 异常
 - **缓存管理**: 提供智能缓存机制，避免重复解析相同内容
 - **流式处理**: 支持对大型 EPUB 文件的流式处理，优化内存使用
+- **EPUB 3.3 支持**: 兼容 EPUB 3.3 规范
+- **嵌套章节**: 支持解析嵌套的章节结构
+- **多种导航类型**: 支持 landmarks、page-list 等多种导航类型
+
+## 异常处理体系
+
+EPUBime 提供了完善的异常处理机制，所有异常都继承自 `EpubException` 基类：
+
+- **EpubParseException**: 解析异常，用于处理 EPUB 文件解析过程中的错误
+- **EpubFormatException**: 格式异常，用于处理 EPUB 格式不符合规范的情况
+- **EpubPathValidationException**: 路径验证异常，用于防止目录遍历攻击
+- **EpubResourceException**: 资源异常，用于处理资源文件访问错误
+- **EpubZipException**: ZIP 异常，用于处理 ZIP 文件操作错误
+
+所有异常都包含详细的错误信息、文件名和路径信息，便于调试和错误定位。
+
+## 快速开始
 
 ## 技术栈
 
 - **Java 8+**: 主要开发语言
 - **Maven**: 项目构建和依赖管理
-- **JSoup 1.18.3**: HTML/XML 解析库
+- **JSoup 1.19.1**: HTML/XML 解析库
+- **JaCoCo 0.8.10**: 代码覆盖率分析工具
 - **JUnit 4.13.1**: 单元测试框架
 - **SpotBugs 4.7.3.6**: 静态代码分析工具，用于检测潜在的代码缺陷
 
@@ -68,8 +86,11 @@ byte[] coverData = cover.getData();
 EpubParser parser = new EpubParser(epubFile);
 EpubBook book = parser.parse(); // 第一次解析后会缓存结果
 
+// 不使用缓存解析（强制重新解析）
+EpubBook book = parser.parseWithoutCache();
+
 // 流式处理大文件章节内容（避免将整个文件加载到内存）
-parser.processHtmlChapterContent(epubFile, "chapter1.html", inputStream -> {
+EpubParser.processHtmlChapterContent(epubFile, "chapter1.html", inputStream -> {
     // 处理输入流，例如解析HTML内容
 });
 
@@ -86,13 +107,34 @@ String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/content.opf");
 // 解析元数据
 Metadata metadata = EpubParser.parseMetadata(opfContent);
 
-// 解析章节
+// 解析章节（支持 NCX 和 NAV 两种格式）
 String ncxPath = EpubParser.getNcxPath(opfContent, "OEBPS/");
 String ncxContent = EpubParser.readEpubContent(epubFile, ncxPath);
-List<EpubChapter> chapters = EpubParser.parseNcx(ncxContent);
+List<EpubChapter> ncxChapters = EpubParser.parseNcx(ncxContent);
+
+// 解析 NAV 导航（EPUB 3）
+String navPath = EpubParser.getNavPath(opfContent, "OEBPS/");
+if (navPath != null) {
+    String navContent = EpubParser.readEpubContent(epubFile, navPath);
+    List<EpubChapter> navChapters = EpubParser.parseNav(navContent);
+    
+    // 解析其他导航类型
+    List<EpubChapter> landmarks = EpubParser.parseNavByType(navContent, "landmarks");
+    List<EpubChapter> pageList = EpubParser.parseNavByType(navContent, "page-list");
+}
 
 // 获取所有资源
 List<EpubResource> resources = EpubParser.parseResources(opfContent, "OEBPS/", epubFile);
+
+// 处理嵌套章节
+for (EpubChapter chapter : book.getChapters()) {
+    System.out.println("章节: " + chapter.getTitle());
+    if (chapter.hasChildren()) {
+        for (EpubChapter child : chapter.getChildren()) {
+            System.out.println("  子章节: " + child.getTitle());
+        }
+    }
+}
 ```
 
 ## 构建和测试
@@ -117,6 +159,12 @@ mvn spotbugs:check
 
 # 生成详细的SpotBugs报告
 mvn spotbugs:spotbugs
+
+# 检查依赖版本更新
+mvn versions:display-dependency-updates
+
+# 检查插件版本更新
+mvn versions:display-plugin-updates
 ```
 
 ## 项目结构
@@ -130,22 +178,45 @@ epubime/
 │   │           ├── cache/              # 缓存管理
 │   │           │   └── EpubCacheManager.java # 缓存管理器
 │   │           ├── epub/               # EPUB 解析核心
-│   │           │   ├── EpubParser.java  # 主要解析器
 │   │           │   ├── EpubBook.java    # EPUB 书籍对象
-│   │           │   ├── Metadata.java    # 元数据模型
 │   │           │   ├── EpubChapter.java # 章节模型
+│   │           │   ├── EpubParser.java  # 主要解析器
 │   │           │   ├── EpubResource.java# 资源模型
-│   │           │   └── EpubParseException.java # 异常类
-│   │           └── zip/
-│   │               ├── ZipFileManager.java # ZIP 文件句柄管理器
-│   │               └── ZipUtils.java    # ZIP 文件工具类
+│   │           │   └── Metadata.java    # 元数据模型
+│   │           ├── exception/          # 异常处理
+│   │           │   ├── EpubFormatException.java
+│   │           │   ├── EpubParseException.java
+│   │           │   ├── EpubPathValidationException.java
+│   │           │   ├── EpubResourceException.java
+│   │           │   └── EpubZipException.java
+│   │           └── zip/                # ZIP 工具
+│   │               ├── PathValidator.java
+│   │               ├── ZipFileManager.java
+│   │               └── ZipUtils.java
 │   └── test/
 │       ├── java/
 │       │   └── fun/lzwi/epubime/
 │       │       ├── epub/               # EPUB 解析测试
-│       │       │   ├── EpubCacheTest.java # 缓存功能测试
-│       │       │   └── other_test_files... # 其他解析测试
+│       │       │   ├── Epub33MetadataTest.java
+│       │       │   ├── EpubBookTest.java
+│       │       │   ├── EpubCacheTest.java
+│       │       │   ├── EpubFormatExceptionTest.java
+│       │       │   ├── EpubimeVsEpublibBenchmarkTest.java
+│       │       │   ├── EpubParseExceptionEnhancedTest.java
+│       │       │   ├── EpubParseExceptionTest.java
+│       │       │   ├── EpubParserTest.java
+│       │       │   ├── EpubPathValidationExceptionTest.java
+│       │       │   ├── EpubResourceExceptionTest.java
+│       │       │   ├── EpubResourceFallbackTest.java
+│       │       │   ├── EpubResourceTest.java
+│       │       │   ├── EpubZipExceptionTest.java
+│       │       │   ├── MetadataTest.java
+│       │       │   └── PerformanceBenchmarkTest.java
 │       │       ├── zip/                # ZIP 工具测试
+│       │       │   ├── PathValidatorTest.java
+│       │       │   ├── ZipFileManagerIntegrationTest.java
+│       │       │   ├── ZipFileManagerTest.java
+│       │       │   └── ZipUtilsTest.java
 │       │       └── ResUtils.java       # 测试资源工具
 │       └── resources/
 │           └── fun/lzwi/epubime/epub/ 《坟》鲁迅.epub # 测试用示例文件
@@ -169,6 +240,29 @@ epubime/
 - **测试文件**: `*Test.java` 命名规范
 - **测试资源**: 放在 `src/test/resources/` 目录
 - **测试工具**: 提供 `ResUtils` 工具类用于资源文件获取
+
+## 性能与基准测试
+
+EPUBime 注重性能优化，提供了多种机制确保高效处理 EPUB 文件：
+
+### 性能特性
+
+- **智能缓存**: 使用 EpubCacheManager 缓存解析结果，避免重复解析相同内容
+- **流式处理**: 支持流式处理大文件，避免将整个 EPUB 文件加载到内存
+- **批量操作**: 支持批量读取多个文件，减少 ZIP 文件操作次数
+- **资源懒加载**: 资源文件按需加载，不占用不必要的内存
+
+### 基准测试
+
+项目包含与 epublib 的对比基准测试，可用于评估性能：
+
+```bash
+# 运行性能基准测试
+mvn test -Dtest=PerformanceBenchmarkTest
+
+# 运行与 epublib 的对比测试
+mvn test -Dtest=EpubimeVsEpublibBenchmarkTest
+```
 
 ## 扩展指南
 
