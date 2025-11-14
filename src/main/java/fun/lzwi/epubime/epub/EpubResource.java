@@ -3,11 +3,20 @@ package fun.lzwi.epubime.epub;
 import fun.lzwi.epubime.zip.ZipUtils;
 
 import java.io.File;
+
 import java.io.IOException;
+
 import java.io.InputStream;
+
 import java.util.List;
+
 import java.util.Map;
+
 import java.util.function.Consumer;
+
+
+
+import fun.lzwi.epubime.exception.EpubResourceException;
 
 /**
  * EPUB Resource Model Class
@@ -88,16 +97,26 @@ public class EpubResource {
             return data.clone();
         }
         
-        // If there is an EPUB file reference, try to stream read data
-        if (epubFile != null && href != null) {
-            try {
-                data = ZipUtils.getZipFileBytes(epubFile, href);
-                return data != null ? data.clone() : null;
-            } catch (IOException e) {
-                // Log the error for debugging (in a real application, you might want to use a proper logging framework)
-                System.err.println("Warning: Failed to read resource data for " + href + " from EPUB file " + epubFile.getName() + ": " + e.getMessage());
-                return null;
-            }
+        // If there is an EPUB file reference, try to stream read data
+
+        if (epubFile != null && href != null) {
+
+            try {
+
+                data = ZipUtils.getZipFileBytes(epubFile, href);
+
+                return data != null ? data.clone() : null;
+
+            } catch (IOException e) {
+
+                // Log the error for debugging (in a real application, you might want to use a proper logging framework)
+
+                System.err.println("Warning: Failed to read resource data for " + href + " from EPUB file " + epubFile.getName() + ": " + e.getMessage());
+
+                return null;
+
+            }
+
         }
         
         return null;
@@ -244,18 +263,33 @@ public class EpubResource {
         }
     }
     
-    /**
-     * Stream process resource content to avoid loading entire file into memory
-     * @param processor consumer function for processing resource content
-     * @throws IOException IO exception
-     */
-    public void processContent(Consumer<InputStream> processor) throws IOException {
-        if (epubFile != null && href != null) {
-            try {
-                ZipUtils.processHtmlContent(epubFile, href, processor);
-            } catch (IOException e) {
-                throw new IOException("Failed to process resource content for " + href + " from EPUB file " + epubFile.getName(), e);
-            }
-        }
+    /**
+
+     * Stream process resource content to avoid loading entire file into memory
+
+     * @param processor consumer function for processing resource content
+
+     * @throws IOException IO exception
+
+     */
+
+    public void processContent(Consumer<InputStream> processor) throws IOException, EpubResourceException {
+
+        if (epubFile != null && href != null) {
+
+            try {
+
+                ZipUtils.processHtmlContent(epubFile, href, processor);
+
+            } catch (IOException e) {
+
+                throw new EpubResourceException("Failed to process resource content for " + href + " from EPUB file " + epubFile.getName(), 
+
+                    epubFile.getName(), href, e);
+
+            }
+
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
+import fun.lzwi.epubime.exception.EpubParseException;
 import org.junit.Test;
 
 import java.io.File;

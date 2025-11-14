@@ -2,7 +2,7 @@ package fun.lzwi.epubime.zip;
 
 import fun.lzwi.epubime.epub.EpubParser;
 import fun.lzwi.epubime.epub.EpubBook;
-import fun.lzwi.epubime.epub.EpubParseException;
+import fun.lzwi.epubime.exception.EpubParseException;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,4 +39,4 @@ public class ZipFileManagerIntegrationTest {
         // 验证ZIP文件句柄已被正确清理
         // 这个验证通过确保parse()方法中的finally块被正确执行
     }
-}
+}

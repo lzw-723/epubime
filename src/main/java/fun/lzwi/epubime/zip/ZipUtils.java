@@ -39,37 +39,37 @@ public class ZipUtils {
      * @return file content, returns null if it does not exist
      * @throws IOException IO exception
      */
-    public static String getZipFileContent(File zipFile, String fileName) throws IOException {
-        // Prevent directory traversal attacks
-        if (!PathValidator.isPathSafe("", fileName)) {
-            throw new IOException("Invalid file path: " + fileName);
-        }
+    public static String getZipFileContent(File zipFile, String fileName) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new java.io.IOException("Invalid file path: " + fileName);
+        }
         
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        String cachedContent = cache.getTextContent(fileName);
-        if (cachedContent != null) {
-            return cachedContent;
-        }
+        // Try to get from cache
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        String cachedContent = cache.getTextContent(fileName);
+        if (cachedContent != null) {
+            return cachedContent;
+        }
         
-        // Cache miss, read from ZIP file
-        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
-        ZipEntry entry = zip.getEntry(fileName);
-        if (entry == null) {
-            // Release ZIP file handle, reduce reference count
-            ZipFileManager.getInstance().releaseZipFile();
-            return null;
-        }
-        try (InputStream in = zip.getInputStream(entry); BufferedReader reader =
-                new BufferedReader(new InputStreamReader(in, DEFAULT_CHARSET))) {
-            String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
-            // Cache result
-            cache.setTextContent(fileName, content);
-            return content;
-        } finally {
-            // Release ZIP file handle, reduce reference count
-        ZipFileManager.getInstance().releaseZipFile();
-        }
+        // Cache miss, read from ZIP file
+        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
+        ZipEntry entry = zip.getEntry(fileName);
+        if (entry == null) {
+            // Release ZIP file handle, reduce reference count
+            ZipFileManager.getInstance().releaseZipFile();
+            return null;
+        }
+        try (InputStream in = zip.getInputStream(entry); BufferedReader reader =
+                new BufferedReader(new InputStreamReader(in, DEFAULT_CHARSET))) {
+            String content = reader.lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+            // Cache result
+            cache.setTextContent(fileName, content);
+            return content;
+        } finally {
+            // Release ZIP file handle, reduce reference count
+        ZipFileManager.getInstance().releaseZipFile();
+        }
     }
 
     /**
@@ -79,39 +79,39 @@ public class ZipUtils {
      * @return file content byte array, returns null if it does not exist
      * @throws IOException IO exception
      */
-    public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
-        // Prevent directory traversal attacks
-        if (!PathValidator.isPathSafe("", fileName)) {
-            throw new IOException("Invalid file path: " + fileName);
-        }
+    public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new java.io.IOException("Invalid file path: " + fileName);
+        }
         
-        // Try to get from cache
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        byte[] cachedData = cache.getBinaryContent(fileName);
-        if (cachedData != null) {
-            return cachedData.clone(); // Return clone to avoid modifying cache data
-        }
+        // Try to get from cache
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
+        byte[] cachedData = cache.getBinaryContent(fileName);
+        if (cachedData != null) {
+            return cachedData.clone(); // Return clone to avoid modifying cache data
+        }
         
-        // Cache miss, read from ZIP file
-        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
-        ZipEntry entry = zip.getEntry(fileName);
-        if (entry == null) {
-            return null;
-        }
-        try (InputStream in = zip.getInputStream(entry);
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-            byte[] data = out.toByteArray();
-            // Cache result
-            cache.setBinaryContent(fileName, data.clone());
-            return data;
-        } finally {
-            // Note: We don't close the ZIP file because it may be reused
-        }
+        // Cache miss, read from ZIP file
+        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
+        ZipEntry entry = zip.getEntry(fileName);
+        if (entry == null) {
+            return null;
+        }
+        try (InputStream in = zip.getInputStream(entry);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+            byte[] data = out.toByteArray();
+            // Cache result
+            cache.setBinaryContent(fileName, data.clone());
+            return data;
+        } finally {
+            // Note: We don't close the ZIP file because it may be reused
+        }
     }
 
     /**
@@ -121,24 +121,24 @@ public class ZipUtils {
      * @param processor consumer function to process input stream
      * @throws IOException IO exception
      */
-    public static void processZipFileContent(File zipFile, String fileName, Consumer<InputStream> processor) throws IOException {
-        // Prevent directory traversal attacks
-        if (!PathValidator.isPathSafe("", fileName)) {
-            throw new IOException("Invalid file path: " + fileName);
-        }
+    public static void processZipFileContent(File zipFile, String fileName, Consumer<InputStream> processor) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new java.io.IOException("Invalid file path: " + fileName);
+        }
         
-        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
-        ZipEntry entry = zip.getEntry(fileName);
-        if (entry == null) {
-            // Release ZIP file handle, reduce reference count
-            ZipFileManager.getInstance().releaseZipFile();
-            return;
-        }
-        try (InputStream in = zip.getInputStream(entry)) {
-            processor.accept(in);
-        } finally {
-            // Note: We don't close the ZIP file because it may be reused
-        }
+        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
+        ZipEntry entry = zip.getEntry(fileName);
+        if (entry == null) {
+            // Release ZIP file handle, reduce reference count
+            ZipFileManager.getInstance().releaseZipFile();
+            return;
+        }
+        try (InputStream in = zip.getInputStream(entry)) {
+            processor.accept(in);
+        } finally {
+            // Note: We don't close the ZIP file because it may be reused
+        }
     }
 
     /**
@@ -148,19 +148,19 @@ public class ZipUtils {
      * @return input stream, caller needs to close it
      * @throws IOException IO exception
      */
-    public static InputStream getZipFileInputStream(File zipFile, String fileName) throws IOException {
-        // Prevent directory traversal attacks
-        if (!PathValidator.isPathSafe("", fileName)) {
-            throw new IOException("Invalid file path: " + fileName);
-        }
+    public static InputStream getZipFileInputStream(File zipFile, String fileName) throws IOException {
+        // Prevent directory traversal attacks
+        if (!PathValidator.isPathSafe("", fileName)) {
+            throw new java.io.IOException("Invalid file path: " + fileName);
+        }
         
-        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
-        ZipEntry entry = zip.getEntry(fileName);
-        if (entry == null) {
-            // Note: We can't close zip here because it may be reused
-            return null;
-        }
-        return new ZipFileInputStream(zip, zip.getInputStream(entry));
+        ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
+        ZipEntry entry = zip.getEntry(fileName);
+        if (entry == null) {
+            // Note: We can't close zip here because it may be reused
+            return null;
+        }
+        return new ZipFileInputStream(zip, zip.getInputStream(entry));
     }
 
     /**

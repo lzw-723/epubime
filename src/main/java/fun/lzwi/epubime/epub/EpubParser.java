@@ -1,31 +1,64 @@
 package fun.lzwi.epubime.epub;
 
+
+
 import fun.lzwi.epubime.cache.EpubCacheManager;
+
+import fun.lzwi.epubime.exception.EpubParseException;
+import fun.lzwi.epubime.exception.EpubPathValidationException;
 import fun.lzwi.epubime.zip.ZipFileManager;
+
 import fun.lzwi.epubime.zip.ZipUtils;
+
 import fun.lzwi.epubime.zip.PathValidator;
+
 import org.jsoup.Jsoup;
+
+
 
 import org.jsoup.nodes.Document;
 
+
+
 import org.jsoup.nodes.Element;
 
+
+
 import org.jsoup.parser.Parser;
+
 import org.jsoup.select.Elements;
 
+
+
 import java.io.File;
+
 import java.io.IOException;
+
 import java.io.InputStream;
+
 import java.util.ArrayList;
+
 import java.util.List;
+
 import java.util.Objects;
+
 import java.util.function.BiConsumer;
+
 import java.util.function.Consumer;
 
+
+import fun.lzwi.epubime.exception.EpubZipException;
+
+
+
 /**
+
  * EPUB parser class
+
  * Responsible for parsing EPUB files and extracting metadata, chapters and resource information
+
  */
+
 public class EpubParser {
     /**
      * Container file path
@@ -53,7 +86,7 @@ public class EpubParser {
     protected static String readEpubContent(File epubFile, String path) throws EpubParseException {
         // Prevent directory traversal attacks
         if (!PathValidator.isPathSafe("", path)) {
-            throw new EpubParseException("Invalid file path: " + path, epubFile.getName(), path, "readEpubContent");
+            throw new EpubPathValidationException("Invalid file path: " + path, epubFile.getName(), path);
         }
 
         try {
@@ -62,8 +95,7 @@ public class EpubParser {
 
         } catch (IOException e) {
 
-            throw new EpubParseException("Failed to read EPUB file content", epubFile.getName(), path,
-                    "readEpubContent", e);
+            throw new EpubZipException("Failed to read EPUB file content", epubFile.getName(), path, e);
 
         }
 
@@ -708,8 +740,8 @@ public class EpubParser {
 
         } catch (IOException e) {
 
-            throw new EpubParseException("Failed to read EPUB file during parsing", epubFile.getName(),
-                    "multiple " + "files", "parse", e);
+            throw new EpubZipException("Failed to read EPUB file during parsing", epubFile.getName(),
+                    "multiple " + "files", e);
 
         } finally {
 
@@ -790,7 +822,7 @@ public class EpubParser {
                                                  Consumer<InputStream> processor) throws EpubParseException {
         // Prevent directory traversal attacks
         if (!PathValidator.isPathSafe("", htmlFileName)) {
-            throw new EpubParseException("Invalid file path: " + htmlFileName, epubFile.getName(), htmlFileName, "processHtmlChapterContent");
+            throw new EpubPathValidationException("Invalid file path: " + htmlFileName, epubFile.getName(), htmlFileName);
         }
         
         try {
@@ -799,8 +831,7 @@ public class EpubParser {
 
         } catch (IOException e) {
 
-            throw new EpubParseException("Failed to process HTML chapter content", epubFile.getName(), htmlFileName,
-                    "processHtmlChapterContent", e);
+            throw new EpubZipException("Failed to process HTML chapter content", epubFile.getName(), htmlFileName, e);
 
         }
 
@@ -819,7 +850,7 @@ public class EpubParser {
         // Prevent directory traversal attacks
         for (String fileName : htmlFileNames) {
             if (!PathValidator.isPathSafe("", fileName)) {
-                throw new EpubParseException("Invalid file path: " + fileName, epubFile.getName(), fileName, "processMultipleHtmlChapters");
+                throw new EpubPathValidationException("Invalid file path: " + fileName, epubFile.getName(), fileName);
             }
         }
         
@@ -829,8 +860,8 @@ public class EpubParser {
 
         } catch (IOException e) {
 
-            throw new EpubParseException("Failed to process multiple HTML chapters", epubFile.getName(),
-                    "multiple " + "files", "processMultipleHtmlChapters", e);
+            throw new EpubZipException("Failed to process multiple HTML chapters", epubFile.getName(),
+                    "multiple " + "files", e);
 
         }
 

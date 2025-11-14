@@ -1,5 +1,7 @@
 package fun.lzwi.epubime.epub;
 
+import fun.lzwi.epubime.exception.EpubParseException;
+
 import static org.junit.Assert.*;
 
 public class EpubParseExceptionTest {
