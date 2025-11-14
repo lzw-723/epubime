@@ -274,35 +274,90 @@ public class EpubParser {
     }
 
     /**
+
      * 解析NAV目录内容
+
      *
+
      * @param navContent NAV目录内容
+
      * @return 章节列表
+
      */
+
     protected static List<EpubChapter> parseNav(String navContent) {
+
         Objects.requireNonNull(navContent);
+
+
 
         Document doc = Jsoup.parse(navContent);
 
+
+
         List<EpubChapter> chapters = new ArrayList<>();
 
-        Element navElement = doc.selectFirst("nav");
 
-        if (navElement != null) {
 
-            // 查找顶级的ol或ul元素
+        // 首先查找toc类型的nav元素（这是主要内容导航）
 
-            Elements topLists = navElement.select("> ol, > ul");
+        Element navElement = doc.selectFirst("nav[epub:type= toc]");
 
-            for (Element list : topLists) {
+        if (navElement == null) {
 
-                chapters.addAll(parseNavList(list));
+            // 尝试查找其他toc类型的表达方式
 
-            }
+            navElement = doc.selectFirst("nav[epub:type='toc']");
 
         }
 
+        if (navElement == null) {
+
+            navElement = doc.selectFirst("nav[epub:type=\"toc\"]");
+
+        }
+
+        if (navElement == null) {
+
+            // 如果没有找到toc类型的nav，则使用第一个nav元素
+
+            navElement = doc.selectFirst("nav");
+
+        }
+
+
+
+        if (navElement != null) {
+
+
+
+            // 查找顶级的ol或ul元素
+
+
+
+            Elements topLists = navElement.select("> ol, > ul");
+
+
+
+            for (Element list : topLists) {
+
+
+
+                chapters.addAll(parseNavList(list));
+
+
+
+            }
+
+
+
+        }
+
+
+
         return chapters;
+
+
 
     }
 
@@ -322,13 +377,23 @@ public class EpubParser {
 
     private static List<EpubChapter> parseNavList(Element listElement) {
 
+
+
         List<EpubChapter> chapters = new ArrayList<>();
+
+
 
         for (Element li : listElement.children()) {
 
+
+
             if (!"li".equalsIgnoreCase(li.tagName())) {
 
+
+
                 continue;
+
+
 
             }
 
@@ -338,13 +403,47 @@ public class EpubParser {
 
             Element link = li.selectFirst("a");
 
+
+
             if (link != null) {
 
+
+
                 chapter = new EpubChapter();
+
+
+
+                // 设置章节ID（如果存在）
+
+                String id = link.attr("id");
+
+                if (id != null && !id.isEmpty()) {
+
+                    chapter.setId(id);
+
+                }
+
+
 
                 chapter.setTitle(link.text());
 
                 chapter.setContent(link.attr("href"));
+
+
+
+                // 处理epub:type属性
+
+                String epubType = link.attr("epub:type");
+
+                if (epubType != null && !epubType.isEmpty()) {
+
+                    // 可以根据需要存储epub:type信息
+
+                    // 这里暂时不处理，但保留扩展的可能性
+
+                }
+
+
 
             }
 
@@ -354,27 +453,51 @@ public class EpubParser {
 
             Elements nestedLists = li.select("> ol, > ul");
 
+
+
             for (Element nestedList : nestedLists) {
+
+
 
                 if (chapter != null) {
 
+
+
                     List<EpubChapter> children = parseNavList(nestedList);
+
+
 
                     for (EpubChapter child : children) {
 
+
+
                         chapter.addChild(child);
+
+
 
                     }
 
+
+
                 } else {
+
+
 
                     // 如果li标签中没有a标签但有嵌套列表，解析这些嵌套列表
 
+
+
                     List<EpubChapter> children = parseNavList(nestedList);
+
+
 
                     chapters.addAll(children);
 
+
+
                 }
+
+
 
             }
 
@@ -382,15 +505,27 @@ public class EpubParser {
 
             // 如果当前li标签包含链接，则添加到章节列表中
 
+
+
             if (chapter != null) {
+
+
 
                 chapters.add(chapter);
 
+
+
             }
+
+
 
         }
 
+
+
         return chapters;
+
+
 
     }
 
@@ -509,6 +644,13 @@ public class EpubParser {
             if (navContent != null) {
                 List<EpubChapter> nav = parseNav(navContent);
                 book.setNav(nav);
+                
+                // 解析其他类型的导航（地标、页面列表等）
+                List<EpubChapter> landmarks = parseNavByType(navContent, "landmarks");
+                book.setLandmarks(landmarks);
+                
+                List<EpubChapter> pageList = parseNavByType(navContent, "page-list");
+                book.setPageList(pageList);
             }
 
             // Parse resource files to get resource data - now only set references, do not load data
@@ -526,6 +668,42 @@ public class EpubParser {
         }
 
         return book;
+    }
+
+    /**
+     * 根据nav类型解析导航内容
+     *
+     * @param navContent NAV目录内容
+     * @param navType 导航类型（如toc、landmarks、page-list等）
+     * @return 章节列表
+     */
+    protected static List<EpubChapter> parseNavByType(String navContent, String navType) {
+        Objects.requireNonNull(navContent);
+        Objects.requireNonNull(navType);
+
+        Document doc = Jsoup.parse(navContent);
+
+        List<EpubChapter> chapters = new ArrayList<>();
+
+        // 查找特定类型的nav元素
+        Element navElement = doc.selectFirst("nav[epub:type= " + navType + "]");
+        if (navElement == null) {
+            navElement = doc.selectFirst("nav[epub:type='" + navType + "']");
+        }
+        if (navElement == null) {
+            navElement = doc.selectFirst("nav[epub:type=\"" + navType + "\"]");
+        }
+
+        if (navElement != null) {
+            // 查找顶级的ol或ul元素
+            Elements topLists = navElement.select("> ol, > ul");
+
+            for (Element list : topLists) {
+                chapters.addAll(parseNavList(list));
+            }
+        }
+
+        return chapters;
     }
 
     /**

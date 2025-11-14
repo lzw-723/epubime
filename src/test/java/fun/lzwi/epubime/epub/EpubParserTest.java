@@ -290,6 +290,60 @@ public class EpubParserTest {
     }
 
     @Test
+    public void parseNavWithEpubType() {
+        String navContent = "<nav epub:type=\"toc\"><ol>" +
+                "<li><a href=\"cover.xhtml\">Cover</a></li>" +
+                "<li><a href=\"chapter1.xhtml\" id=\"chap1\">Chapter 1</a>" +
+                "<ol>" +
+                "<li><a href=\"section1_1.xhtml\" epub:type=\"text\">Section 1.1</a></li>" +
+                "</ol>" +
+                "</li>" +
+                "</ol></nav>";
+        List<EpubChapter> chapters = EpubParser.parseNav(navContent);
+        assertNotNull(chapters);
+        assertEquals(2, chapters.size());
+        
+        // 检查第一章及其ID
+        EpubChapter chapter1 = chapters.get(1);
+        assertEquals("Chapter 1", chapter1.getTitle());
+        assertEquals("chapter1.xhtml", chapter1.getContent());
+        assertEquals("chap1", chapter1.getId()); // 验证ID是否被正确解析
+        assertTrue(chapter1.hasChildren());
+    }
+
+    @Test
+    public void parseLandmarksNav() {
+        String navContent = "<nav epub:type=\"landmarks\"><ol>" +
+                "<li><a href=\"cover.xhtml\" epub:type=\"cover\">Cover</a></li>" +
+                "<li><a href=\"toc.xhtml\" epub:type=\"toc\">Table of Contents</a></li>" +
+                "<li><a href=\"bodymatter.xhtml\" epub:type=\"bodymatter\">Start of Content</a></li>" +
+                "</ol></nav>";
+        List<EpubChapter> landmarks = EpubParser.parseNavByType(navContent, "landmarks");
+        assertNotNull(landmarks);
+        assertEquals(3, landmarks.size());
+        assertEquals("Cover", landmarks.get(0).getTitle());
+        assertEquals("cover.xhtml", landmarks.get(0).getContent());
+    }
+
+    @Test
+    public void parseMultipleNavTypes() {
+        String navContent = "<nav epub:type=\"toc\"><ol>" +
+                "<li><a href=\"chapter1.xhtml\">Chapter 1</a></li>" +
+                "</ol></nav>" +
+                "<nav epub:type=\"landmarks\"><ol>" +
+                "<li><a href=\"cover.xhtml\" epub:type=\"cover\">Cover</a></li>" +
+                "</ol></nav>";
+        List<EpubChapter> toc = EpubParser.parseNav(navContent);
+        List<EpubChapter> landmarks = EpubParser.parseNavByType(navContent, "landmarks");
+        assertNotNull(toc);
+        assertNotNull(landmarks);
+        assertEquals(1, toc.size());
+        assertEquals(1, landmarks.size());
+        assertEquals("Chapter 1", toc.get(0).getTitle());
+        assertEquals("Cover", landmarks.get(0).getTitle());
+    }
+
+    @Test
     public void processHtmlChapterContent() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         StringBuilder content = new StringBuilder();
