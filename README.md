@@ -1,5 +1,7 @@
 # EPUBime
 
+[English](README_en.md) | [中文](README.md)
+
 EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供了完整的 EPUB 文件解析功能，包括元数据提取、章节内容读取和资源文件处理。支持 EPUB 2 和 EPUB 3 格式。
 
 ## 功能特性
