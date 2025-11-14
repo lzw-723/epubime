@@ -4,7 +4,10 @@ import fun.lzwi.epubime.ResUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -42,12 +45,14 @@ public class EpubParserTest {
         assertEquals("https://www.7sbook.com/ebook/254.html", metadata.getIdentifier());
         assertArrayEquals(new String[]{"论文", "论文集"}, metadata.getSubjects().toArray());
         assertEquals("《坟》是鲁迅的论文集，收录鲁迅在1907年~1925" +
-                "年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
+                        "年间所写的论文二十三篇。包括《人之历史》、《文化偏至论》、《摩罗诗力说》、《娜拉走后怎样》、《说胡须》、《论照相之类》、《论他妈的》、《从胡须说到牙齿》等。",
                 metadata.getDescription());
         assertEquals("本书的版权和许可信息。", metadata.getRights());
         //        assertEquals("text", metadata.getType());
         //        assertEquals("application/epub+zip", metadata.getFormat());
         assertEquals("https://www.7sbook.com/", metadata.getSource());
+
+        assertEquals("2022-12-06T13:14:44Z", metadata.getModified());
     }
 
     @Test
@@ -106,5 +111,61 @@ public class EpubParserTest {
         List<EpubChapter> chapters = EpubParser.parseNav(navContent);
         assertNotNull(chapters);
         assertEquals(2, chapters.size());
+    }
+    
+    @Test
+    public void processHtmlChapterContent() throws Exception {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        StringBuilder content = new StringBuilder();
+        boolean[] processed = {false};
+        
+        EpubParser.processHtmlChapterContent(epubFile, "mimetype", new Consumer<InputStream>() {
+            @Override
+            public void accept(InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    processed[0] = true;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        
+        assertTrue("HTML chapter content should be processed", processed[0]);
+        assertEquals("application/epub+zip", content.toString());
+    }
+    
+    @Test
+    public void processMultipleHtmlChapters() throws Exception {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype");
+        java.util.Map<String, String> contents = new java.util.HashMap<>();
+        int[] processedCount = {0};
+        
+        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, new BiConsumer<String, InputStream>() {
+            @Override
+            public void accept(String fileName, InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
+                    StringBuilder content = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    contents.put(fileName, content.toString());
+                    processedCount[0]++;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        
+        assertEquals("Should process 1 file", 1, processedCount[0]);
+        assertTrue(contents.containsKey("mimetype"));
+        assertEquals("application/epub+zip", contents.get("mimetype"));
     }
 }
