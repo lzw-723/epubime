@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class EpubResource {
     private String id;
@@ -111,6 +112,17 @@ public class EpubResource {
                     resource.setData(data);
                 }
             }
+        }
+    }
+    
+    /**
+     * 流式处理资源内容，避免将整个文件加载到内存中
+     * @param processor 处理资源内容的消费者函数
+     * @throws IOException
+     */
+    public void processContent(java.util.function.Consumer<InputStream> processor) throws IOException {
+        if (epubFile != null && href != null) {
+            ZipUtils.processHtmlContent(epubFile, href, processor);
         }
     }
 }

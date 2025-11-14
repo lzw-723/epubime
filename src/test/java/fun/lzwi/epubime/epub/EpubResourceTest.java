@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -66,30 +67,30 @@ public class EpubResourceTest {
         }
     }
 
-    @Test
-    public void testLoadResourceData() throws Exception {
-        // 测试批量加载资源数据的功能
-        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        
-        // 为测试创建新资源，以确保数据未加载
-        EpubResource testResource = new EpubResource();
-        testResource.setEpubFile(epubFile);
-        testResource.setHref("mimetype"); // 使用一个简单的文件进行测试
-        
-        // 不要调用getData()方法，因为这会触发数据加载
-        // 直接设置一个初始数据为null的资源
-        testResource.setData(null); // 确保数据是null
-        
-        // 创建只包含测试资源的列表
-        java.util.List<EpubResource> testResources = java.util.Arrays.asList(testResource);
-
-        // 批量加载所有资源的数据
-        EpubResource.loadResourceData(testResources, epubFile);
-
-        // 验证资源数据已加载
-        byte[] data = testResource.getData();
-        assertNotNull("Resource data should be loaded", data);
-        assertTrue("Resource data should have content", data.length > 0);
+    @Test
+    public void testLoadResourceData() throws Exception {
+        // 测试批量加载资源数据的功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        
+        // 为测试创建新资源，以确保数据未加载
+        EpubResource testResource = new EpubResource();
+        testResource.setEpubFile(epubFile);
+        testResource.setHref("mimetype"); // 使用一个简单的文件进行测试
+        
+        // 不要调用getData()方法，因为这会触发数据加载
+        // 直接设置一个初始数据为null的资源
+        testResource.setData(null); // 确保数据是null
+        
+        // 创建只包含测试资源的列表
+        java.util.List<EpubResource> testResources = java.util.Arrays.asList(testResource);
+
+        // 批量加载所有资源的数据
+        EpubResource.loadResourceData(testResources, epubFile);
+
+        // 验证资源数据已加载
+        byte[] data = testResource.getData();
+        assertNotNull("Resource data should be loaded", data);
+        assertTrue("Resource data should have content", data.length > 0);
     }
 
     @Test
@@ -103,5 +104,36 @@ public class EpubResourceTest {
 
         // 验证空列表仍为空
         assertTrue("Resource list should remain empty", emptyResources.isEmpty());
+    }
+    
+    @Test
+    public void testProcessContent() throws Exception {
+        // 测试流式处理资源内容的功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        EpubResource resource = new EpubResource();
+        resource.setEpubFile(epubFile);
+        resource.setHref("mimetype");
+        
+        StringBuilder content = new StringBuilder();
+        boolean[] processed = {false};
+        
+        resource.processContent(new Consumer<java.io.InputStream>() {
+            @Override
+            public void accept(java.io.InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    processed[0] = true;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        
+        assertTrue("Resource content should be processed", processed[0]);
+        assertEquals("application/epub+zip", content.toString());
     }
 }

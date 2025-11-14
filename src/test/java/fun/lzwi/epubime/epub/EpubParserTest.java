@@ -4,7 +4,10 @@ import fun.lzwi.epubime.ResUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -108,5 +111,61 @@ public class EpubParserTest {
         List<EpubChapter> chapters = EpubParser.parseNav(navContent);
         assertNotNull(chapters);
         assertEquals(2, chapters.size());
+    }
+    
+    @Test
+    public void processHtmlChapterContent() throws Exception {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        StringBuilder content = new StringBuilder();
+        boolean[] processed = {false};
+        
+        EpubParser.processHtmlChapterContent(epubFile, "mimetype", new Consumer<InputStream>() {
+            @Override
+            public void accept(InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    processed[0] = true;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        
+        assertTrue("HTML chapter content should be processed", processed[0]);
+        assertEquals("application/epub+zip", content.toString());
+    }
+    
+    @Test
+    public void processMultipleHtmlChapters() throws Exception {
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        java.util.List<String> filePaths = java.util.Arrays.asList("mimetype");
+        java.util.Map<String, String> contents = new java.util.HashMap<>();
+        int[] processedCount = {0};
+        
+        EpubParser.processMultipleHtmlChapters(epubFile, filePaths, new BiConsumer<String, InputStream>() {
+            @Override
+            public void accept(String fileName, InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
+                    StringBuilder content = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    contents.put(fileName, content.toString());
+                    processedCount[0]++;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        
+        assertEquals("Should process 1 file", 1, processedCount[0]);
+        assertTrue(contents.containsKey("mimetype"));
+        assertEquals("application/epub+zip", contents.get("mimetype"));
     }
 }

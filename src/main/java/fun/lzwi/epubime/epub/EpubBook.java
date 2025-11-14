@@ -2,9 +2,11 @@ package fun.lzwi.epubime.epub;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class EpubBook {
     private Metadata metadata;
@@ -64,5 +66,28 @@ public class EpubBook {
      */
     public void loadAllResourceData(File epubFile) throws IOException {
         EpubResource.loadResourceData(resources, epubFile);
+    }
+    
+    /**
+     * 流式处理HTML章节内容，避免将整个文件加载到内存中
+     * @param processor 处理HTML内容的消费者函数
+     * @throws EpubParseException
+     */
+    public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws EpubParseException {
+        File epubFile = this.resources.isEmpty() ? null : this.resources.get(0).getEpubFile();
+        if (epubFile == null) {
+            throw new EpubParseException("No EPUB file reference available for streaming");
+        }
+        
+        List<EpubChapter> chapters = getChapters();
+        for (EpubChapter chapter : chapters) {
+            try {
+                EpubParser.processHtmlChapterContent(epubFile, chapter.getContent(), inputStream -> {
+                    processor.accept(chapter, inputStream);
+                });
+            } catch (Exception e) {
+                throw new EpubParseException("Failed to process chapter: " + chapter.getContent(), e);
+            }
+        }
     }
 }

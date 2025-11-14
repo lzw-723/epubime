@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class ZipUtils {
     private static final String DEFAULT_CHARSET = "UTF-8";
@@ -137,6 +138,38 @@ public class ZipUtils {
             }
         }
         return contents;
+    }
+    
+    /**
+     * 流式处理HTML内容，避免将整个文件加载到内存中
+     * @param zipFile ZIP文件
+     * @param htmlFileName HTML文件名
+     * @param processor 处理HTML内容的消费者函数
+     * @throws IOException
+     */
+    public static void processHtmlContent(File zipFile, String htmlFileName, Consumer<InputStream> processor) throws IOException {
+        processZipFileContent(zipFile, htmlFileName, processor);
+    }
+
+    /**
+     * 批量流式处理多个HTML文件内容
+     * @param zipFile ZIP文件
+     * @param htmlFileNames HTML文件名列表
+     * @param processor 处理每个HTML内容的消费者函数
+     * @throws IOException
+     */
+    public static void processMultipleHtmlContents(File zipFile, List<String> htmlFileNames, 
+                                                   BiConsumer<String, InputStream> processor) throws IOException {
+        try (ZipFile zip = new ZipFile(zipFile)) {
+            for (String fileName : htmlFileNames) {
+                ZipEntry entry = zip.getEntry(fileName);
+                if (entry != null) {
+                    try (InputStream in = zip.getInputStream(entry)) {
+                        processor.accept(fileName, in);
+                    }
+                }
+            }
+        }
     }
 
     /**

@@ -8,9 +8,12 @@ import org.jsoup.parser.Parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class EpubParser {
     public static final String CONTAINER_FILE_PATH = "META-INF/container.xml";
@@ -240,5 +243,37 @@ public class EpubParser {
         }
         
         return book;
+    }
+    
+    /**
+     * 流式处理HTML章节内容，避免将整个文件加载到内存中
+     * @param epubFile EPUB文件
+     * @param htmlFileName HTML文件名
+     * @param processor 处理HTML内容的消费者函数
+     * @throws EpubParseException
+     */
+    public static void processHtmlChapterContent(File epubFile, String htmlFileName, 
+                                                 Consumer<InputStream> processor) throws EpubParseException {
+        try {
+            ZipUtils.processHtmlContent(epubFile, htmlFileName, processor);
+        } catch (IOException e) {
+            throw new EpubParseException("Failed to process HTML chapter content", e);
+        }
+    }
+    
+    /**
+     * 流式处理多个HTML章节内容
+     * @param epubFile EPUB文件
+     * @param htmlFileNames HTML文件名列表
+     * @param processor 处理每个HTML内容的消费者函数
+     * @throws EpubParseException
+     */
+    public static void processMultipleHtmlChapters(File epubFile, List<String> htmlFileNames,
+                                                   BiConsumer<String, InputStream> processor) throws EpubParseException {
+        try {
+            ZipUtils.processMultipleHtmlContents(epubFile, htmlFileNames, processor);
+        } catch (IOException e) {
+            throw new EpubParseException("Failed to process multiple HTML chapters", e);
+        }
     }
 }
