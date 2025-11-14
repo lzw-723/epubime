@@ -17,6 +17,9 @@ public class EpubCacheManager {
     // 每个EPUB文件的缓存，使用WeakHashMap避免内存泄漏
     private final Map<File, EpubFileCache> fileCaches = new WeakHashMap<>();
     
+    /**
+     * 私有构造函数，防止外部实例化
+     */
     private EpubCacheManager() {}
     
     /**

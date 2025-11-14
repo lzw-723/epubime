@@ -9,9 +9,19 @@ import java.util.zip.ZipFile;
 import java.util.function.Consumer;
 import java.util.function.BiConsumer;
 
+/**
+ * ZIP工具类
+ * 提供对ZIP文件的读取、流式处理等操作，支持缓存和ZIP文件句柄重用
+ */
 public class ZipUtils {
     private static final String DEFAULT_CHARSET = "UTF-8";
 
+    /**
+     * 获取ZIP文件中的文件列表
+     * @param zipFile ZIP文件
+     * @return 文件名列表
+     * @throws IOException IO异常
+     */
     public static List<String> getZipFileList(File zipFile) throws IOException {
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
         try {
@@ -21,6 +31,13 @@ public class ZipUtils {
         }
     }
 
+    /**
+     * 获取ZIP文件中的文本内容
+     * @param zipFile ZIP文件
+     * @param fileName 文件名
+     * @return 文件内容，如果不存在则返回null
+     * @throws IOException IO异常
+     */
     public static String getZipFileContent(File zipFile, String fileName) throws IOException {
         // Try to get from cache
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
@@ -46,6 +63,13 @@ public class ZipUtils {
         }
     }
 
+    /**
+     * 获取ZIP文件中的字节数组内容
+     * @param zipFile ZIP文件
+     * @param fileName 文件名
+     * @return 文件内容字节数组，如果不存在则返回null
+     * @throws IOException IO异常
+     */
     public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
         // Try to get from cache
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
@@ -77,11 +101,11 @@ public class ZipUtils {
     }
 
     /**
-     * Stream process content in ZIP file to avoid loading entire file into memory
-     * @param zipFile ZIP file
-     * @param fileName File name to process
-     * @param processor Consumer function to process input stream
-     * @throws IOException
+     * 流式处理ZIP文件中的内容以避免将整个文件加载到内存中
+     * @param zipFile ZIP文件
+     * @param fileName 要处理的文件名
+     * @param processor 消费者函数，用于处理输入流
+     * @throws IOException IO异常
      */
     public static void processZipFileContent(File zipFile, String fileName, Consumer<InputStream> processor) throws IOException {
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
@@ -97,11 +121,11 @@ public class ZipUtils {
     }
 
     /**
-     * Get input stream for specified file in ZIP file for streaming processing
-     * @param zipFile ZIP file
-     * @param fileName File name to get
-     * @return Input stream, caller needs to be responsible for closing
-     * @throws IOException
+     * 获取ZIP文件中指定文件的输入流，用于流式处理
+     * @param zipFile ZIP文件
+     * @param fileName 要获取的文件名
+     * @return 输入流，调用者需要负责关闭
+     * @throws IOException IO异常
      */
     public static InputStream getZipFileInputStream(File zipFile, String fileName) throws IOException {
         ZipFile zip = ZipFileManager.getInstance().getZipFile(zipFile);
@@ -114,11 +138,11 @@ public class ZipUtils {
     }
 
     /**
-     * Batch read multiple file contents using single ZIP file handle
-     * @param zipFile ZIP file
-     * @param fileNames List of file names to read
-     * @return Mapping from file names to contents
-     * @throws IOException
+     * 使用单个ZIP文件句柄批量读取多个文件内容
+     * @param zipFile ZIP文件
+     * @param fileNames 要读取的文件名列表
+     * @return 文件名到内容的映射
+     * @throws IOException IO异常
      */
     public static java.util.Map<String, String> getMultipleZipFileContents(File zipFile, List<String> fileNames) throws IOException {
         java.util.Map<String, String> contents = new java.util.HashMap<>();
@@ -140,11 +164,11 @@ public class ZipUtils {
     }
 
     /**
-     * Batch read byte arrays of multiple files using single ZIP file handle
-     * @param zipFile ZIP file
-     * @param fileNames List of file names to read
-     * @return Mapping from file names to byte arrays
-     * @throws IOException
+     * 使用单个ZIP文件句柄批量读取多个文件的字节数组
+     * @param zipFile ZIP文件
+     * @param fileNames 要读取的文件名列表
+     * @return 文件名到字节数组的映射
+     * @throws IOException IO异常
      */
     public static java.util.Map<String, byte[]> getMultipleZipFileBytes(File zipFile, List<String> fileNames) throws IOException {
         java.util.Map<String, byte[]> contents = new java.util.HashMap<>();
@@ -170,22 +194,22 @@ public class ZipUtils {
     }
     
     /**
-     * Stream process HTML content to avoid loading entire file into memory
-     * @param zipFile ZIP file
-     * @param htmlFileName HTML file name
-     * @param processor Consumer function to process HTML content
-     * @throws IOException
+     * 流式处理HTML内容以避免将整个文件加载到内存中
+     * @param zipFile ZIP文件
+     * @param htmlFileName HTML文件名
+     * @param processor 消费者函数，用于处理HTML内容
+     * @throws IOException IO异常
      */
     public static void processHtmlContent(File zipFile, String htmlFileName, Consumer<InputStream> processor) throws IOException {
         processZipFileContent(zipFile, htmlFileName, processor);
     }
 
     /**
-     * Batch stream process multiple HTML file contents
-     * @param zipFile ZIP file
-     * @param htmlFileNames HTML file name list
-     * @param processor Consumer function to process each HTML content
-     * @throws IOException
+     * 批量流式处理多个HTML文件内容
+     * @param zipFile ZIP文件
+     * @param htmlFileNames HTML文件名列表
+     * @param processor 消费者函数，用于处理每个HTML内容
+     * @throws IOException IO异常
      */
     public static void processMultipleHtmlContents(File zipFile, List<String> htmlFileNames, 
                                                    BiConsumer<String, InputStream> processor) throws IOException {
@@ -203,7 +227,7 @@ public class ZipUtils {
     }
 
     /**
-     * Custom input stream that automatically closes ZipFile
+     * 自定义输入流，自动关闭ZipFile
      */
     private static class ZipFileInputStream extends InputStream {
         private final ZipFile zipFile;

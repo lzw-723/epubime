@@ -16,6 +16,9 @@ public class ZipFileManager {
     // 线程本地存储，每个线程维护自己的ZIP文件句柄
     private final ThreadLocal<ZipFileHolder> threadLocalZipFile = new ThreadLocal<>();
     
+    /**
+     * 私有构造函数，防止外部实例化
+     */
     private ZipFileManager() {}
     
     /**
@@ -30,7 +33,7 @@ public class ZipFileManager {
      * 获取ZIP文件句柄，支持重用
      * @param zipFile ZIP文件
      * @return ZIP文件句柄
-     * @throws IOException
+     * @throws IOException IO异常
      */
     public ZipFile getZipFile(File zipFile) throws IOException {
         ZipFileHolder holder = threadLocalZipFile.get();
@@ -79,6 +82,11 @@ public class ZipFileManager {
         private int usageCount;
         private boolean closed;
         
+        /**
+         * 构造函数
+         * @param zipFile ZIP文件句柄
+         * @param file 对应的文件
+         */
         public ZipFileHolder(ZipFile zipFile, File file) {
             this.zipFile = zipFile;
             this.file = file;
@@ -86,18 +94,33 @@ public class ZipFileManager {
             this.closed = false;
         }
         
+        /**
+         * 获取ZIP文件句柄
+         * @return ZIP文件句柄
+         */
         public ZipFile getZipFile() {
             return zipFile;
         }
         
+        /**
+         * 获取对应的文件
+         * @return 对应的文件
+         */
         public File getFile() {
             return file;
         }
         
+        /**
+         * 增加使用计数
+         */
         public void incrementUsage() {
             usageCount++;
         }
         
+        /**
+         * 检查句柄是否有效
+         * @return 如果有效返回true，否则返回false
+         */
         public boolean isValid() {
             return !closed && zipFile != null;
         }

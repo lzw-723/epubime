@@ -9,20 +9,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * EPUB资源模型类
+ * 表示EPUB电子书中的单个资源文件，如图片、CSS样式表等
+ */
 public class EpubResource {
     private String id;
     private String type;
     private String href;
     private byte[] data;
-    private File epubFile; // EPUB file reference for streaming processing
+    private File epubFile; // EPUB文件引用用于流处理
 
+    /**
+     * 默认构造函数
+     */
     public EpubResource() {
         // Default constructor
     }
     
     /**
-     * Copy constructor
-     * @param other EpubResource object to copy
+     * 复制构造函数
+     * @param other 要复制的EpubResource对象
      */
     public EpubResource(EpubResource other) {
         this.id = other.id;
@@ -34,22 +41,43 @@ public class EpubResource {
         }
     }
 
+    /**
+     * 获取资源ID
+     * @return 资源ID
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * 设置资源ID
+     * @param id 资源ID
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * 获取资源类型（MIME类型）
+     * @return 资源类型
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * 设置资源类型（MIME类型）
+     * @param type 资源类型
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * 获取资源数据
+     * 如果数据已存在则直接返回，否则尝试从EPUB文件中流式读取
+     * @return 资源数据字节数组
+     */
     public byte[] getData() {
         // If data already exists, return directly
         if (data != null) {
@@ -70,32 +98,52 @@ public class EpubResource {
         return null;
     }
 
+    /**
+     * 设置资源数据
+     * @param data 资源数据字节数组
+     */
     public void setData(byte[] data) {
         if (data != null) {
             this.data = data.clone();
         }
     }
 
+    /**
+     * 获取资源文件路径
+     * @return 资源文件路径
+     */
     public String getHref() {
         return href;
     }
 
+    /**
+     * 设置资源文件路径
+     * @param href 资源文件路径
+     */
     public void setHref(String href) {
         this.href = href;
     }
 
+    /**
+     * 获取EPUB文件引用
+     * @return EPUB文件引用
+     */
     public File getEpubFile() {
         return epubFile;
     }
 
+    /**
+     * 设置EPUB文件引用
+     * @param epubFile EPUB文件引用
+     */
     public void setEpubFile(File epubFile) {
         this.epubFile = epubFile;
     }
 
     /**
-     * Get input stream for resource for streaming processing of large files
-     * @return Input stream
-     * @throws IOException
+     * 获取资源的输入流，用于大文件的流式处理
+     * @return 输入流
+     * @throws IOException IO异常
      */
     public InputStream getInputStream() throws IOException {
         if (epubFile != null && href != null) {
@@ -106,10 +154,10 @@ public class EpubResource {
     }
     
     /**
-     * Batch load resource data
-     * @param resources Resource list
-     * @param epubFile EPUB file
-     * @throws IOException
+     * 批量加载资源数据
+     * @param resources 资源列表
+     * @param epubFile EPUB文件
+     * @throws IOException IO异常
      */
     public static void loadResourceData(List<EpubResource> resources, File epubFile) throws IOException {
         // Collect all resource paths that need to be loaded
@@ -135,9 +183,9 @@ public class EpubResource {
     }
     
     /**
-     * Stream process resource content to avoid loading entire file into memory
-     * @param processor Consumer function to process resource content
-     * @throws IOException
+     * 流式处理资源内容以避免将整个文件加载到内存中
+     * @param processor 消费者函数，用于处理资源内容
+     * @throws IOException IO异常
      */
     public void processContent(java.util.function.Consumer<InputStream> processor) throws IOException {
         if (epubFile != null && href != null) {

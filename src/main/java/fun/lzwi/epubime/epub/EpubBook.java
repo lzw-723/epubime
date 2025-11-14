@@ -8,6 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * EPUB书籍模型类
+ * 表示一个完整的EPUB电子书，包含元数据、章节和资源文件
+ */
 public class EpubBook {
     private Metadata metadata;
 
@@ -15,13 +19,16 @@ public class EpubBook {
     private List<EpubChapter> nav = new ArrayList<>();
     private List<EpubResource> resources = new ArrayList<>();
 
+    /**
+     * 默认构造函数
+     */
     public EpubBook() {
         // Default constructor
     }
     
     /**
-     * Copy constructor for caching
-     * @param other EpubBook object to copy
+     * 复制构造函数，用于缓存
+     * @param other 要复制的EpubBook对象
      */
     public EpubBook(EpubBook other) {
         if (other.metadata != null) {
@@ -47,22 +54,42 @@ public class EpubBook {
         }
     }
 
+    /**
+     * 获取NCX目录章节列表
+     * @return NCX目录章节列表（不可修改）
+     */
     public List<EpubChapter> getNcx() {
         return Collections.unmodifiableList(ncx);
     }
 
+    /**
+     * 设置NCX目录章节列表
+     * @param ncx NCX目录章节列表
+     */
     public void setNcx(List<EpubChapter> ncx) {
         this.ncx = new ArrayList<>(ncx);
     }
 
+    /**
+     * 获取NAV目录章节列表
+     * @return NAV目录章节列表（不可修改）
+     */
     public List<EpubChapter> getNav() {
         return Collections.unmodifiableList(nav);
     }
 
+    /**
+     * 设置NAV目录章节列表
+     * @param nav NAV目录章节列表
+     */
     public void setNav(List<EpubChapter> nav) {
         this.nav = new ArrayList<>(nav);
     }
 
+    /**
+     * 获取主要章节列表，优先使用NAV目录，如果NAV为空则使用NCX目录
+     * @return 章节列表（不可修改）
+     */
     public List<EpubChapter> getChapters() {
         if (nav.size() > ncx.size()) {
             return getNav();
@@ -71,39 +98,59 @@ public class EpubBook {
         return getNcx();
     }
 
+    /**
+     * 获取元数据副本
+     * @return 元数据副本
+     */
     public Metadata getMetadata() {
         return new Metadata(metadata);
     }
 
+    /**
+     * 设置元数据
+     * @param metadata 元数据对象
+     */
     public void setMetadata(Metadata metadata) {
         this.metadata = new Metadata(metadata);
     }
 
+    /**
+     * 获取资源文件列表
+     * @return 资源文件列表（不可修改）
+     */
     public List<EpubResource> getResources() {
         return Collections.unmodifiableList(resources);
     }
 
+    /**
+     * 设置资源文件列表
+     * @param resources 资源文件列表
+     */
     public void setResources(List<EpubResource> resources) {
         this.resources = new ArrayList<>(resources);
     }
 
+    /**
+     * 获取封面资源
+     * @return 封面资源对象
+     */
     public EpubResource getCover() {
         return resources.stream().filter(r -> r.getId().equals(metadata.getCover())).findFirst().get();
     }
     
     /**
-     * Batch load data for all resources
-     * @param epubFile EPUB file
-     * @throws IOException
+     * 批量加载所有资源的数据
+     * @param epubFile EPUB文件
+     * @throws IOException 文件读取异常
      */
     public void loadAllResourceData(File epubFile) throws IOException {
         EpubResource.loadResourceData(resources, epubFile);
     }
     
     /**
-     * Stream process HTML chapter content to avoid loading entire file into memory
-     * @param processor Consumer function to process HTML content
-     * @throws EpubParseException
+     * 流式处理HTML章节内容以避免将整个文件加载到内存中
+     * @param processor 消费者函数，用于处理HTML内容
+     * @throws EpubParseException 解析异常
      */
     public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws EpubParseException {
         File epubFile = this.resources.isEmpty() ? null : this.resources.get(0).getEpubFile();
