@@ -37,25 +37,25 @@ mvn test -Dtest=EpubimeVsEpublibBenchmarkTest
 === EPUBime Professional Benchmarks ===
 
 === Benchmark 1: Simple Parsing Performance ===
-EPUBime average parsing time: 4.24 ms
-epublib average parsing time: 7.13 ms
-Performance ratio (EPUBime/epublib): 0.59
-EPUBime is 40.5% faster
+EPUBime average parsing time: 4.37 ms
+epublib average parsing time: 7.04 ms
+Performance ratio (EPUBime/epublib): 0.62
+EPUBime is 37.9% faster
 
 === Benchmark 2: Parse + Access Performance (Real Usage) ===
-EPUBime average parse+access time: 3.15 ms
-epublib average parse+access time: 7.23 ms
-Performance ratio (EPUBime/epublib): 0.44
-EPUBime is 56.5% faster
+EPUBime average parse+access time: 3.72 ms
+epublib average parse+access time: 7.42 ms
+Performance ratio (EPUBime/epublib): 0.50
+EPUBime is 49.8% faster
 
 === Benchmark 3: Full Workflow Performance ===
-EPUBime average full workflow time: 3.18 ms
+EPUBime average full workflow time: 3.15 ms
 (Includes: parse + metadata access + chapters + resources + cover + first chapter content)
 
 === Benchmark 4: File Reading Performance ===
-Reading mimetype: 0.27 ms
-Reading OPF file: 0.28 ms
-Reading NCX file: 0.41 ms
+Reading mimetype: 0.31 ms
+Reading OPF file: 0.40 ms
+Reading NCX file: 0.34 ms
 ```
 
 ### 性能指标说明
@@ -132,9 +132,9 @@ Reading NCX file: 0.41 ms
 
 | 测试场景 | EPUBime | epublib | 提升幅度 |
 |----------|---------|---------|----------|
-| 简单解析 | 4.24ms | 7.13ms | 40.5% ↑ |
-| 解析+访问 | 3.15ms | 7.23ms | 56.5% ↑ |
-| 完整工作流 | 3.18ms | N/A | N/A |
+| 简单解析 | 4.37ms | 7.04ms | 37.9% ↑ |
+| 解析+访问 | 3.72ms | 7.42ms | 49.8% ↑ |
+| 完整工作流 | 3.15ms | N/A | N/A |
 | 内存使用 | 低 | 中等 | 25-40% ↓ |
 | 缓存效率 | 优秀 | 无内置缓存 | N/A |
 

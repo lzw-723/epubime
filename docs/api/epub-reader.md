@@ -174,30 +174,192 @@ public static class EpubInfo {
 
 ### 使用示例
 
+#### 基础使用
+
 ```java
-// 基础使用（使用默认配置）
+// 简单解析
 EpubBook book = EpubReader.fromFile(epubFile).parse();
 
-// 使用自定义配置
+// 获取元数据
+Metadata metadata = book.getMetadata();
+System.out.println("书名: " + metadata.getTitle());
+System.out.println("作者: " + metadata.getCreator());
+System.out.println("出版日期: " + metadata.getDate());
+```
+
+#### 高级配置
+
+```java
+// 使用自定义配置优化性能
 EpubReaderConfig config = new EpubReaderConfig()
-    .withCache(true)
-    .withLazyLoading(false)
-    .withParallelProcessing(true);
+    .withCache(true)              // 启用缓存，避免重复解析
+    .withLazyLoading(true)        // 延迟加载资源
+    .withParallelProcessing(true); // 并行处理多个资源
+
 EpubBook book = EpubReader.fromFile(epubFile, config).parse();
+```
 
-// 流式处理
-EpubReader.fromFile(epubFile)
-    .streamChapters((chapter, inputStream) -> {
-        System.out.println("处理章节: " + chapter.getTitle());
-        // 处理章节内容
-    });
+#### 快速信息获取
 
-// 获取基本信息
+```java
+// 无需完整解析即可获取基本信息
 EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
 System.out.println("标题: " + info.getTitle());
+System.out.println("作者: " + info.getAuthor());
 System.out.println("章节数: " + info.getChapterCount());
+System.out.println("文件大小: " + info.getFileSize() + " 字节");
+```
 
-// 验证文件
+#### 选择性解析
+
+```java
+// 只解析元数据
+Metadata metadata = EpubReader.fromFile(epubFile).parseMetadata();
+
+// 只解析目录结构
+List<EpubChapter> chapters = EpubReader.fromFile(epubFile).parseTableOfContents();
+
+// 验证文件有效性
 boolean isValid = EpubReader.fromFile(epubFile).isValid();
-System.out.println("文件有效: " + isValid);
+System.out.println("EPUB文件有效: " + isValid);
+```
+
+#### 流式处理大文件
+
+```java
+// 流式处理所有章节（内存友好）
+EpubReader.fromFile(epubFile)
+    .streamChapters((chapter, inputStream) -> {
+        System.out.println("正在处理: " + chapter.getTitle());
+
+        // 逐章处理，避免加载整个文件到内存
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(inputStream, "UTF-8"))) {
+
+            String line;
+            int lineCount = 0;
+            while ((line = reader.readLine()) != null) {
+                lineCount++;
+                // 处理每一行内容
+            }
+
+            System.out.println("章节行数: " + lineCount);
+
+        } catch (IOException e) {
+            System.err.println("处理章节失败: " + chapter.getTitle());
+        }
+    });
+```
+
+#### 特定章节处理
+
+```java
+// 处理特定章节
+EpubReader.fromFile(epubFile)
+    .streamChapter("chapter1", inputStream -> {
+        try {
+            // 读取章节内容
+            String content = new String(inputStream.readAllBytes(), "UTF-8");
+            System.out.println("第一章内容长度: " + content.length());
+
+            // 使用 Jsoup 解析 HTML
+            Document doc = Jsoup.parse(content);
+            Elements paragraphs = doc.select("p");
+            System.out.println("段落数: " + paragraphs.size());
+
+        } catch (IOException e) {
+            System.err.println("读取章节失败");
+        }
+    });
+```
+
+#### 资源处理
+
+```java
+// 并行处理所有资源文件
+EpubReader.fromFile(epubFile)
+    .withParallelProcessing(true)
+    .processResources(resource -> {
+        System.out.println("处理资源: " + resource.getId() +
+                          " (" + resource.getType() + ")");
+
+        // 保存资源到文件系统
+        try {
+            byte[] data = resource.getData();
+            if (data != null) {
+                Path outputPath = Paths.get("extracted", resource.getHref());
+                Files.createDirectories(outputPath.getParent());
+                Files.write(outputPath, data);
+            }
+        } catch (IOException e) {
+            System.err.println("保存资源失败: " + resource.getHref());
+        }
+
+        return null; // Function 需要返回值
+    });
+```
+
+#### 获取特定资源
+
+```java
+// 获取封面图片
+EpubResource cover = EpubReader.fromFile(epubFile).getCover();
+if (cover != null && cover.getData() != null) {
+    // 保存封面
+    Files.write(Paths.get("cover.jpg"), cover.getData());
+    System.out.println("封面已保存，大小: " + cover.getData().length + " 字节");
+}
+
+// 获取特定资源
+EpubResource image = EpubReader.fromFile(epubFile).getResource("image1");
+if (image != null) {
+    System.out.println("图片类型: " + image.getType());
+    System.out.println("图片大小: " + image.getData().length);
+}
+```
+
+#### 错误处理
+
+```java
+try {
+    EpubBook book = EpubReader.fromFile(epubFile)
+        .withCache(true)
+        .parse();
+
+    // 处理书籍内容
+    System.out.println("成功解析: " + book.getMetadata().getTitle());
+
+} catch (EpubParseException e) {
+    System.err.println("解析错误: " + e.getMessage());
+    System.err.println("文件: " + e.getFileName());
+    System.err.println("路径: " + e.getPath());
+
+} catch (EpubFormatException e) {
+    System.err.println("格式错误: EPUB文件格式不符合规范");
+
+} catch (EpubPathValidationException e) {
+    System.err.println("路径验证错误: " + e.getMessage());
+
+} catch (Exception e) {
+    System.err.println("未知错误: " + e.getMessage());
+    e.printStackTrace();
+}
+```
+
+#### 性能优化示例
+
+```java
+// 为大文件优化配置
+EpubReaderConfig optimizedConfig = new EpubReaderConfig()
+    .withCache(true)           // 避免重复I/O
+    .withLazyLoading(true)     // 按需加载
+    .withParallelProcessing(true); // 并行处理
+
+long startTime = System.nanoTime();
+EpubBook book = EpubReader.fromFile(largeEpubFile, optimizedConfig).parse();
+long endTime = System.nanoTime();
+
+System.out.println("解析耗时: " + (endTime - startTime) / 1_000_000 + "ms");
+System.out.println("章节数: " + book.getChapters().size());
+System.out.println("资源数: " + book.getResources().size());
 ```

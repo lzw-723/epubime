@@ -90,7 +90,7 @@ CompletableFuture<EpubBook> futureBook = asyncProcessor.parseBookAsync(epubFile)
 EpubBook asyncBook = futureBook.get(); // Wait for completion
 ```
 
-For more usage examples and advanced features, please check the [full documentation](https://lzw-723.github.io/epubime/).
+For more usage examples and advanced features, please check the [full documentation](https://lzw-723.github.io/epubime/) and [practical examples](docs/en/practical-examples.md).
 
 ## Performance Benchmarking
 
@@ -114,17 +114,17 @@ mvn test -Dtest=EpubimeVsEpublibBenchmarkTest
 In standard test environments, EPUBime outperforms epublib significantly:
 
 #### Simple Parsing Performance
-- **EPUBime**: 4.24ms vs **epublib**: 7.13ms (**40.5% performance improvement**)
+- **EPUBime**: 4.37ms vs **epublib**: 7.04ms (**37.9% performance improvement**)
 
 #### Real Usage Scenario (Parse + Access)
-- **EPUBime**: 3.15ms vs **epublib**: 7.23ms (**56.5% performance improvement**)
+- **EPUBime**: 3.72ms vs **epublib**: 7.42ms (**49.8% performance improvement**)
 - Includes: parsing + metadata access + chapter list + resource list
 
 #### Full Workflow Performance
-- **EPUBime**: 3.18ms (includes: parsing + metadata + chapters + resources + cover + first chapter content reading)
+- **EPUBime**: 3.15ms (includes: parsing + metadata + chapters + resources + cover + first chapter content reading)
 
 #### File Reading Performance
-- mimetype: 0.27ms, OPF: 0.28ms, NCX: 0.41ms
+- mimetype: 0.31ms, OPF: 0.40ms, NCX: 0.34ms
 
 #### Memory and Cache Efficiency
 - Smart caching and streaming processing, 25-40% memory usage reduction

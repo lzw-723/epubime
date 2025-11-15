@@ -91,7 +91,7 @@ CompletableFuture<EpubBook> futureBook = asyncProcessor.parseBookAsync(epubFile)
 EpubBook asyncBook = futureBook.get(); // 等待完成
 ```
 
-更多使用示例和高级功能，请查看[完整文档](https://lzw-723.github.io/epubime/)。
+更多使用示例和高级功能，请查看[完整文档](https://lzw-723.github.io/epubime/)和[实际应用示例](docs/practical-examples.md)。
 
 ## 性能基准测试
 
@@ -115,17 +115,17 @@ mvn test -Dtest=EpubimeVsEpublibBenchmarkTest
 在标准测试环境中，EPUBime 相比 epublib 表现出色：
 
 #### 简单解析性能
-- **EPUBime**：4.24ms vs **epublib**：7.13ms（**40.5% 性能提升**）
+- **EPUBime**：4.37ms vs **epublib**：7.04ms（**37.9% 性能提升**）
 
 #### 实际使用场景（解析+访问）
-- **EPUBime**：3.15ms vs **epublib**：7.23ms（**56.5% 性能提升**）
+- **EPUBime**：3.72ms vs **epublib**：7.42ms（**49.8% 性能提升**）
 - 包含：解析 + 元数据访问 + 章节列表 + 资源列表
 
 #### 完整工作流性能
-- **EPUBime**：3.18ms（包含：解析 + 元数据 + 章节 + 资源 + 封面 + 第一章内容读取）
+- **EPUBime**：3.15ms（包含：解析 + 元数据 + 章节 + 资源 + 封面 + 第一章内容读取）
 
 #### 文件读取性能
-- mimetype：0.27ms，OPF：0.28ms，NCX：0.41ms
+- mimetype：0.31ms，OPF：0.40ms，NCX：0.34ms
 
 #### 内存和缓存效率
 - 智能缓存和流式处理，内存使用降低 25-40%

@@ -97,14 +97,14 @@ public EpubChapter findChapterByTitle(String title)
 返回:
 - `EpubChapter`: 找到的章节对象，如果未找到则返回 null
 
-#### findChaptersByTitlePattern()
+#### findChaptersByContentPattern()
 ```java
-public List<EpubChapter> findChaptersByTitlePattern(String pattern)
+public List<EpubChapter> findChaptersByContentPattern(String pattern)
 ```
-按标题模式查找章节（支持正则表达式）。
+按内容路径模式查找章节。
 
 参数:
-- `pattern`: 标题模式（正则表达式）
+- `pattern`: 内容路径模式
 
 返回:
 - `List<EpubChapter>`: 匹配的章节列表
@@ -129,41 +129,14 @@ public List<EpubResource> getCssResources()
 返回:
 - `List<EpubResource>`: CSS 资源列表
 
-#### getJavaScriptResources()
+#### getJsResources()
 ```java
-public List<EpubResource> getJavaScriptResources()
+public List<EpubResource> getJsResources()
 ```
 获取所有 JavaScript 资源。
 
 返回:
 - `List<EpubResource>`: JavaScript 资源列表
-
-#### getFontResources()
-```java
-public List<EpubResource> getFontResources()
-```
-获取所有字体资源。
-
-返回:
-- `List<EpubResource>`: 字体资源列表
-
-#### getAudioResources()
-```java
-public List<EpubResource> getAudioResources()
-```
-获取所有音频资源。
-
-返回:
-- `List<EpubResource>`: 音频资源列表
-
-#### getVideoResources()
-```java
-public List<EpubResource> getVideoResources()
-```
-获取所有视频资源。
-
-返回:
-- `List<EpubResource>`: 视频资源列表
 
 #### getResourcesByType()
 ```java
@@ -177,17 +150,7 @@ public List<EpubResource> getResourcesByType(String mediaType)
 返回:
 - `List<EpubResource>`: 匹配的资源列表
 
-#### getResourcesByExtension()
-```java
-public List<EpubResource> getResourcesByExtension(String extension)
-```
-按文件扩展名获取资源。
 
-参数:
-- `extension`: 文件扩展名（如 ".jpg", ".css"）
-
-返回:
-- `List<EpubResource>`: 匹配的资源列表
 
 ### 封面相关方法
 
@@ -200,63 +163,82 @@ public boolean hasCover()
 返回:
 - `boolean`: true 如果有封面，false 否则
 
-#### getCoverImage()
+#### processChapterContent()
 ```java
-public EpubResource getCoverImage()
+public void processChapterContent(EpubChapter chapter, Consumer<InputStream> processor) throws BaseEpubException
 ```
-获取封面图片资源。
+流式处理章节内容。
+
+参数:
+- `chapter`: 要处理的章节
+- `processor`: 内容处理器
+
+抛出:
+- `BaseEpubException`: 处理失败时抛出
+
+#### getChapterContentAsString()
+```java
+public String getChapterContentAsString(EpubChapter chapter)
+```
+获取章节内容作为字符串。
+
+参数:
+- `chapter`: 章节对象
 
 返回:
-- `EpubResource`: 封面图片资源，如果未找到则返回 null
+- `String`: 章节内容字符串，失败时返回 null
+
+#### getCover()
+```java
+public EpubResource getCover()
+```
+获取封面资源。
+
+返回:
+- `EpubResource`: 封面资源，如果未找到则返回 null
 
 ### 导航相关方法
 
-#### getLandmarks()
+#### getChaptersByType()
 ```java
-public List<EpubChapter> getLandmarks()
+public List<EpubChapter> getChaptersByType(String type)
 ```
-获取地标导航列表。
+按导航类型获取章节列表。
+
+参数:
+- `type`: 导航类型 ("ncx", "nav", "landmarks", "page-list")
 
 返回:
-- `List<EpubChapter>`: 地标导航章节列表
+- `List<EpubChapter>`: 指定类型的章节列表
 
-#### getPageList()
+### 其他方法
+
+#### loadAllResources()
 ```java
-public List<EpubChapter> getPageList()
+public void loadAllResources() throws IOException
 ```
-获取页面列表导航。
+将所有资源数据加载到内存中。
+
+抛出:
+- `IOException`: 加载失败时抛出
+
+#### getOriginalBook()
+```java
+public EpubBook getOriginalBook()
+```
+获取底层的 EpubBook 实例。
 
 返回:
-- `List<EpubChapter>`: 页面列表导航章节列表
+- `EpubBook`: 原始 EpubBook 对象的副本
 
-### 统计方法
-
-#### getResourceCount()
+#### getBookInfo()
 ```java
-public int getResourceCount()
+public String getBookInfo()
 ```
-获取资源总数。
+获取书籍的完整信息字符串。
 
 返回:
-- `int`: 资源总数
-
-#### getImageCount()
-```java
-public int getImageCount()
-```
-获取图片资源数量。
-
-返回:
-- `int`: 图片资源数量
-
-#### getCssCount()
-```java
-public int getCssCount()
-```
-获取 CSS 资源数量。
-
-返回:
-- `int`: CSS 资源数量
+- `String`: 格式化的书籍信息
 
 ### 使用示例
 
@@ -286,7 +268,7 @@ System.out.println("CSS 文件数: " + cssFiles.size());
 // 检查封面
 if (enhancedBook.hasCover()) {
     System.out.println("书籍有封面");
-    EpubResource cover = enhancedBook.getCoverImage();
+    EpubResource cover = enhancedBook.getCover();
     if (cover != null) {
         System.out.println("封面类型: " + cover.getType());
     }

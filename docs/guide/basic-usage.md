@@ -89,6 +89,80 @@ EpubBook book2 = parser.parse();
 EpubBook book3 = parser.parseWithoutCache();
 ```
 
+## 错误处理
+
+EPUBime 提供了完整的异常处理体系：
+
+```java
+try {
+    EpubParser parser = new EpubParser(epubFile);
+    EpubBook book = parser.parse();
+
+    // 处理书籍内容
+    System.out.println("成功解析: " + book.getMetadata().getTitle());
+
+} catch (EpubParseException e) {
+    // 解析异常：处理 EPUB 文件解析过程中的错误
+    System.err.println("解析错误: " + e.getMessage());
+    System.err.println("文件: " + e.getFileName());
+    System.err.println("路径: " + e.getPath());
+
+} catch (EpubFormatException e) {
+    // 格式异常：处理 EPUB 格式不符合规范的情况
+    System.err.println("格式错误: " + e.getMessage());
+
+} catch (EpubPathValidationException e) {
+    // 路径验证异常：处理路径验证错误
+    System.err.println("路径验证错误: " + e.getMessage());
+
+} catch (EpubResourceException e) {
+    // 资源异常：处理资源文件访问错误
+    System.err.println("资源错误: " + e.getMessage());
+
+} catch (EpubZipException e) {
+    // ZIP 异常：处理 ZIP 文件操作错误
+    System.err.println("ZIP 错误: " + e.getMessage());
+
+} catch (Exception e) {
+    // 其他异常
+    System.err.println("未知错误: " + e.getMessage());
+    e.printStackTrace();
+}
+```
+
+## 资源管理
+
+正确管理资源以避免内存泄漏：
+
+```java
+// 使用 try-with-resources 语句（推荐）
+try (ZipFileManager zipManager = new ZipFileManager(epubFile)) {
+    List<String> files = zipManager.listAllFiles();
+    System.out.println("EPUB 文件包含 " + files.size() + " 个文件");
+
+    // 获取特定文件内容
+    byte[] content = zipManager.getFileContent("OEBPS/content.opf");
+    if (content != null) {
+        String opfContent = new String(content, "UTF-8");
+        System.out.println("OPF 文件大小: " + content.length + " 字节");
+    }
+
+} catch (EpubZipException e) {
+    System.err.println("ZIP 操作失败: " + e.getMessage());
+}
+
+// 手动资源管理
+ZipFileManager zipManager = null;
+try {
+    zipManager = new ZipFileManager(epubFile);
+    // 执行操作
+} finally {
+    if (zipManager != null) {
+        zipManager.close();
+    }
+}
+```
+
 ## 流式处理大文件
 
 对于大型 EPUB 文件，可以使用流式处理避免内存问题：
