@@ -81,14 +81,14 @@ public class EpubResource {
     /**
      * Get resource data
      * If data already exists, return directly, otherwise try to stream read from EPUB file
-     * @return resource data byte array
+     * @return resource data byte array (caller should not modify the returned array)
      */
     public byte[] getData() {
         // If data already exists, return directly
         if (data != null) {
-            return data.clone();
+            return data; // Avoid cloning for performance; caller must not modify
         }
-        
+
         // If there is an EPUB file reference, try to stream read data
 
         if (epubFile != null && href != null) {
@@ -97,7 +97,7 @@ public class EpubResource {
 
                 data = ZipUtils.getZipFileBytes(epubFile, href);
 
-                return data != null ? data.clone() : null;
+                return data; // Avoid cloning for performance; caller must not modify
 
             } catch (IOException e) {
 
@@ -110,7 +110,7 @@ public class EpubResource {
             }
 
         }
-        
+
         return null;
     }
 

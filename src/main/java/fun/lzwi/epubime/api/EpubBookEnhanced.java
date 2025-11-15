@@ -9,6 +9,7 @@ import fun.lzwi.epubime.epub.EpubStreamProcessor;
 import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.exception.EpubResourceException;
 import fun.lzwi.epubime.exception.EpubPathValidationException;
+import java.io.InputStreamReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -242,17 +243,18 @@ public class EpubBookEnhanced {
         
         try {
             StringBuilder content = new StringBuilder();
-            processChapterContent(chapter, inputStream -> {
-                try {
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        content.append(new String(buffer, 0, bytesRead, "UTF-8"));
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to read chapter content", e);
-                }
-            });
+             processChapterContent(chapter, inputStream -> {
+                 try {
+                     InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
+                     char[] buffer = new char[1024];
+                     int charsRead;
+                     while ((charsRead = reader.read(buffer)) != -1) {
+                         content.append(buffer, 0, charsRead);
+                     }
+                 } catch (IOException e) {
+                     throw new RuntimeException("Failed to read chapter content", e);
+                 }
+             });
             return content.toString();
         } catch (Exception e) {
             return null;

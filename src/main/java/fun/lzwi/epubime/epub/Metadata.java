@@ -1,6 +1,7 @@
 package fun.lzwi.epubime.epub;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -252,43 +253,43 @@ public class Metadata {
     public Metadata(Metadata metadata) {
 
 
-        this.titles = new java.util.ArrayList<>(metadata.titles);
+        this.titles = new ArrayList<>(List.copyOf(metadata.titles));
 
 
-        this.creators = new java.util.ArrayList<>(metadata.creators);
+        this.creators = new ArrayList<>(List.copyOf(metadata.creators));
 
 
-        this.contributors = new java.util.ArrayList<>(metadata.contributors);
+        this.contributors = new ArrayList<>(List.copyOf(metadata.contributors));
 
 
-        this.publishers = new java.util.ArrayList<>(metadata.publishers);
+        this.publishers = new ArrayList<>(List.copyOf(metadata.publishers));
 
 
-        this.identifiers = new java.util.ArrayList<>(metadata.identifiers);
+        this.identifiers = new ArrayList<>(List.copyOf(metadata.identifiers));
 
 
-        this.subjects = new java.util.ArrayList<>(metadata.subjects);
+        this.subjects = new ArrayList<>(List.copyOf(metadata.subjects));
 
 
-        this.dates = new java.util.ArrayList<>(metadata.dates);
+        this.dates = new ArrayList<>(List.copyOf(metadata.dates));
 
 
-        this.languages = new java.util.ArrayList<>(metadata.languages);
+        this.languages = new ArrayList<>(List.copyOf(metadata.languages));
 
 
-        this.descriptions = new java.util.ArrayList<>(metadata.descriptions);
+        this.descriptions = new ArrayList<>(List.copyOf(metadata.descriptions));
 
 
-        this.rightsList = new java.util.ArrayList<>(metadata.rightsList);
+        this.rightsList = new ArrayList<>(List.copyOf(metadata.rightsList));
 
 
-        this.types = new java.util.ArrayList<>(metadata.types);
+        this.types = new ArrayList<>(List.copyOf(metadata.types));
 
 
-        this.formats = new java.util.ArrayList<>(metadata.formats);
+        this.formats = new ArrayList<>(List.copyOf(metadata.formats));
 
 
-        this.sources = new java.util.ArrayList<>(metadata.sources);
+        this.sources = new ArrayList<>(List.copyOf(metadata.sources));
 
 
         this.modified = metadata.modified;
@@ -300,13 +301,13 @@ public class Metadata {
         this.cover = metadata.cover;
 
 
-        this.accessibilityFeatures = new java.util.ArrayList<>(metadata.accessibilityFeatures);
+        this.accessibilityFeatures = new ArrayList<>(List.copyOf(metadata.accessibilityFeatures));
 
 
-        this.accessibilityHazard = new java.util.ArrayList<>(metadata.accessibilityHazard);
+        this.accessibilityHazard = new ArrayList<>(List.copyOf(metadata.accessibilityHazard));
 
 
-        this.accessibilitySummary = new java.util.ArrayList<>(metadata.accessibilitySummary);
+        this.accessibilitySummary = new ArrayList<>(List.copyOf(metadata.accessibilitySummary));
 
 
         this.layout = metadata.layout;

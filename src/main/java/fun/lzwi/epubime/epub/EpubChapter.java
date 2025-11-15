@@ -26,11 +26,13 @@ public class EpubChapter {
         this.id = other.id;
         this.title = other.title;
         this.content = other.content;
-        this.children = new ArrayList<>();
         if (other.children != null) {
+            this.children = new ArrayList<>(other.children.size());
             for (EpubChapter child : other.children) {
                 this.children.add(new EpubChapter(child));
             }
+        } else {
+            this.children = new ArrayList<>();
         }
     }
 

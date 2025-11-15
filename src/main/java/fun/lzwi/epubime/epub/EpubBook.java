@@ -66,7 +66,7 @@ public class EpubBook {
 
         if (other.ncx != null) {
 
-            this.ncx = new ArrayList<>();
+            this.ncx = new ArrayList<>(other.ncx.size());
 
             for (EpubChapter chapter : other.ncx) {
 
@@ -78,7 +78,7 @@ public class EpubBook {
 
         if (other.nav != null) {
 
-            this.nav = new ArrayList<>();
+            this.nav = new ArrayList<>(other.nav.size());
 
             for (EpubChapter chapter : other.nav) {
 
@@ -90,7 +90,7 @@ public class EpubBook {
 
         if (other.landmarks != null) {
 
-            this.landmarks = new ArrayList<>();
+            this.landmarks = new ArrayList<>(other.landmarks.size());
 
             for (EpubChapter chapter : other.landmarks) {
 
@@ -102,7 +102,7 @@ public class EpubBook {
 
         if (other.pageList != null) {
 
-            this.pageList = new ArrayList<>();
+            this.pageList = new ArrayList<>(other.pageList.size());
 
             for (EpubChapter chapter : other.pageList) {
 
@@ -114,7 +114,7 @@ public class EpubBook {
 
         if (other.resources != null) {
 
-            this.resources = new ArrayList<>();
+            this.resources = new ArrayList<>(other.resources.size());
 
             for (EpubResource resource : other.resources) {
 
