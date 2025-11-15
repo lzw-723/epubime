@@ -11,16 +11,16 @@ import static org.junit.Assert.*;
 public class SimpleExceptionTest {
     
     @Test
-    public void testSimpleEpubException() {
-        SimpleEpubException exception = new SimpleEpubException("Test message");
+    public void testBaseEpubException() {
+        BaseEpubException exception = new BaseEpubException("Test message");
         assertEquals("Test message", exception.getMessage());
         assertNull(exception.getCause());
     }
     
     @Test
-    public void testSimpleEpubExceptionWithCause() {
+    public void testBaseEpubExceptionWithCause() {
         Exception cause = new RuntimeException("Cause");
-        SimpleEpubException exception = new SimpleEpubException("Test message", cause);
+        BaseEpubException exception = new BaseEpubException("Test message", cause);
         assertEquals("Test message", exception.getMessage());
         assertEquals(cause, exception.getCause());
     }

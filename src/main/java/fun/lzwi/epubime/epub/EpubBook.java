@@ -1,7 +1,7 @@
 package fun.lzwi.epubime.epub;
 
 
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.exception.EpubResourceException;
 
 import java.io.File;
@@ -480,13 +480,13 @@ public class EpubBook {
 
      */
 
-    public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws SimpleEpubException {
+    public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws BaseEpubException {
 
         File epubFile = this.resources.isEmpty() ? null : this.resources.get(0).getEpubFile();
 
         if (epubFile == null) {
 
-            throw new SimpleEpubException("No EPUB file reference available for streaming");
+            throw new BaseEpubException("No EPUB file reference available for streaming");
 
         }
 

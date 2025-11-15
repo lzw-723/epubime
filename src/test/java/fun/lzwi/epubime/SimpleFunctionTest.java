@@ -3,7 +3,7 @@ package fun.lzwi.epubime;
 import fun.lzwi.epubime.api.EpubReader;
 import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.Metadata;
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
@@ -23,7 +23,7 @@ public class SimpleFunctionTest {
     }
     
     @Test
-    public void testBasicEpubParsing() throws SimpleEpubException {
+    public void testBasicEpubParsing() throws BaseEpubException {
         if (!testFile.exists()) {
             System.out.println("Test file not found: " + testFile.getAbsolutePath());
             return;

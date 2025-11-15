@@ -6,7 +6,7 @@ import java.io.File;
  * EPUB文件相关异常
  * 用于处理文件不存在、无法访问等问题
  */
-public class EpubFileException extends SimpleEpubException {
+public class EpubFileException extends BaseEpubException {
     private final File file;
     
     public EpubFileException(String message, File file) {

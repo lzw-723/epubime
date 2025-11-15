@@ -6,7 +6,7 @@ import java.io.File;
  * ZIP文件处理异常
  * 用于处理EPUB ZIP文件格式错误、解压失败等问题
  */
-public class EpubZipException extends SimpleEpubException {
+public class EpubZipException extends BaseEpubException {
     private final File file;
     private final String entryName;
     

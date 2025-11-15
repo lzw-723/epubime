@@ -7,7 +7,7 @@ import fun.lzwi.epubime.exception.EpubPathValidationException;
 import fun.lzwi.epubime.exception.EpubResourceException;
 import fun.lzwi.epubime.exception.EpubXmlParseException;
 import fun.lzwi.epubime.exception.EpubZipException;
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
@@ -58,7 +58,7 @@ public class EpubParser {
      *
      * @param path 文件路径
      * @return 文件内容
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
     protected String readEpubContent(String path) throws EpubParseException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
@@ -111,9 +111,9 @@ public class EpubParser {
      * 解析EPUB文件并返回EpubBook对象
      *
      * @return 解析后的EpubBook对象
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
-    public EpubBook parse() throws SimpleEpubException {
+    public EpubBook parse() throws BaseEpubException {
         EpubBook book = new EpubBook();
 
         // 获取当前EPUB文件的缓存
@@ -231,9 +231,9 @@ public class EpubParser {
      * 解析EPUB文件并返回EpubBook对象，但不使用缓存
      *
      * @return 解析后的EpubBook对象
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
-    public EpubBook parseWithoutCache() throws SimpleEpubException {
+    public EpubBook parseWithoutCache() throws BaseEpubException {
         // 清理当前线程的ZIP文件句柄
         ZipFileManager.getInstance().cleanup();
 
@@ -250,10 +250,10 @@ public class EpubParser {
      *
      * @param htmlFileName HTML文件名
      * @param processor 处理HTML内容的消费者函数
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
     public void processHtmlChapterContent(String htmlFileName, Consumer<InputStream> processor) 
-            throws SimpleEpubException, EpubPathValidationException, EpubZipException {
+            throws BaseEpubException, EpubPathValidationException, EpubZipException {
         processHtmlChapterContent(epubFile, htmlFileName, processor);
     }
 
@@ -262,11 +262,11 @@ public class EpubParser {
      *
      * @param htmlFileNames HTML文件名列表
      * @param processor 处理每个HTML内容的消费者函数
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
     public void processMultipleHtmlChapters(List<String> htmlFileNames, 
                                            BiConsumer<String, InputStream> processor) 
-            throws SimpleEpubException, EpubPathValidationException, EpubZipException {
+            throws BaseEpubException, EpubPathValidationException, EpubZipException {
         processMultipleHtmlChapters(epubFile, htmlFileNames, processor);
     }
 
@@ -279,11 +279,11 @@ public class EpubParser {
      * @param epubFile EPUB文件
      * @param path 文件路径
      * @return 文件内容
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      * @deprecated 使用EpubParser实例方法代替
      */
     @Deprecated
-    protected static String readEpubContent(File epubFile, String path) throws SimpleEpubException, EpubPathValidationException, EpubZipException {
+    protected static String readEpubContent(File epubFile, String path) throws BaseEpubException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         if (!PathValidator.isPathSafe("", path)) {
             throw new EpubPathValidationException("Invalid file path: " + path, path);
@@ -446,10 +446,10 @@ public class EpubParser {
      * @param epubFile EPUB文件
      * @param htmlFileName HTML文件名
      * @param processor 处理HTML内容的消费者函数
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
     public static void processHtmlChapterContent(File epubFile, String htmlFileName,
-                                                 Consumer<InputStream> processor) throws SimpleEpubException, EpubPathValidationException, EpubZipException {
+                                                 Consumer<InputStream> processor) throws BaseEpubException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         if (!PathValidator.isPathSafe("", htmlFileName)) {
             throw new EpubPathValidationException("Invalid file path: " + htmlFileName, htmlFileName);
@@ -469,10 +469,10 @@ public class EpubParser {
      * @param epubFile EPUB文件
      * @param htmlFileNames HTML文件名列表
      * @param processor 处理每个HTML内容的消费者函数
-     * @throws SimpleEpubException 解析异常
+     * @throws BaseEpubException 解析异常
      */
     public static void processMultipleHtmlChapters(File epubFile, List<String> htmlFileNames, BiConsumer<String,
-            InputStream> processor) throws SimpleEpubException, EpubPathValidationException, EpubZipException {
+            InputStream> processor) throws BaseEpubException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         for (String fileName : htmlFileNames) {
             if (!PathValidator.isPathSafe("", fileName)) {

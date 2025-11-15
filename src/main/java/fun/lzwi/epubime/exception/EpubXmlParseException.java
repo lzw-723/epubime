@@ -4,7 +4,7 @@ package fun.lzwi.epubime.exception;
  * XML解析异常
  * 用于处理EPUB文件中XML格式错误的问题
  */
-public class EpubXmlParseException extends SimpleEpubException {
+public class EpubXmlParseException extends BaseEpubException {
     private final String fileName;
     private final int lineNumber;
     private final int columnNumber;

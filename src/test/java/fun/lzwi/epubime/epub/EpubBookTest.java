@@ -1,7 +1,7 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class EpubBookTest {
 
     @Test
-    public void getCover() throws SimpleEpubException {
+    public void getCover() throws BaseEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
         EpubResource cover = book.getCover();

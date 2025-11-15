@@ -6,7 +6,7 @@ import java.io.File;
  * EPUB资源异常
  * 用于处理资源加载、访问失败等问题
  */
-public class EpubResourceException extends SimpleEpubException {
+public class EpubResourceException extends BaseEpubException {
     private final File file;
     private final String resourceId;
     private final String resourcePath;

@@ -5,7 +5,7 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testBasicEpubReader() throws SimpleEpubException {
+    public void testBasicEpubReader() throws BaseEpubException {
         // Test basic parsing
         EpubBook book = EpubReader.fromFile(testEpubFile)
                 .withCache(true)
@@ -52,7 +52,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testEpubReaderFromStringPath() throws SimpleEpubException {
+    public void testEpubReaderFromStringPath() throws BaseEpubException {
         // Test parsing from string path
         EpubBook book = EpubReader.fromFile(testEpubFile.getAbsolutePath())
                 .withCache(false)
@@ -63,7 +63,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testParseMetadataOnly() throws SimpleEpubException {
+    public void testParseMetadataOnly() throws BaseEpubException {
         // Test parsing only metadata
         Metadata metadata = EpubReader.fromFile(testEpubFile).parseMetadata();
         
@@ -74,7 +74,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testParseTableOfContents() throws SimpleEpubException {
+    public void testParseTableOfContents() throws BaseEpubException {
         // Test parsing only table of contents
         List<EpubChapter> chapters = EpubReader.fromFile(testEpubFile).parseTableOfContents();
         
@@ -83,7 +83,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testGetBookInfo() throws SimpleEpubException {
+    public void testGetBookInfo() throws BaseEpubException {
         // Test getting book info
         EpubReader.EpubInfo info = EpubReader.fromFile(testEpubFile).getInfo();
         
@@ -107,7 +107,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testStreamChapters() throws SimpleEpubException {
+    public void testStreamChapters() throws BaseEpubException {
         AtomicInteger chapterCount = new AtomicInteger(0);
         AtomicBoolean processingSucceeded = new AtomicBoolean(false);
         
@@ -142,7 +142,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testGetCover() throws SimpleEpubException {
+    public void testGetCover() throws BaseEpubException {
         // Test getting cover
         EpubResource cover = EpubReader.fromFile(testEpubFile).getCover();
         
@@ -154,7 +154,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testGetResource() throws SimpleEpubException {
+    public void testGetResource() throws BaseEpubException {
         // Test getting specific resource
         EpubBook book = EpubReader.fromFile(testEpubFile).parse();
         List<EpubResource> resources = book.getResources();
@@ -170,7 +170,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testEnhancedBook() throws SimpleEpubException {
+    public void testEnhancedBook() throws BaseEpubException {
         // Test enhanced book functionality
         EpubBook book = EpubReader.fromFile(testEpubFile).parse();
         EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, testEpubFile);
@@ -202,7 +202,7 @@ public class EpubReaderTest {
     }
 
     @Test
-    public void testEnhancedBookComprehensive() throws SimpleEpubException {
+    public void testEnhancedBookComprehensive() throws BaseEpubException {
         // Test comprehensive EpubBookEnhanced methods
         EpubBook book = EpubReader.fromFile(testEpubFile).parse();
         EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, testEpubFile);
@@ -304,7 +304,7 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testEnhancedMetadata() throws SimpleEpubException {
+    public void testEnhancedMetadata() throws BaseEpubException {
         // Test enhanced metadata
         Metadata metadata = EpubReader.fromFile(testEpubFile).parseMetadata();
         MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
@@ -331,7 +331,7 @@ public class EpubReaderTest {
     }
 
     @Test
-    public void testEnhancedMetadataComprehensive() throws SimpleEpubException {
+    public void testEnhancedMetadataComprehensive() throws BaseEpubException {
         // Test comprehensive MetadataEnhanced methods
         Metadata metadata = EpubReader.fromFile(testEpubFile).parseMetadata();
         MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
@@ -635,7 +635,7 @@ public class EpubReaderTest {
     }
 
     @Test
-    public void testEpubReaderStreamChapter() throws SimpleEpubException {
+    public void testEpubReaderStreamChapter() throws BaseEpubException {
         // Test streaming a specific chapter
         EpubBook book = EpubReader.fromFile(testEpubFile).parse();
         List<EpubChapter> chapters = book.getChapters();
@@ -665,7 +665,7 @@ public class EpubReaderTest {
     }
 
     @Test
-    public void testEpubReaderProcessResources() throws SimpleEpubException {
+    public void testEpubReaderProcessResources() throws BaseEpubException {
         // Test processing all resources
         AtomicInteger resourceCount = new AtomicInteger(0);
 
@@ -683,7 +683,7 @@ public class EpubReaderTest {
     }
 
     @Test
-    public void testEpubReaderOptions() throws SimpleEpubException {
+    public void testEpubReaderOptions() throws BaseEpubException {
         // Test chaining options and parsing still works
         EpubBook book1 = EpubReader.fromFile(testEpubFile)
                 .withCache(true)

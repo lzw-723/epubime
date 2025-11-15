@@ -6,7 +6,7 @@ import java.io.File;
  * EPUB格式异常
  * 用于处理EPUB文件格式不符合规范的问题
  */
-public class EpubFormatException extends SimpleEpubException {
+public class EpubFormatException extends BaseEpubException {
     private final File file;
     private final String details;
     private final String operation;

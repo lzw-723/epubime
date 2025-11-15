@@ -4,7 +4,7 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.exception.EpubResourceException;
 
 import java.io.File;
@@ -208,10 +208,10 @@ public class EpubBookEnhanced {
      * Process a chapter content with stream processing
      * @param chapter the chapter to process
      * @param processor the content processor
-     * @throws SimpleEpubException if processing fails
+     * @throws BaseEpubException if processing fails
      */
     public void processChapterContent(EpubChapter chapter, Consumer<InputStream> processor) 
-            throws SimpleEpubException {
+            throws BaseEpubException {
         if (chapter == null || chapter.getContent() == null) {
             throw new EpubResourceException("Invalid chapter or chapter content", 
                     epubFile.getName(), "unknown", null);
@@ -224,7 +224,7 @@ public class EpubBookEnhanced {
                     processor.accept(inputStream);
                 }
             });
-        } catch (SimpleEpubException e) {
+        } catch (BaseEpubException e) {
             throw new EpubResourceException("Failed to process chapter content", 
                     epubFile.getName(), chapter.getContent(), e);
         }

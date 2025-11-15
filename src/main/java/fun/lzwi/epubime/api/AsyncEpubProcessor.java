@@ -4,7 +4,7 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
-import fun.lzwi.epubime.exception.SimpleEpubException;
+import fun.lzwi.epubime.exception.BaseEpubException;
 
 import java.io.File;
 import java.io.InputStream;
@@ -47,7 +47,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return EpubReader.fromFile(epubFile).parse();
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to parse EPUB", e);
             }
         }, executor);
@@ -67,7 +67,7 @@ public class AsyncEpubProcessor {
                         .withCache(useCache)
                         .withLazyLoading(lazyLoading)
                         .parse();
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to parse EPUB", e);
             }
         }, executor);
@@ -82,7 +82,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return EpubReader.fromFile(epubFile).parseMetadata();
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to parse metadata", e);
             }
         }, executor);
@@ -97,7 +97,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return EpubReader.fromFile(epubFile).parseTableOfContents();
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to parse table of contents", e);
             }
         }, executor);
@@ -112,7 +112,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return EpubReader.fromFile(epubFile).getInfo();
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to get book info", e);
             }
         }, executor);
@@ -128,7 +128,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.runAsync(() -> {
             try {
                 EpubReader.fromFile(epubFile).streamChapters(processor);
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to process chapters", e);
             }
         }, executor);
@@ -145,7 +145,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.runAsync(() -> {
             try {
                 EpubReader.fromFile(epubFile).streamChapter(chapterId, processor);
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to process chapter: " + chapterId, e);
             }
         }, executor);
@@ -163,7 +163,7 @@ public class AsyncEpubProcessor {
                 EpubReader.fromFile(epubFile)
                         .withParallelProcessing(true)
                         .processResources(processor);
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to process resources", e);
             }
         }, executor);
@@ -178,7 +178,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return EpubReader.fromFile(epubFile).getCover();
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to get cover", e);
             }
         }, executor);
@@ -194,7 +194,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return EpubReader.fromFile(epubFile).getResource(resourceId);
-            } catch (SimpleEpubException e) {
+            } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to get resource: " + resourceId, e);
             }
         }, executor);
