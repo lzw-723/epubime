@@ -2,6 +2,9 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.exception.EpubParseException;
+import fun.lzwi.epubime.exception.EpubPathValidationException;
+import fun.lzwi.epubime.exception.EpubZipException;
+import fun.lzwi.epubime.exception.SimpleEpubException;
 import org.junit.Test;
 
 import java.io.*;
@@ -26,7 +29,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void readEpubContent() throws EpubParseException {
+    public void readEpubContent() throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String content = EpubParser.readEpubContent(epubFile, "mimetype");
         assertNotNull(content);
@@ -34,14 +37,14 @@ public class EpubParserTest {
     }
     
     @Test(expected = EpubParseException.class)
-    public void readEpubContentWithTraversalPathShouldThrowException() throws EpubParseException {
+    public void readEpubContentWithTraversalPathShouldThrowException() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         // 测试使用目录穿越路径时应抛出异常
         EpubParser.readEpubContent(epubFile, "../../../etc/passwd");
     }
 
     @Test
-    public void parseMetadata() throws EpubParseException {
+    public void parseMetadata() throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
         Metadata metadata = EpubParser.parseMetadata(opfContent);
@@ -62,7 +65,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parseMetadataMultipleValues() throws EpubParseException {
+    public void parseMetadataMultipleValues() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
         Metadata metadata = EpubParser.parseMetadata(opfContent);
@@ -88,7 +91,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void getNcxPath() throws EpubParseException {
+    public void getNcxPath() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
         String tocPath = EpubParser.getNcxPath(opfContent, "");
@@ -102,7 +105,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parseNcx() throws EpubParseException {
+    public void parseNcx() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String ncxContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.ncx");
         List<EpubChapter> ncx = EpubParser.parseNcx(ncxContent);
@@ -111,7 +114,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parseResources() throws EpubParseException {
+    public void parseResources() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
         List<EpubResource> resources = EpubParser.parseResources(opfContent, "OEBPS/", epubFile);
@@ -180,7 +183,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parse() throws EpubParseException {
+    public void parse() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
         assertNotNull(book);

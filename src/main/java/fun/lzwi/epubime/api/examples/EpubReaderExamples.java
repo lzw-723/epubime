@@ -8,7 +8,7 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
-import fun.lzwi.epubime.exception.EpubParseException;
+import fun.lzwi.epubime.exception.SimpleEpubException;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class EpubReaderExamples {
                 System.out.println("Chapter: " + chapter.getTitle());
             }
             
-        } catch (EpubParseException e) {
+        } catch (SimpleEpubException e) {
             System.err.println("Failed to parse EPUB: " + e.getMessage());
         }
     }
@@ -98,7 +98,7 @@ public class EpubReaderExamples {
                 System.out.println("Book has cover image");
             }
             
-        } catch (EpubParseException e) {
+        } catch (SimpleEpubException e) {
             System.err.println("Failed to process EPUB: " + e.getMessage());
         }
     }
@@ -137,7 +137,7 @@ public class EpubReaderExamples {
             System.out.println("\nMetadata Summary:");
             System.out.println(enhancedMetadata.getSummary());
             
-        } catch (EpubParseException e) {
+        } catch (SimpleEpubException e) {
             System.err.println("Failed to parse metadata: " + e.getMessage());
         }
     }
@@ -187,7 +187,7 @@ public class EpubReaderExamples {
                         }
                     });
             
-        } catch (EpubParseException e) {
+        } catch (SimpleEpubException e) {
             System.err.println("Failed to stream process EPUB: " + e.getMessage());
         }
     }
@@ -308,7 +308,7 @@ public class EpubReaderExamples {
                 }
             }
             
-        } catch (EpubParseException e) {
+        } catch (SimpleEpubException e) {
             System.err.println("Failed to process resources: " + e.getMessage());
         }
     }
@@ -336,7 +336,7 @@ public class EpubReaderExamples {
             boolean isValid = EpubReader.fromFile(epubFile).isValid();
             System.out.println("Valid EPUB: " + isValid);
             
-        } catch (EpubParseException e) {
+        } catch (SimpleEpubException e) {
             System.err.println("Failed to get EPUB info: " + e.getMessage());
         }
     }

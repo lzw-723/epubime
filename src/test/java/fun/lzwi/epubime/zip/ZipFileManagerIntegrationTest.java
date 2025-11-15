@@ -2,7 +2,7 @@ package fun.lzwi.epubime.zip;
 
 import fun.lzwi.epubime.epub.EpubParser;
 import fun.lzwi.epubime.epub.EpubBook;
-import fun.lzwi.epubime.exception.EpubParseException;
+import fun.lzwi.epubime.exception.SimpleEpubException;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class ZipFileManagerIntegrationTest {
     
     @Test
-    public void testZipFileManagerInEpubParsing() throws EpubParseException {
+    public void testZipFileManagerInEpubParsing() throws SimpleEpubException {
         // 获取EPUB文件
         File epubFile = new File("src/test/resources/fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         if (!epubFile.exists()) {

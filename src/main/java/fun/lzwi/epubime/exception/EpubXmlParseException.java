@@ -1,277 +1,145 @@
 package fun.lzwi.epubime.exception;
 
-import org.jsoup.nodes.Element;
-
 /**
- * EPUB XML解析异常类
- * 当XML解析过程中发生错误时抛出此异常
- * 
- * 提供详细的XML解析错误信息，包括：
- * - 错误发生的具体位置（行号、列号）
- * - 相关的XML元素信息
- * - XPath表达式
- * - 预期的XML结构
+ * XML解析异常
+ * 用于处理EPUB文件中XML格式错误的问题
  */
-public class EpubXmlParseException extends EpubParseException {
+public class EpubXmlParseException extends SimpleEpubException {
+    private final String fileName;
+    private final int lineNumber;
+    private final int columnNumber;
     
-    private final String xpath;
-    private final String elementInfo;
-    private final String expectedStructure;
-    private final String actualContent;
-    
-    /**
-     * 构造函数，创建XML解析异常
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param xpath XPath表达式
-     * @param lineNumber 行号
-     * @param columnNumber 列号
-     */
-    public EpubXmlParseException(String message, String fileName, String filePath, String xpath, 
-                                int lineNumber, int columnNumber) {
-        super(new Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("xmlParsing")
-                .errorCode(ErrorCode.XML_PARSE_ERROR)
-                .lineNumber(lineNumber)
-                .columnNumber(columnNumber)
-                .addContext("xpath", xpath));
-        this.xpath = xpath;
-        this.elementInfo = null;
-        this.expectedStructure = null;
-        this.actualContent = null;
+    public EpubXmlParseException(String message, String fileName) {
+        this(message, fileName, -1, -1, null);
     }
     
     /**
-     * 构造函数，创建XML解析异常（带元素信息）
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param element 相关XML元素
-     * @param expectedStructure 预期的XML结构
+     * 为了向后兼容，提供接受XPath的构造函数
      */
-    public EpubXmlParseException(String message, String fileName, String filePath, 
-                                Element element, String expectedStructure) {
-        super(new Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("xmlParsing")
-                .errorCode(ErrorCode.XML_INVALID_STRUCTURE)
-                .addContext("elementTag", element != null ? element.tagName() : "unknown")
-                .addContext("elementAttributes", element != null ? element.attributes().toString() : "none")
-                .addContext("elementContent", element != null ? element.text() : "empty"));
-        
-        this.xpath = buildXPath(element);
-        this.elementInfo = buildElementInfo(element);
-        this.expectedStructure = expectedStructure;
-        this.actualContent = element != null ? element.outerHtml() : "null";
+    public EpubXmlParseException(String message, String fileName, String filePath, String xpath, int lineNumber, int columnNumber) {
+        this(message, fileName, lineNumber, columnNumber, null);
     }
     
     /**
-     * 构造函数，创建XML解析异常（带实际内容）
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param xpath XPath表达式
-     * @param expectedStructure 预期的XML结构
-     * @param actualContent 实际的XML内容
+     * 为了向后兼容，提供接受XPath的构造函数（带cause）
      */
-    public EpubXmlParseException(String message, String fileName, String filePath, String xpath,
-                                String expectedStructure, String actualContent) {
-        super(new Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("xmlParsing")
-                .errorCode(ErrorCode.XML_INVALID_STRUCTURE)
-                .addContext("xpath", xpath)
-                .addContext("expectedStructure", expectedStructure)
-                .addContext("actualContent", truncateContent(actualContent)));
-        
-        this.xpath = xpath;
-        this.elementInfo = null;
-        this.expectedStructure = expectedStructure;
-        this.actualContent = truncateContent(actualContent);
+    public EpubXmlParseException(String message, String fileName, String filePath, String xpath, int lineNumber, int columnNumber, Throwable cause) {
+        this(message, fileName, lineNumber, columnNumber, cause);
     }
     
     /**
-     * 构造函数，创建XML解析异常（缺少必需元素）
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param missingElement 缺少的元素名称
-     * @param parentElement 父元素信息
+     * 为了向后兼容，提供接受Element的构造函数
      */
-    public EpubXmlParseException(String fileName, String filePath, String missingElement, Element parentElement) {
-        super(new Builder()
-                .message("Missing required XML element: " + missingElement)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("xmlParsing")
-                .errorCode(ErrorCode.XML_MISSING_REQUIRED_ELEMENT)
-                .addContext("missingElement", missingElement)
-                .addContext("parentElement", parentElement != null ? parentElement.tagName() : "root"));
-        
-        this.xpath = buildXPath(parentElement) + "/" + missingElement;
-        this.elementInfo = buildElementInfo(parentElement);
-        this.expectedStructure = "Expected element: " + missingElement;
-        this.actualContent = parentElement != null ? parentElement.outerHtml() : "null";
+    public EpubXmlParseException(String message, String fileName, String filePath, org.jsoup.nodes.Element element, String expectedStructure) {
+        this(message, fileName, -1, -1, null);
     }
     
     /**
-     * 构造函数，创建XML解析异常（无效属性）
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param element 元素
-     * @param attributeName 属性名
-     * @param expectedValue 预期值
-     * @param actualValue 实际值
+     * 为了向后兼容，提供接受期望结构和实际内容的构造函数
      */
-    public EpubXmlParseException(String fileName, String filePath, Element element, 
-                                String attributeName, String expectedValue, String actualValue) {
-        super(new Builder()
-                .message("Invalid XML attribute: " + attributeName)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("xmlParsing")
-                .errorCode(ErrorCode.XML_INVALID_ATTRIBUTE)
-                .addContext("attributeName", attributeName)
-                .addContext("expectedValue", expectedValue)
-                .addContext("actualValue", actualValue)
-                .addContext("elementTag", element != null ? element.tagName() : "unknown"));
-        
-        this.xpath = buildXPath(element);
-        this.elementInfo = buildElementInfo(element);
-        this.expectedStructure = "Expected value: " + expectedValue;
-        this.actualContent = "Actual value: " + actualValue;
+    public EpubXmlParseException(String message, String fileName, String filePath, String xpath, String expectedStructure, String actualContent) {
+        this(message, fileName, -1, -1, null);
     }
     
     /**
-     * 构建XPath表达式
+     * 为了向后兼容，提供缺失必需元素的构造函数
      */
-    private static String buildXPath(Element element) {
-        if (element == null) {
-            return "/";
-        }
-        
-        StringBuilder xpath = new StringBuilder();
-        Element current = element;
-        
-        while (current != null) {
-            String tagName = current.tagName();
-            
-            // 如果有id属性，使用id定位
-            String id = current.attr("id");
-            if (!id.isEmpty()) {
-                xpath.insert(0, "/" + tagName + "[@id='" + id + "']");
-                break;
-            }
-            
-            // 如果有class属性，使用class定位
-            String className = current.attr("class");
-            if (!className.isEmpty()) {
-                xpath.insert(0, "/" + tagName + "[@class='" + className + "']");
-            } else {
-                // 计算同级元素中的位置
-                Element parent = current.parent();
-                if (parent != null) {
-                    int index = 1;
-                    for (Element sibling : parent.children()) {
-                        if (sibling.tagName().equals(tagName)) {
-                            if (sibling == current) {
-                                xpath.insert(0, "/" + tagName + "[" + index + "]");
-                                break;
-                            }
-                            index++;
-                        }
-                    }
-                } else {
-                    xpath.insert(0, "/" + tagName);
-                }
-            }
-            
-            current = current.parent();
-        }
-        
-        return xpath.length() > 0 ? xpath.toString() : "/";
+    public EpubXmlParseException(String fileName, String filePath, String missingElement, org.jsoup.nodes.Element parentElement) {
+        this("Missing required XML element: " + missingElement, fileName, -1, -1, null);
     }
     
     /**
-     * 构建元素信息
+     * 为了向后兼容，提供无效属性的构造函数
      */
-    private static String buildElementInfo(Element element) {
-        if (element == null) {
-            return "Element: null";
-        }
-        
-        StringBuilder info = new StringBuilder();
-        info.append("Element: ").append(element.tagName());
-        
-        // 添加属性信息
-        if (element.attributes().size() > 0) {
-            info.append(" [Attributes: ");
-            element.attributes().forEach(attr -> {
-                info.append(attr.getKey()).append("='").append(attr.getValue()).append("' ");
-            });
-            info.append("]");
-        }
-        
-        // 添加文本内容（如果简短）
-        String text = element.text();
-        if (text != null && text.length() > 0 && text.length() <= 100) {
-            info.append(" [Text: '").append(text).append("']");
-        }
-        
-        return info.toString();
+    public EpubXmlParseException(String fileName, String filePath, org.jsoup.nodes.Element element, String attributeName, String expectedValue, String actualValue) {
+        this("Invalid XML attribute: " + attributeName, fileName, -1, -1, null);
+    }
+    
+    public EpubXmlParseException(String message, String fileName, Throwable cause) {
+        this(message, fileName, -1, -1, cause);
+    }
+    
+    public EpubXmlParseException(String message, String fileName, int lineNumber, int columnNumber, Throwable cause) {
+        super(formatMessage(message, fileName, lineNumber, columnNumber), cause);
+        this.fileName = fileName;
+        this.lineNumber = lineNumber;
+        this.columnNumber = columnNumber;
+    }
+    
+
+    
+    public String getFileName() {
+        return fileName;
+    }
+    
+    public int getLineNumber() {
+        return lineNumber;
+    }
+    
+    public int getColumnNumber() {
+        return columnNumber;
     }
     
     /**
-     * 截断内容以避免过长的异常消息
+     * 为了向后兼容，提供getFilePath方法
      */
-    private static String truncateContent(String content) {
-        if (content == null) {
-            return "null";
-        }
-        
-        if (content.length() <= 200) {
-            return content;
-        }
-        
-        return content.substring(0, 200) + "... (truncated)";
+    public String getFilePath() {
+        return fileName;
     }
     
     /**
-     * 获取XPath表达式
-     * @return XPath表达式
+     * 为了向后兼容，提供getXPath方法
      */
     public String getXPath() {
-        return xpath;
+        return null; // 简化设计，不提供XPath信息
     }
     
     /**
-     * 获取元素信息
-     * @return 元素信息
+     * 为了向后兼容，提供getErrorCode方法
      */
-    public String getElementInfo() {
-        return elementInfo;
+    public Object getErrorCode() {
+        return null; // 简化设计，不提供错误码
     }
     
     /**
-     * 获取预期的XML结构
-     * @return 预期的XML结构
+     * 为了向后兼容，提供getExpectedStructure方法
      */
     public String getExpectedStructure() {
-        return expectedStructure;
+        return null; // 简化设计，不提供期望结构信息
     }
     
     /**
-     * 获取实际的XML内容
-     * @return 实际的XML内容
+     * 为了向后兼容，提供getElementInfo方法
+     */
+    public String getElementInfo() {
+        return null; // 简化设计，不提供元素信息
+    }
+    
+    /**
+     * 为了向后兼容，提供getActualContent方法
      */
     public String getActualContent() {
-        return actualContent;
+        return null; // 简化设计，不提供实际内容信息
+    }
+    
+    /**
+     * 为了向后兼容，提供getOperation方法
+     */
+    public String getOperation() {
+        return "xmlParsing";
+    }
+    
+    private static String formatMessage(String message, String fileName, int lineNumber, int columnNumber) {
+        StringBuilder sb = new StringBuilder(message);
+        if (fileName != null) {
+            sb.append(" [File: ").append(fileName).append("]");
+        }
+        if (lineNumber > 0) {
+            sb.append(" [Line: ").append(lineNumber).append("]");
+        }
+        if (columnNumber > 0) {
+            sb.append(" [Column: ").append(columnNumber).append("]");
+        }
+        return sb.toString();
     }
 }

@@ -1,131 +1,115 @@
 package fun.lzwi.epubime.exception;
 
-/**
- * EPUB资源异常类
- * 当加载或处理EPUB资源时发生错误时抛出此异常
- * 
- * 增强功能：
- * - 使用标准化的错误码
- * - 提供详细的资源错误信息
- * - 支持异常构建器模式
- * - 重构后消除重复代码
- */
-public class EpubResourceException extends EpubParseException {
-    
-    private final String resourceId;
-    private final String resourceType;
-    
-    /**
-     * 构造函数，创建基本的资源异常
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     */
-    public EpubResourceException(String message, String fileName, String filePath) {
-        super(ExceptionBuilder.createBuilder(message, fileName, filePath, 
-                "resourceLoading", ErrorCode.RESOURCE_LOAD_FAILED));
-        this.resourceId = null;
-        this.resourceType = null;
-    }
+import java.io.File;
 
+/**
+ * EPUB资源异常
+ * 用于处理资源加载、访问失败等问题
+ */
+public class EpubResourceException extends SimpleEpubException {
+    private final File file;
+    private final String resourceId;
+    private final String resourcePath;
+    
+    public EpubResourceException(String message, File file) {
+        this(message, file, null, null, null);
+    }
+    
+    public EpubResourceException(String message, File file, String resourcePath) {
+        this(message, file, null, resourcePath, null);
+    }
+    
+    public EpubResourceException(String message, File file, String resourceId, String resourcePath, Throwable cause) {
+        super(formatMessage(message, file, resourceId, resourcePath), cause);
+        this.file = file;
+        this.resourceId = resourceId;
+        this.resourcePath = resourcePath;
+    }
+    
     /**
-     * 构造函数，创建资源异常（带原因）
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param cause 异常原因
+     * 为了向后兼容，提供接受String参数的构造函数
      */
-    public EpubResourceException(String message, String fileName, String filePath, Throwable cause) {
-        super(ExceptionBuilder.createBuilder(message, fileName, filePath, 
-                "resourceLoading", ErrorCode.RESOURCE_LOAD_FAILED)
-                .cause(cause));
+    public EpubResourceException(String message, String fileName, String resourcePath) {
+        this(message, fileName, resourcePath, (Throwable)null);
+    }
+    
+    /**
+     * 为了向后兼容，提供接受String参数的构造函数（带cause）
+     */
+    public EpubResourceException(String message, String fileName, String resourcePath, Throwable cause) {
+        super(formatMessageWithErrorCode(message, fileName, resourcePath), cause);
+        this.file = fileName != null ? new File(fileName) : null;
         this.resourceId = null;
-        this.resourceType = null;
+        this.resourcePath = resourcePath;
     }
     
-    /**
-     * 创建资源未找到异常
-     */
-    public static EpubResourceException resourceNotFound(String fileName, String filePath, String resourceId, String resourceType) {
-        return new EpubResourceException(
-            ExceptionBuilder.createBuilderWithSuggestion(
-                "Resource not found: " + resourceId, fileName, filePath,
-                "resourceAccess", ErrorCode.RESOURCE_NOT_FOUND,
-                "请检查资源ID是否正确，资源是否存在于EPUB文件中"
-            )
-            .addContext("resourceId", resourceId)
-            .addContext("resourceType", resourceType)
-        );
+    public File getFile() {
+        return file;
     }
     
-    /**
-     * 创建资源加载失败异常
-     */
-    public static EpubResourceException loadFailed(String fileName, String filePath, String resourceId, String resourceType, Throwable cause) {
-        return new EpubResourceException(
-            ExceptionBuilder.createBuilderWithSuggestion(
-                "Failed to load resource: " + resourceId, fileName, filePath,
-                "resourceLoading", ErrorCode.RESOURCE_LOAD_FAILED,
-                "请检查资源文件是否存在且格式正确"
-            )
-            .addContext("resourceId", resourceId)
-            .addContext("resourceType", resourceType)
-            .cause(cause)
-        );
-    }
-    
-    /**
-     * 创建无效资源类型异常
-     */
-    public static EpubResourceException invalidType(String fileName, String filePath, String resourceId, String resourceType, String expectedType) {
-        return new EpubResourceException(
-            ExceptionBuilder.createBuilderWithSuggestion(
-                "Invalid resource type: " + resourceType + " (expected: " + expectedType + ")", 
-                fileName, filePath, "resourceValidation", ErrorCode.RESOURCE_INVALID_TYPE,
-                "请检查资源的媒体类型是否正确"
-            )
-            .addContext("resourceId", resourceId)
-            .addContext("resourceType", resourceType)
-            .addContext("expectedType", expectedType)
-        );
-    }
-    
-    /**
-     * 创建回退资源异常
-     */
-    public static EpubResourceException fallbackFailed(String fileName, String filePath, String resourceId, String fallbackId, Throwable cause) {
-        return new EpubResourceException(
-            ExceptionBuilder.createBuilderWithSuggestion(
-                "Failed to load fallback resource: " + resourceId + " -> " + fallbackId, 
-                fileName, filePath, "resourceFallback", ErrorCode.RESOURCE_LOAD_FAILED,
-                "请检查主资源和回退资源是否存在"
-            )
-            .addContext("resourceId", resourceId)
-            .addContext("fallbackId", fallbackId)
-            .cause(cause)
-        );
-    }
-    
-    /**
-     * 私有构造函数，使用构建器模式
-     */
-    private EpubResourceException(EpubParseException.Builder builder) {
-        super(builder);
-        this.resourceId = (String) builder.getContext("resourceId");
-        this.resourceType = (String) builder.getContext("resourceType");
-    }
-    
-    /**
-     * 获取资源ID
-     */
     public String getResourceId() {
         return resourceId;
     }
     
-    /**
-     * 获取资源类型
-     */
-    public String getResourceType() {
-        return resourceType;
+    public String getResourcePath() {
+        return resourcePath;
     }
+    
+    /**
+     * 为了向后兼容，提供getFileName方法
+     */
+    public String getFileName() {
+        return file != null ? file.getName() : null;
+    }
+    
+    /**
+     * 为了向后兼容，提供getFilePath方法
+     */
+    public String getFilePath() {
+        return resourcePath;
+    }
+    
+    /**
+     * 为了向后兼容，提供getOperation方法
+     */
+    public String getOperation() {
+        return "resourceLoading";
+    }
+    
+    /**
+     * 为了向后兼容，提供getErrorCode方法
+     */
+    public Object getErrorCode() {
+        return EpubParseException.ErrorCode.RESOURCE_LOAD_FAILED;
+    }
+    
+    private static String formatMessage(String message, File file, String resourceId, String resourcePath) {
+        StringBuilder sb = new StringBuilder(message);
+        if (file != null) {
+            sb.append(" [File: ").append(file.getName()).append("]");
+        }
+        if (resourceId != null) {
+            sb.append(" [Resource ID: ").append(resourceId).append("]");
+        }
+        if (resourcePath != null) {
+            sb.append(" [Resource Path: ").append(resourcePath).append("]");
+        }
+        return sb.toString();
+    }
+    
+    private static String formatMessageWithErrorCode(String message, String fileName, String resourcePath) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(EpubParseException.ErrorCode.RESOURCE_LOAD_FAILED.toString()).append("] ");
+        sb.append(message);
+        if (fileName != null) {
+            sb.append(" [File: ").append(fileName).append("]");
+        }
+        if (resourcePath != null) {
+            sb.append(" [Path: ").append(resourcePath).append("]");
+        }
+        sb.append(" [Operation: resourceLoading]");
+        return sb.toString();
+    }
+    
+    
 }

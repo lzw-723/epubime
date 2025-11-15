@@ -1,7 +1,7 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
-import fun.lzwi.epubime.exception.EpubParseException;
+import fun.lzwi.epubime.exception.SimpleEpubException;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class EpubBookTest {
 
     @Test
-    public void getCover() throws EpubParseException {
+    public void getCover() throws SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
         EpubResource cover = book.getCover();
@@ -83,7 +83,7 @@ public class EpubBookTest {
     }
 
     @Test
-    public void getCoverFallbackToMetaTag() throws EpubParseException {
+    public void getCoverFallbackToMetaTag() throws Exception {
         // 创建一个模拟的EPUB内容用于测试回退到meta标签的逻辑
         String sampleOpfContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\"> " +

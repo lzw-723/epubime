@@ -79,19 +79,18 @@ public class EnhancedErrorHandlingTest {
         EpubXmlParseException exception = new EpubXmlParseException(
                 "Invalid XML structure",
                 "test.opf",
-                "OEBPS/content.opf",
-                "/package/metadata",
                 15,
-                20
+                20,
+                null
         );
         
-        assertEquals("[3001: XML parsing failed] Invalid XML structure [File: test.opf, Path: OEBPS/content.opf, Operation: xmlParsing]", exception.getMessage());
+        assertEquals("Invalid XML structure [File: test.opf] [Line: 15] [Column: 20]", exception.getMessage());
         assertEquals("test.opf", exception.getFileName());
-        assertEquals("OEBPS/content.opf", exception.getFilePath());
-        assertEquals("/package/metadata", exception.getXPath());
+        assertEquals("test.opf", exception.getFilePath());
+        assertEquals(null, exception.getXPath());
         assertEquals(15, exception.getLineNumber());
         assertEquals(20, exception.getColumnNumber());
-        assertEquals(EpubParseException.ErrorCode.XML_PARSE_ERROR, exception.getErrorCode());
+        assertEquals(null, exception.getErrorCode());
     }
     
     @Test

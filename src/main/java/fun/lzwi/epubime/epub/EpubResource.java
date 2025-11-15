@@ -274,7 +274,6 @@ public class EpubResource {
             } catch (IOException e) {
 
                 throw new EpubResourceException("Failed to process resource content for " + href + " from EPUB file " + epubFile.getName(), 
-
                     epubFile.getName(), href, e);
 
             }

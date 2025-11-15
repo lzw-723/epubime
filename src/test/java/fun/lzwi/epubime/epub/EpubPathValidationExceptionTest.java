@@ -10,7 +10,7 @@ public class EpubPathValidationExceptionTest {
     @Test
     public void testEpubPathValidationExceptionWithDetails() {
         // Test constructor with details
-        EpubPathValidationException exception = new EpubPathValidationException(
+        EpubPathValidationException exception = EpubPathValidationException.createForCompatibility(
                 "Invalid file path", 
                 "test.epub", 
                 "path/to/test.epub");
@@ -25,7 +25,7 @@ public class EpubPathValidationExceptionTest {
     public void testEpubPathValidationExceptionWithCause() {
         // Test constructor with cause
         Exception cause = new Exception("Root cause");
-        EpubPathValidationException exception = new EpubPathValidationException(
+        EpubPathValidationException exception = EpubPathValidationException.createForCompatibility(
                 "Invalid file path", 
                 "test.epub", 
                 "path/to/test.epub", 

@@ -70,7 +70,7 @@ public class ExceptionBuilderTest {
                   resourceException instanceof EpubResourceException);
 
         // Test EpubPathValidationException
-        EpubPathValidationException pathException = new EpubPathValidationException(message, fileName, filePath);
+        EpubPathValidationException pathException = EpubPathValidationException.createForCompatibility(message, fileName, filePath);
         assertNotNull("EpubPathValidationException should not be null", pathException);
         assertTrue("Should be instance of EpubPathValidationException", 
                   pathException instanceof EpubPathValidationException);

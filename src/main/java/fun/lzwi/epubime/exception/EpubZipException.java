@@ -1,93 +1,105 @@
 package fun.lzwi.epubime.exception;
 
+import java.io.File;
+
 /**
- * EPUB ZIP异常类
- * 当处理ZIP文件时发生错误时抛出此异常
- * 
- * 增强功能：
- * - 使用标准化的错误码
- * - 提供详细的错误上下文
- * - 支持异常构建器模式
+ * ZIP文件处理异常
+ * 用于处理EPUB ZIP文件格式错误、解压失败等问题
  */
-public class EpubZipException extends EpubParseException {
+public class EpubZipException extends SimpleEpubException {
+    private final File file;
+    private final String entryName;
+    
+    public EpubZipException(String message, File file) {
+        this(message, file, null, null);
+    }
+    
+    public EpubZipException(String message, File file, Throwable cause) {
+        this(message, file, null, cause);
+    }
+    
+    public EpubZipException(String message, File file, String entryName, Throwable cause) {
+        super(formatMessage(message, file, entryName), cause);
+        this.file = file;
+        this.entryName = entryName;
+    }
     
     /**
-     * 构造函数，创建基本的ZIP异常
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
+     * 为了向后兼容，提供接受String参数的构造函数
      */
     public EpubZipException(String message, String fileName, String filePath) {
-        super(new EpubParseException.Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("zipProcessing")
-                .errorCode(ErrorCode.ZIP_INVALID));
+        this(message, fileName, filePath, (Throwable)null);
     }
-
+    
     /**
-     * 构造函数，创建ZIP异常（带原因）
-     * @param message 异常消息
-     * @param fileName 文件名
-     * @param filePath 文件路径
-     * @param cause 异常原因
+     * 为了向后兼容，提供接受String参数的构造函数（带cause）
      */
     public EpubZipException(String message, String fileName, String filePath, Throwable cause) {
-        super(new EpubParseException.Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("zipProcessing")
-                .errorCode(ErrorCode.ZIP_INVALID)
-                .cause(cause));
+        super(formatMessageWithErrorCode(message, fileName, filePath), cause);
+        this.file = fileName != null ? new File(fileName) : null;
+        this.entryName = filePath; // 将路径作为entryName保存
+    }
+    
+    public File getFile() {
+        return file;
+    }
+    
+    public String getEntryName() {
+        return entryName;
     }
     
     /**
-     * 创建ZIP条目未找到异常
+     * 为了向后兼容，提供getFileName方法
      */
-    public static EpubZipException entryNotFound(String fileName, String filePath, String entryName) {
-        return new EpubZipException(new EpubParseException.Builder()
-                .message("ZIP entry not found: " + entryName)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("zipEntryAccess")
-                .errorCode(ErrorCode.ZIP_ENTRY_NOT_FOUND)
-                .addContext("entryName", entryName));
+    public String getFileName() {
+        return file != null ? file.getName() : null;
     }
     
     /**
-     * 创建ZIP解压失败异常
+     * 为了向后兼容，提供getFilePath方法
      */
-    public static EpubZipException decompressionFailed(String fileName, String filePath, String entryName, Throwable cause) {
-        return new EpubZipException(new EpubParseException.Builder()
-                .message("Failed to decompress ZIP entry: " + entryName)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("zipDecompression")
-                .errorCode(ErrorCode.ZIP_DECOMPRESSION_FAILED)
-                .addContext("entryName", entryName)
-                .cause(cause));
+    public String getFilePath() {
+        return entryName;
     }
     
     /**
-     * 创建ZIP格式无效异常
+     * 为了向后兼容，提供getOperation方法
      */
-    public static EpubZipException invalidFormat(String fileName, String filePath, Throwable cause) {
-        return new EpubZipException(new EpubParseException.Builder()
-                .message("Invalid ZIP file format")
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("zipValidation")
-                .errorCode(ErrorCode.ZIP_INVALID)
-                .recoverySuggestion("请验证文件是否为有效的ZIP格式")
-                .cause(cause));
+    public String getOperation() {
+        return "zipProcessing";
     }
     
     /**
-     * 私有构造函数，使用构建器模式
+     * 为了向后兼容，提供getErrorCode方法
      */
-    private EpubZipException(EpubParseException.Builder builder) {
-        super(builder);
+    public Object getErrorCode() {
+        return EpubParseException.ErrorCode.ZIP_INVALID;
     }
+    
+    private static String formatMessage(String message, File file, String entryName) {
+        StringBuilder sb = new StringBuilder(message);
+        if (file != null) {
+            sb.append(" [File: ").append(file.getName()).append("]");
+        }
+        if (entryName != null) {
+            sb.append(" [Entry: ").append(entryName).append("]");
+        }
+        return sb.toString();
+    }
+    
+    private static String formatMessageWithErrorCode(String message, String fileName, String filePath) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(EpubParseException.ErrorCode.ZIP_INVALID.toString()).append("] ");
+        sb.append(message);
+        if (fileName != null) {
+            sb.append(" [File: ").append(fileName).append("]");
+        }
+        if (filePath != null) {
+            sb.append(" [Path: ").append(filePath).append("]");
+        }
+        sb.append(" [Operation: zipProcessing]");
+        return sb.toString();
+    }
+    
+    
 }

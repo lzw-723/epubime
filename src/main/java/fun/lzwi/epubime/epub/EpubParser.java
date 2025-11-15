@@ -1,9 +1,13 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.cache.EpubCacheManager;
+import fun.lzwi.epubime.exception.EpubFormatException;
 import fun.lzwi.epubime.exception.EpubParseException;
 import fun.lzwi.epubime.exception.EpubPathValidationException;
+import fun.lzwi.epubime.exception.EpubResourceException;
+import fun.lzwi.epubime.exception.EpubXmlParseException;
 import fun.lzwi.epubime.exception.EpubZipException;
+import fun.lzwi.epubime.exception.SimpleEpubException;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
@@ -54,18 +58,18 @@ public class EpubParser {
      *
      * @param path 文件路径
      * @return 文件内容
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
-    protected String readEpubContent(String path) throws EpubParseException {
+    protected String readEpubContent(String path) throws EpubParseException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         if (!PathValidator.isPathSafe("", path)) {
-            throw new EpubPathValidationException("Invalid file path: " + path, epubFile.getName(), path);
+            throw new EpubPathValidationException("Invalid file path: " + path, path);
         }
 
         try {
             return ZipUtils.getZipFileContent(epubFile, path);
         } catch (IOException e) {
-            throw new EpubZipException("Failed to read EPUB file content", epubFile.getName(), path, e);
+            throw new EpubZipException("Failed to read EPUB file content", epubFile, path, e);
         }
     }
 
@@ -107,9 +111,9 @@ public class EpubParser {
      * 解析EPUB文件并返回EpubBook对象
      *
      * @return 解析后的EpubBook对象
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
-    public EpubBook parse() throws EpubParseException {
+    public EpubBook parse() throws SimpleEpubException {
         EpubBook book = new EpubBook();
 
         // 获取当前EPUB文件的缓存
@@ -133,8 +137,7 @@ public class EpubParser {
             
             String container = firstBatchContents.get(CONTAINER_FILE_PATH);
             if (container == null) {
-                throw new EpubParseException("Container file not found", epubFile.getName(), 
-                        CONTAINER_FILE_PATH, "parse");
+                throw new EpubFormatException("Container file not found", epubFile, CONTAINER_FILE_PATH);
             }
 
             String opfPath = extractRootFilePath(container);
@@ -146,7 +149,7 @@ public class EpubParser {
             
             String opfContent = firstBatchContents.get(opfPath);
             if (opfContent == null) {
-                throw new EpubParseException("OPF file not found", epubFile.getName(), opfPath, "parse");
+                throw new EpubFormatException("OPF file not found", epubFile, opfPath);
             }
 
             // 解析元数据
@@ -215,8 +218,7 @@ public class EpubParser {
             cache.setParsedResult(cacheKey, new EpubBook(book));
             
         } catch (IOException e) {
-            throw new EpubZipException("Failed to read EPUB file during parsing", epubFile.getName(),
-                    "multiple files", e);
+            throw new EpubZipException("Failed to read EPUB file during parsing", epubFile, "multiple files", e);
         } finally {
             // 解析完成后清理ZIP文件句柄
             ZipFileManager.getInstance().closeCurrentZipFile();
@@ -229,9 +231,9 @@ public class EpubParser {
      * 解析EPUB文件并返回EpubBook对象，但不使用缓存
      *
      * @return 解析后的EpubBook对象
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
-    public EpubBook parseWithoutCache() throws EpubParseException {
+    public EpubBook parseWithoutCache() throws SimpleEpubException {
         // 清理当前线程的ZIP文件句柄
         ZipFileManager.getInstance().cleanup();
 
@@ -248,10 +250,10 @@ public class EpubParser {
      *
      * @param htmlFileName HTML文件名
      * @param processor 处理HTML内容的消费者函数
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
     public void processHtmlChapterContent(String htmlFileName, Consumer<InputStream> processor) 
-            throws EpubParseException {
+            throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         processHtmlChapterContent(epubFile, htmlFileName, processor);
     }
 
@@ -260,11 +262,11 @@ public class EpubParser {
      *
      * @param htmlFileNames HTML文件名列表
      * @param processor 处理每个HTML内容的消费者函数
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
     public void processMultipleHtmlChapters(List<String> htmlFileNames, 
                                            BiConsumer<String, InputStream> processor) 
-            throws EpubParseException {
+            throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         processMultipleHtmlChapters(epubFile, htmlFileNames, processor);
     }
 
@@ -277,20 +279,20 @@ public class EpubParser {
      * @param epubFile EPUB文件
      * @param path 文件路径
      * @return 文件内容
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      * @deprecated 使用EpubParser实例方法代替
      */
     @Deprecated
-    protected static String readEpubContent(File epubFile, String path) throws EpubParseException {
+    protected static String readEpubContent(File epubFile, String path) throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         if (!PathValidator.isPathSafe("", path)) {
-            throw new EpubPathValidationException("Invalid file path: " + path, epubFile.getName(), path);
+            throw new EpubPathValidationException("Invalid file path: " + path, path);
         }
 
         try {
             return ZipUtils.getZipFileContent(epubFile, path);
         } catch (IOException e) {
-            throw new EpubZipException("Failed to read EPUB file content", epubFile.getName(), path, e);
+            throw new EpubZipException("Failed to read EPUB file content", epubFile, path, e);
         }
     }
 
@@ -444,19 +446,19 @@ public class EpubParser {
      * @param epubFile EPUB文件
      * @param htmlFileName HTML文件名
      * @param processor 处理HTML内容的消费者函数
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
     public static void processHtmlChapterContent(File epubFile, String htmlFileName,
-                                                 Consumer<InputStream> processor) throws EpubParseException {
+                                                 Consumer<InputStream> processor) throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         if (!PathValidator.isPathSafe("", htmlFileName)) {
-            throw new EpubPathValidationException("Invalid file path: " + htmlFileName, epubFile.getName(), htmlFileName);
+            throw new EpubPathValidationException("Invalid file path: " + htmlFileName, htmlFileName);
         }
         
         try {
             ZipUtils.processHtmlContent(epubFile, htmlFileName, processor);
         } catch (IOException e) {
-            throw new EpubZipException("Failed to process HTML chapter content", epubFile.getName(), htmlFileName, e);
+            throw new EpubZipException("Failed to process HTML chapter content", epubFile, htmlFileName, e);
         }
     }
 
@@ -467,22 +469,21 @@ public class EpubParser {
      * @param epubFile EPUB文件
      * @param htmlFileNames HTML文件名列表
      * @param processor 处理每个HTML内容的消费者函数
-     * @throws EpubParseException 解析异常
+     * @throws SimpleEpubException 解析异常
      */
     public static void processMultipleHtmlChapters(File epubFile, List<String> htmlFileNames, BiConsumer<String,
-            InputStream> processor) throws EpubParseException {
+            InputStream> processor) throws SimpleEpubException, EpubPathValidationException, EpubZipException {
         // 防止目录遍历攻击
         for (String fileName : htmlFileNames) {
             if (!PathValidator.isPathSafe("", fileName)) {
-                throw new EpubPathValidationException("Invalid file path: " + fileName, epubFile.getName(), fileName);
+                throw new EpubPathValidationException("Invalid file path: " + fileName, fileName);
             }
         }
         
         try {
             ZipUtils.processMultipleHtmlContents(epubFile, htmlFileNames, processor);
         } catch (IOException e) {
-            throw new EpubZipException("Failed to process multiple HTML chapters", epubFile.getName(),
-                    "multiple files", e);
+            throw new EpubZipException("Failed to process multiple HTML chapters", epubFile, "multiple files", e);
         }
     }
 }

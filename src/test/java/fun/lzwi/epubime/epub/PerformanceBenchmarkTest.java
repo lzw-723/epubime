@@ -3,6 +3,7 @@ package fun.lzwi.epubime.epub;
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.exception.EpubParseException;
+import fun.lzwi.epubime.exception.SimpleEpubException;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class PerformanceBenchmarkTest {
      * Tests the performance of parsing EPUB files
      */
     @Test
-    public void testParsePerformance() throws EpubParseException {
+    public void testParsePerformance() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         long startTime = System.nanoTime();
         EpubBook book = new EpubParser(epubFile).parse();
@@ -58,7 +59,7 @@ public class PerformanceBenchmarkTest {
      * Tests the performance of reading EPUB content
      */
     @Test
-    public void testReadEpubContentPerformance() throws EpubParseException {
+    public void testReadEpubContentPerformance() throws EpubParseException, SimpleEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         
         // 清除EPUBime缓存，确保测试公平性
@@ -86,7 +87,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
 
-    public void testParseMetadataPerformance() throws EpubParseException {
+    public void testParseMetadataPerformance() throws EpubParseException, SimpleEpubException {
 
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
@@ -134,7 +135,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
 
-    public void testCachePerformance() throws EpubParseException {
+    public void testCachePerformance() throws EpubParseException, SimpleEpubException {
 
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
@@ -224,7 +225,7 @@ public class PerformanceBenchmarkTest {
 
     @Test
 
-    public void testDifferentSizeEpubPerformance() throws EpubParseException {
+    public void testDifferentSizeEpubPerformance() throws EpubParseException, SimpleEpubException {
 
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
