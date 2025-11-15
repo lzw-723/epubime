@@ -13,7 +13,7 @@ EPUBime is a pure Java library for parsing EPUB file format. It provides complet
 - **Error Handling**: Comprehensive exception handling system
 - **Cache Management**: Provides intelligent caching mechanism to avoid re-parsing the same content
 - **Streaming Processing**: Supports streaming processing of large EPUB files to optimize memory usage
-- **EPUB 3.3 Support**: Compatible with EPUB 3.3 specification
+- **EPUB 2.0/3.3 Support**: Compatible with both EPUB 2.0 and EPUB 3.3 specifications
 - **Nested Chapters**: Supports parsing of nested chapter structures
 - **Multiple Navigation Types**: Supports landmarks, page-list and other navigation types
 - **Modern Fluent API**: Fluent API design with method chaining support

@@ -14,23 +14,33 @@
 
 ### 1.3 支持的EPUB版本与规范
 
-本解析库的开发将严格遵循并实现对 **EPUB 2.0和EPUB 3.3** 版本的完整支持。EPUB 3.3是W3C于**2023年5月25日**正式发布的推荐标准（W3C Recommendation），是EPUB 3系列规范的最新稳定版本 。同时，本库也完全支持EPUB 2.0格式，确保与大量现有EPUB文件的兼容性。选择同时支持这两个版本，是因为EPUB 2.0仍然在数字出版领域广泛使用，而EPUB 3.3代表了当前的技术标准。本库在实现对EPUB 3.3新特性的支持的同时，也确保了对EPUB 2.0文件的完整解析能力，从而覆盖了市面上几乎所有的EPUB出版物。
+本解析库的开发将严格遵循并实现对 **EPUB 2.0和EPUB 3.3** 版本的完整支持。EPUB 3.3是W3C于**2023年5月25日**正式发布的推荐标准（W3C Recommendation），是EPUB 3系列规范的最新稳定版本。同时，本库也完全支持EPUB 2.0格式，确保与大量现有EPUB文件的兼容性。选择同时支持这两个版本，是因为EPUB 2.0仍然在数字出版领域广泛使用，而EPUB 3.3代表了当前的技术标准。本库在实现对EPUB 3.3新特性的支持的同时，也确保了对EPUB 2.0文件的完整解析能力，从而覆盖了市面上几乎所有的EPUB出版物。
 
-为了确保解析的准确性和权威性，本开发文档的所有技术细节和要求均直接引用或参考了W3C发布的以下核心官方规范文档。这些文档共同构成了EPUB 3.3标准的完整技术体系，是开发一个合规解析库的根本依据。
+EPUB 2.0和EPUB 3.3的主要差异在于：
+- **元数据格式**：EPUB 2.0使用不带命名空间的Dublin Core元素，EPUB 3.3使用带命名空间的元素
+- **导航格式**：EPUB 2.0使用NCX格式，EPUB 3.3使用NAV格式
+- **资源类型**：EPUB 3.3支持更多现代资源类型和可访问性元数据
+- **版本标识**：EPUB 2.0的package元素version属性为"2.0"，EPUB 3.3为"3.0"或更高
 
-*   **EPUB 3.3**: 这是核心的规范文档，定义了EPUB出版物的创作要求，包括Package Document的结构、元数据、资源清单、Spine等所有核心组件的定义和约束 。
-*   **EPUB Reading Systems 3.3**: 该规范定义了EPUB阅读系统（即渲染EPUB出版物的用户代理）的符合性要求。虽然本库不执行渲染，但理解阅读系统的要求对于正确解析某些元数据（例如，如何处理`dc:language`或`dc:title`的显示优先级）至关重要 。
-*   **EPUB Accessibility 1.1**: 此规范首次被整合进EPUB 3.3的核心标准中，定义了使EPUB出版物对残障人士更具可访问性的元数据和技术要求。解析库需要能够识别和提取这些可访问性相关的元数据 。
+本库能够自动检测EPUB版本并应用相应的解析策略，确保对两种格式的完全兼容性。
 
-通过严格遵循这些由W3C维护的权威规范，本解析库旨在成为一个可靠、精确且面向未来的工具，能够处理各种复杂的EPUB 3.3出版物，并为上层应用提供坚实的数据基础。
+为了确保解析的准确性和权威性，本开发文档的所有技术细节和要求均直接引用或参考了W3C和IDPF发布的以下核心官方规范文档。这些文档共同构成了EPUB标准的完整技术体系，是开发一个合规解析库的根本依据。
 
-## 2. EPUB 3.3文件结构概述
+*   **EPUB 3.3**: 这是EPUB 3系列的最新核心规范文档，定义了EPUB出版物的创作要求，包括Package Document的结构、元数据、资源清单、Spine等所有核心组件的定义和约束。
+*   **EPUB 2.0**: 这是EPUB 2系列的标准规范，由IDPF发布，定义了EPUB 2.0格式的结构和要求。本库完全兼容此规范。
+*   **EPUB Reading Systems 3.3**: 该规范定义了EPUB阅读系统（即渲染EPUB出版物的用户代理）的符合性要求。虽然本库不执行渲染，但理解阅读系统的要求对于正确解析某些元数据（例如，如何处理`dc:language`或`dc:title`的显示优先级）至关重要。
+*   **EPUB Accessibility 1.1**: 此规范定义了使EPUB出版物对残障人士更具可访问性的元数据和技术要求。解析库需要能够识别和提取这些可访问性相关的元数据。
+*   **Open Container Format (OCF)**: 定义了EPUB文件的物理容器格式（ZIP），适用于EPUB 2.0和3.3。
+
+通过严格遵循这些权威规范，本解析库旨在成为一个可靠、精确且面向未来的工具，能够处理各种复杂的EPUB 2.0和3.3出版物，并为上层应用提供坚实的数据基础。
+
+## 2. EPUB 2.0/3.3文件结构概述
 
 ### 2.1 EPUB容器（OCF）基础结构
 
-EPUB文件本质上是一个经过特殊组织的ZIP压缩包，这种格式被称为**开放容器格式（Open Container Format, OCF）** 。这个ZIP容器的主要作用是将构成EPUB出版物的所有文件和资源（如XHTML文档、CSS样式表、图像、字体、元数据文件等）打包成一个单一的、自包含的文件，以便于分发和管理。一个符合EPUB 3.3标准的OCF ZIP容器必须满足一系列特定的要求，这些要求在W3C的规范中有详细定义。首先，容器必须使用标准的ZIP压缩算法，并且其文件结构必须遵循一个预定义的根目录布局。这个根目录在规范中被称为**OCF抽象容器（OCF Abstract Container）** 的根目录，它代表了EPUB文件内部文件系统的最顶层 。所有出版物资源都必须位于这个根目录或其子目录中，从而形成一个清晰的、有层次的文件树。
+EPUB文件本质上是一个经过特殊组织的ZIP压缩包，这种格式被称为**开放容器格式（Open Container Format, OCF）** 。这个ZIP容器的主要作用是将构成EPUB出版物的所有文件和资源（如XHTML文档、CSS样式表、图像、字体、元数据文件等）打包成一个单一的、自包含的文件，以便于分发和管理。一个符合EPUB标准的OCF ZIP容器必须满足一系列特定的要求，这些要求在W3C和IDPF的规范中有详细定义。首先，容器必须使用标准的ZIP压缩算法，并且其文件结构必须遵循一个预定义的根目录布局。这个根目录在规范中被称为**OCF抽象容器（OCF Abstract Container）** 的根目录，它代表了EPUB文件内部文件系统的最顶层 。所有出版物资源都必须位于这个根目录或其子目录中，从而形成一个清晰的、有层次的文件树。
 
-OCF规范不仅定义了容器的物理格式（ZIP），还定义了其内部的逻辑结构和文件组织方式。例如，规范对文件路径和文件名有明确的约束，要求使用**正斜杠（`/`）** 作为路径分隔符，并对允许的字符集做出了规定，以确保跨平台的兼容性 。此外，OCF还引入了一个特殊的目录`META-INF`，用于存放关于容器本身和其中出版物的元信息，如容器描述文件`container.xml`、加密信息`encryption.xml`等。这种将内容资源与描述性元数据分离的设计，使得EPUB的结构更加清晰和模块化。解析库在处理EPUB文件时，其首要任务就是解压这个ZIP容器，并验证其内部结构是否符合OCF规范的基本要求，例如检查`mimetype`文件是否存在且内容正确，以及`META-INF`目录和`container.xml`文件是否齐全。只有在通过了这些基础的结构验证后，解析库才能进一步深入到Package Document的解析阶段。
+OCF规范不仅定义了容器的物理格式（ZIP），还定义了其内部的逻辑结构和文件组织方式，适用于EPUB 2.0和3.3。例如，规范对文件路径和文件名有明确的约束，要求使用**正斜杠（`/`）** 作为路径分隔符，并对允许的字符集做出了规定，以确保跨平台的兼容性 。此外，OCF还引入了一个特殊的目录`META-INF`，用于存放关于容器本身和其中出版物的元信息，如容器描述文件`container.xml`、加密信息`encryption.xml`等。这种将内容资源与描述性元数据分离的设计，使得EPUB的结构更加清晰和模块化。解析库在处理EPUB文件时，其首要任务就是解压这个ZIP容器，并验证其内部结构是否符合OCF规范的基本要求，例如检查`mimetype`文件是否存在且内容正确，以及`META-INF`目录和`container.xml`文件是否齐全。只有在通过了这些基础的结构验证后，解析库才能进一步深入到Package Document的解析阶段。
 
 ### 2.2 关键文件与目录
 
@@ -46,11 +56,11 @@ OCF规范不仅定义了容器的物理格式（ZIP），还定义了其内部�
 
 #### 2.2.3 `container.xml`文件
 
-`container.xml`文件位于`META-INF`目录中，是EPUB解析过程中的一个关键枢纽。它的主要功能是告诉阅读系统或解析库，EPUB容器中包含的出版物（或多个出版物）的根Package Document（即`.opf`文件）的具体位置。该文件是一个XML文档，其根元素是`<container>`，它包含一个或多个`<rootfiles>`元素。每个`<rootfiles>`元素内部又包含一个或多个`<rootfile>`元素。一个`<rootfile>`元素通过其`full-path`属性指向一个Package Document文件，并通过`media-type`属性声明其MIME类型（对于EPUB 3.3，此值应为`application/oebps-package+xml`）。在绝大多数情况下，一个EPUB容器只包含一个出版物，因此`container.xml`中通常只有一个`<rootfile>`元素。然而，EPUB规范也支持在一个容器中包含多个版本的出版物（例如，一个固定布局版本和一个可重排版本），在这种情况下，`container.xml`中会列出多个`<rootfile>`元素。解析库的首要任务之一就是读取`container.xml`，解析出`full-path`属性的值，从而确定唯一的（或在多版本情况下，默认的）Package Document文件路径，为下一步的深度解析做好准备。
+`container.xml`文件位于`META-INF`目录中，是EPUB解析过程中的一个关键枢纽。它的主要功能是告诉阅读系统或解析库，EPUB容器中包含的出版物（或多个出版物）的根Package Document（即`.opf`文件）的具体位置。该文件是一个XML文档，其根元素是`<container>`，它包含一个或多个`<rootfiles>`元素。每个`<rootfiles>`元素内部又包含一个或多个`<rootfile>`元素。一个`<rootfile>`元素通过其`full-path`属性指向一个Package Document文件，并通过`media-type`属性声明其MIME类型（对于EPUB，此值应为`application/oebps-package+xml`）。在绝大多数情况下，一个EPUB容器只包含一个出版物，因此`container.xml`中通常只有一个`<rootfile>`元素。然而，EPUB规范也支持在一个容器中包含多个版本的出版物（例如，一个固定布局版本和一个可重排版本），在这种情况下，`container.xml`中会列出多个`<rootfile>`元素。解析库的首要任务之一就是读取`container.xml`，解析出`full-path`属性的值，从而确定唯一的（或在多版本情况下，默认的）Package Document文件路径，为下一步的深度解析做好准备。
 
 #### 2.2.4 Package Document (`.opf`文件)
 
-Package Document，通常以`.opf`为文件扩展名，是EPUB出版物的“心脏”和“大脑”。它是一个XML文件，包含了关于EPUB出版物的所有核心元数据、资源清单（Manifest）和阅读顺序（Spine）的定义。根据EPUB 3.3规范，Package Document的MIME类型为`application/oebps-package+xml` 。其根元素是`<package>`，该元素包含三个必需的子元素，并且必须按特定顺序出现：**`metadata`、`manifest`和`spine`** 。
+Package Document，通常以`.opf`为文件扩展名，是EPUB出版物的“心脏”和“大脑”。它是一个XML文件，包含了关于EPUB出版物的所有核心元数据、资源清单（Manifest）和阅读顺序（Spine）的定义。根据EPUB规范，Package Document的MIME类型为`application/oebps-package+xml` 。Package Document在EPUB 2.0和3.3中具有相同的结构，但版本通过`<package>`元素的`version`属性区分（2.0或3.x）。其根元素是`<package>`，该元素包含三个必需的子元素，并且必须按特定顺序出现：**`metadata`、`manifest`和`spine`** 。
 
 *   **`metadata`元素**: 此元素包含了出版物的描述性元数据，如标题、作者、语言、唯一标识符等。它使用Dublin Core元数据标准，并结合EPUB特有的扩展。解析库需要详细解析此部分，以构建出版物的元数据模型。
 *   **`manifest`元素**: 此元素提供了一个详尽的清单，列出了构成EPUB出版物的所有资源文件（如XHTML、CSS、图像、字体等）。每个资源都由一个`<item>`元素表示，并赋予一个唯一的ID。解析库通过解析Manifest，可以建立一个从资源ID到其文件路径的映射，这对于后续定位和加载内容至关重要。
@@ -114,7 +124,7 @@ Package Document的根元素是`<package>`，它封装了出版物的所有信�
 
 `<metadata>`元素是Package Document中第一个必需的子元素，它包含了EPUB出版物的所有元数据 。其内容模型允许包含多种类型的子元素，并且顺序不限。这些子元素主要可以分为以下几类：
 
-1.  **必需的Dublin Core元素**: 根据EPUB 3.3规范，`<metadata>`部分**必须**包含至少一个`<dc:title>`、一个`<dc:identifier>`和一个`<dc:language>`元素 。这些是描述出版物的最基本元数据。
+1.  **必需的Dublin Core元素**: 根据EPUB规范，`<metadata>`部分**必须**包含至少一个`<dc:title>`（或无命名空间的`title`）、一个`<dc:identifier>`（或无命名空间的`identifier`）和一个`<dc:language>`（或无命名空间的`language`）元素 。这些是描述出版物的最基本元数据。
 2.  **可选的Dublin Core元素**: 规范还定义了一系列可选的Dublin Core元素，如`<dc:creator>`（作者）、`<dc:contributor>`（贡献者）、`<dc:date>`（日期）、`<dc:subject>`（主题）等。这些元素可以出现零次或多次，用于提供更丰富的描述信息。
 3.  **`<meta>`元素**: 这是一个通用的元数据容器，用于表达EPUB特有的属性或来自其他词汇表的属性。例如，`<meta property="dcterms:modified">`用于指定出版物的最后修改日期，这是一个必需的元数据项。此外，所有用于控制渲染的属性（如固定布局、分页方式等）也都通过`<meta>`元素来表达。
 4.  **`<link>`元素**: 用于将外部资源（如完整的元数据记录、样式表或脚本）与出版物关联起来。
@@ -304,7 +314,7 @@ EPUB文件内部存在大量的引用关系，这些引用的有效性是保证�
 ### 5.4 元数据验证与容错
 
 元数据是EPUB出版物的重要组成部分，对其进行验证和容错处理同样重要。
-*   **必需元数据缺失**：EPUB 3.3规范要求`metadata`部分必须包含`dc:identifier`、`dc:title`和`dc:language`。解析库在解析完元数据后，应检查这些必需元素是否存在。如果缺失，应抛出异常或至少记录一个严重错误。
+*   **必需元数据缺失**：EPUB规范要求`metadata`部分必须包含`dc:identifier`、`dc:title`和`dc:language`（或其无命名空间版本）。解析库在解析完元数据后，应检查这些必需元素是否存在。如果缺失，应抛出异常或至少记录一个严重错误。
 *   **元数据格式错误**：例如，`dc:date`的值不符合标准日期格式，`dc:language`的值不是有效的BCP 47语言标签。解析库可以尝试解析这些值，并在格式不正确时给出警告。
 *   **不支持的规范特性**：本解析库支持EPUB 2.0和EPUB 3.3格式。如果解析库遇到为未来版本设计的特性，应记录警告并忽略这些不支持的特性，以保证库的稳定性。
 
@@ -314,14 +324,14 @@ EPUB文件内部存在大量的引用关系，这些引用的有效性是保证�
 
 本解析库的开发严格遵循W3C发布的EPUB 3.3系列技术规范。这些规范是EPUB 3.3标准的权威来源，确保了解析库的实现与行业标准保持一致。
 
-*   **EPUB 3.3 Overview**: 这份文档提供了对EPUB 3.3标准整体特性的概述，是理解EPUB 3.3设计目标和核心功能的入门读物 。
-*   **EPUB 3.3 Core**: 这是EPUB 3.3的核心规范，详细定义了EPUB出版物的结构、语义和核心功能，包括Package Document、内容文档、导航、媒体覆盖等。本解析库对`.opf`文件（Package Document）的解析逻辑主要依据此规范 。
-*   **EPUB 3.3 Reading Systems**: 这份规范从阅读系统（即EPUB渲染器）的角度，定义了解析和处理EPUB出版物的要求和行为。虽然本库不涉及渲染，但其中关于如何处理元数据、错误处理和资源加载的章节对设计一个健壮的解析库具有重要的参考价值 。
-*   **EPUB Open Container Format (OCF) 3.3**: 这份规范定义了EPUB文件的物理容器格式，即ZIP文件的结构和`META-INF`目录中文件（如`container.xml`）的格式。本库对EPUB容器的验证和解压逻辑基于此规范。
+*   **EPUB 2.0**: 这是EPUB 2.0系列的标准规范，由IDPF发布，定义了EPUB 2.0格式的结构和要求。本库完全兼容此规范。
+*   **EPUB 3.3 Core**: 这是EPUB 3.3的核心规范，详细定义了EPUB出版物的结构、语义和核心功能，包括Package Document、内容文档、导航、媒体覆盖等。本解析库对`.opf`文件（Package Document）的解析逻辑主要依据此规范，同时兼容EPUB 2.0的要求。
+*   **EPUB 3.3 Reading Systems**: 这份规范从阅读系统（即EPUB渲染器）的角度，定义了解析和处理EPUB出版物的要求和行为。虽然本库不涉及渲染，但其中关于如何处理元数据、错误处理和资源加载的章节对设计一个健壮的解析库具有重要的参考价值。
+*   **EPUB Open Container Format (OCF)**: 这份规范定义了EPUB文件的物理容器格式，即ZIP文件的结构和`META-INF`目录中文件（如`container.xml`）的格式，适用于EPUB 2.0和3.3。本库对EPUB容器的验证和解压逻辑基于此规范。
 
 ### 6.2 Dublin Core元数据标准
 
-EPUB 3.3的元数据系统大量借鉴了Dublin Core元数据元素集（Dublin Core Metadata Element Set, DCMES）。Dublin Core是一套用于描述数字资源的简单、标准化的元数据术语。在EPUB的`metadata`部分，所有核心描述性元数据（如`dc:title`, `dc:creator`, `dc:language`等）都使用了Dublin Core命名空间（`http://purl.org/dc/elements/1.1/`）。因此，为了正确解析和理解这些元数据的语义，开发者需要参考Dublin Core的相关文档。特别是，了解每个Dublin Core元素的定义、是否允许多个值以及其推荐的编码方案（如`dc:language`使用RFC 5646）对于实现一个准确、符合标准的元数据解析器至关重要。
+EPUB的元数据系统大量借鉴了Dublin Core元数据元素集（Dublin Core Metadata Element Set, DCMES）。Dublin Core是一套用于描述数字资源的简单、标准化的元数据术语。在EPUB的`metadata`部分，所有核心描述性元数据可以使用Dublin Core命名空间（`http://purl.org/dc/elements/1.1/`，如`dc:title`, `dc:creator`, `dc:language`等）或无命名空间形式（EPUB 2.0中常见，如`title`, `creator`, `language`等）。本库支持两种格式的自动检测和解析。因此，为了正确解析和理解这些元数据的语义，开发者需要参考Dublin Core的相关文档。特别是，了解每个Dublin Core元素的定义、是否允许多个值以及其推荐的编码方案（如`dc:language`使用RFC 5646）对于实现一个准确、符合标准的元数据解析器至关重要。
 
 ### 6.3 其他相关技术文档
 
