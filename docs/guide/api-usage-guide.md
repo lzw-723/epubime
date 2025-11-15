@@ -1,346 +1,236 @@
-# API 使用指南
+# 用户集成指南
 
-## 概述
+本指南将帮助您将 EPUBime 集成到您的项目中，并提供详细的使用说明。
 
-EPUBime现在提供了更现代、流畅的API设计，同时保持与现有代码的完全向后兼容性。新API通过Fluent模式、异步处理和增强的工具方法，大大提升了开发体验。
+## 项目集成
 
-## 快速开始
+### Maven 集成
 
-### 基本使用
+在您的 `pom.xml` 文件中添加以下依赖：
 
-```java
-import fun.lzwi.epubime.api.EpubReader;
-import fun.lzwi.epubime.epub.EpubBook;
-
-// 简单解析
-EpubBook book = EpubReader.fromFile("book.epub").parse();
-
-// 获取基本信息
-System.out.println("标题: " + book.getMetadata().getTitle());
-System.out.println("作者: " + book.getMetadata().getCreator());
-System.out.println("章节数: " + book.getChapters().size());
+```xml
+<dependency>
+    <groupId>fun.lzwi</groupId>
+    <artifactId>epubime</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
 ```
 
-### Fluent API
+### Gradle 集成
 
-```java
-// 链式配置
-EpubBook book = EpubReader.fromFile(new File("book.epub"))
-    .withCache(true)
-    .withLazyLoading(true)
-    .parse();
+如果您使用 Gradle，请在 `build.gradle` 文件中添加：
 
-// 快速获取信息
-EpubReader.EpubInfo info = EpubReader.fromFile("book.epub").getInfo();
-System.out.println("书名: " + info.getTitle());
-System.out.println("文件大小: " + info.getFileSize() + " bytes");
+```gradle
+dependencies {
+    implementation 'fun.lzwi:epubime:1.0-SNAPSHOT'
+}
 ```
 
-## 增强功能
+## 基本使用流程
 
-### 1. 增强的EpubBook
-
-```java
-import fun.lzwi.epubime.api.EpubBookEnhanced;
-
-EpubBook book = EpubReader.fromFile("book.epub").parse();
-EpubBookEnhanced enhanced = new EpubBookEnhanced(book, epubFile);
-
-// 便捷访问
-String title = enhanced.getTitle();
-String author = enhanced.getAuthor();
-
-// 智能搜索
-EpubChapter chapter = enhanced.findChapterByTitle("第一章");
-List<EpubChapter> chapters = enhanced.findChaptersByContentPattern(".html");
-
-// 资源分类
-List<EpubResource> images = enhanced.getImageResources();
-List<EpubResource> cssFiles = enhanced.getCssResources();
-```
-
-### 2. 增强的元数据
+### 1. 创建 EpubReader 实例
 
 ```java
-import fun.lzwi.epubime.api.MetadataEnhanced;
+import fun.lzwi.epubime.api.*;
+import fun.lzwi.epubime.epub.*;
+import java.io.File;
 
-Metadata metadata = EpubReader.fromFile("book.epub").parseMetadata();
-MetadataEnhanced enhanced = new MetadataEnhanced(metadata);
+// 从文件创建
+File epubFile = new File("path/to/book.epub");
+EpubReader reader = EpubReader.fromFile(epubFile);
 
-// 类型安全访问
-String title = enhanced.getTitle();
-LocalDate date = enhanced.getParsedDate(); // 自动解析日期
-
-// 便捷检查
-boolean hasCover = enhanced.hasCover();
-boolean hasAccessibility = enhanced.hasAccessibilityFeatures();
-
-// 格式化摘要
-String summary = enhanced.getSummary();
+// 从输入流创建
+InputStream inputStream = new FileInputStream("path/to/book.epub");
+EpubReader reader = EpubReader.fromInputStream(inputStream);
 ```
 
-### 3. 异步处理
+### 2. 配置解析选项（可选）
+
+```java
+// 使用默认配置
+EpubBook book = reader.parse();
+
+// 或使用自定义配置
+EpubReaderConfig config = new EpubReaderConfig()
+    .withCache(true)              // 启用缓存
+    .withLazyLoading(true)        // 启用延迟加载
+    .withParallelProcessing(true); // 启用并行处理
+
+EpubBook book = reader.parse(config);
+```
+
+### 3. 访问书籍内容
+
+```java
+// 获取元数据
+Metadata metadata = book.getMetadata();
+System.out.println("标题: " + metadata.getTitle());
+System.out.println("作者: " + metadata.getCreator());
+System.out.println("语言: " + metadata.getLanguage());
+System.out.println("出版日期: " + metadata.getDate());
+
+// 获取章节列表
+List<EpubChapter> chapters = book.getChapters();
+for (EpubChapter chapter : chapters) {
+    System.out.println("章节: " + chapter.getTitle());
+    System.out.println("内容路径: " + chapter.getContent());
+    
+    // 获取章节内容（如果启用了延迟加载，这将触发实际加载）
+    String content = chapter.getContentAsString();
+}
+
+// 获取资源文件
+List<EpubResource> resources = book.getResources();
+for (EpubResource resource : resources) {
+    System.out.println("资源: " + resource.getHref());
+    System.out.println("媒体类型: " + resource.getMediaType());
+    
+    // 获取资源数据
+    byte[] data = resource.getData();
+}
+```
+
+## 高级功能使用
+
+### 异步处理
+
+EPUBime 支持异步解析，以避免阻塞主线程：
 
 ```java
 import fun.lzwi.epubime.api.AsyncEpubProcessor;
 
 AsyncEpubProcessor processor = new AsyncEpubProcessor();
+CompletableFuture<EpubBook> future = processor.parseAsync(epubFile);
 
-// 异步解析
-CompletableFuture<EpubBook> bookFuture = processor.parseBookAsync(epubFile);
-bookFuture.thenAccept(book -> {
-    System.out.println("异步解析完成: " + book.getMetadata().getTitle());
-});
-
-// 异步元数据
-CompletableFuture<Metadata> metadataFuture = processor.parseMetadataAsync(epubFile);
-
-// 批量处理
-List<File> files = Arrays.asList(file1, file2, file3);
-processor.processMultipleBooksAsync(files, book -> {
-    // 处理每本书
-    return book;
+future.thenAccept(book -> {
+    // 在解析完成后处理书籍对象
+    System.out.println("书籍解析完成: " + book.getMetadata().getTitle());
+}).exceptionally(throwable -> {
+    // 处理解析异常
+    System.err.println("解析失败: " + throwable.getMessage());
+    return null;
 });
 ```
 
-### 4. 流式处理
+### 错误处理和恢复
+
+EPUBime 提供了灵活的错误处理机制：
 
 ```java
-// 流式处理章节（内存效率高）
-EpubReader.fromFile(epubFile)
-    .streamChapters((chapter, inputStream) -> {
-        System.out.println("处理章节: " + chapter.getTitle());
-        // 实时处理内容，无需全部加载到内存
-        processContentStream(inputStream);
-    });
-
-// 流式处理特定章节
-EpubReader.fromFile(epubFile)
-    .streamChapter("chapter1", inputStream -> {
-        String content = readStreamContent(inputStream);
-        System.out.println("章节内容长度: " + content.length());
-    });
-```
-
-## 实际应用示例
-
-### 1. 移动应用开发
-
-```java
-// 快速获取书籍信息（适合列表显示）
-public CompletableFuture<BookInfo> getBookInfoAsync(String filePath) {
-    return AsyncEpubProcessor()
-        .getBookInfoAsync(new File(filePath))
-        .thenApply(info -> new BookInfo(
-            info.getTitle(),
-            info.getAuthor(),
-            info.getChapterCount()
-        ));
-}
-
-// 流式处理大文件
-public void processLargeBook(File epubFile) {
-    EpubReader.fromFile(epubFile)
-        .streamChapters((chapter, stream) -> {
-            // 逐章处理，避免内存溢出
-            String content = extractText(stream);
-            saveChapterContent(chapter.getTitle(), content);
-        });
-}
-```
-
-### 2. Web应用开发
-
-```java
-// REST API端点
-@GetMapping("/api/books/{id}/info")
-public ResponseEntity<BookInfo> getBookInfo(@PathVariable String id) {
-    try {
-        File bookFile = getBookFile(id);
-        EpubReader.EpubInfo info = EpubReader.fromFile(bookFile).getInfo();
-        return ResponseEntity.ok(new BookInfo(info));
-    } catch (EpubParseException e) {
-        return ResponseEntity.badRequest().build();
-    }
-}
-
-// 批量处理上传的文件
-@PostMapping("/api/books/batch")
-public CompletableEntity<List<UploadResult>> batchUpload(@RequestParam("files") MultipartFile[] files) {
-    List<File> epubFiles = saveUploadedFiles(files);
+try {
+    // 使用宽松模式解析，允许部分错误恢复
+    ParseOptions options = ParseOptions.lenient()
+        .withContinueOnMetadataError(true)
+        .withContinueOnResourceError(true);
     
-    return AsyncEpubProcessor()
-        .processMultipleBooksAsync(epubFiles, book -> {
-            // 处理每本书
-            saveBookMetadata(book);
-            return book;
-        })
-        .thenApply(results -> ResponseEntity.ok(createUploadResults(results)));
+    ParseResult result = reader.parseWithOptions(options);
+    
+    if (result.isSuccess()) {
+        // 完全成功
+        EpubBook book = result.getEpubBook();
+    } else if (result.isPartialSuccess()) {
+        // 部分成功，有警告信息
+        EpubBook book = result.getEpubBook();
+        ErrorContext errorContext = result.getErrorContext();
+        System.out.println("解析完成但有警告: " + errorContext.getStatistics());
+    } else {
+        // 解析失败
+        ErrorContext errorContext = result.getErrorContext();
+        System.err.println("解析失败: " + errorContext.generateReport());
+    }
+} catch (EpubParseException e) {
+    System.err.println("解析异常: " + e.getMessage());
+    System.err.println("错误码: " + e.getErrorCode());
+    System.err.println("恢复建议: " + e.getRecoverySuggestion());
 }
 ```
 
-### 3. 桌面应用开发
+### 缓存机制
+
+为了提高性能，EPUBime 提供了内置的缓存机制：
 
 ```java
-// 后台处理不阻塞UI
-public void processBooksInBackground(List<File> files) {
-    AsyncEpubProcessor processor = new AsyncEpubProcessor();
-    
-    processor.processMultipleBooksAsync(files, book -> {
-        // 更新UI（需要在UI线程中执行）
-        Platform.runLater(() -> {
-            updateProgress(book.getMetadata().getTitle());
-        });
-        return book;
-    })
-    .thenRun(() -> {
-        Platform.runLater(() -> {
-            showCompletionDialog();
-        });
-    });
-}
+// 启用缓存
+EpubReaderConfig config = new EpubReaderConfig()
+    .withCache(true);
 
-// 快速预览
-public void showBookPreview(File epubFile) {
-    try {
-        // 快速获取基本信息
-        EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
-        
-        previewTitle.setText(info.getTitle());
-        previewAuthor.setText(info.getAuthor());
-        previewChapterCount.setText(String.valueOf(info.getChapterCount()));
-        
-        // 获取封面（如果存在）
-        EpubResource cover = EpubReader.fromFile(epubFile).getCover();
-        if (cover != null) {
-            Image coverImage = new Image(new ByteArrayInputStream(cover.getData()));
-            previewCover.setImage(coverImage);
-        }
-    } catch (EpubParseException e) {
-        showErrorDialog("无法解析EPUB文件");
-    }
-}
+// 或使用自定义缓存配置
+EpubCacheManager cacheManager = EpubCacheManager.getInstance();
+cacheManager.setMaxCacheSize(100); // 最大缓存100本书籍
+cacheManager.setCacheTimeout(3600000); // 缓存超时1小时
+
+EpubBook book = reader.parse(config);
 ```
 
 ## 性能优化建议
 
-### 1. 内存使用优化
+### 1. 内存管理
+
+对于大文件或批量处理，建议合理配置内存：
 
 ```java
-// 大文件使用流式处理
-EpubReader.fromFile(largeEpubFile)
-    .withLazyLoading(true)  // 延迟加载
-    .streamChapters(processor);  // 流式处理
-
-// 批量处理使用异步
-AsyncEpubProcessor processor = new AsyncEpubProcessor();
-processor.processMultipleBooksAsync(files, processingFunction);
+EpubReaderConfig config = new EpubReaderConfig()
+    .withLazyLoading(true)        // 启用延迟加载
+    .withParallelProcessing(false); // 在内存受限时禁用并行处理
 ```
 
-### 2. 速度优化
+### 2. 批量处理
+
+处理多个文件时，使用缓存和适当的资源管理：
 
 ```java
-// 启用缓存避免重复解析
-EpubBook book = EpubReader.fromFile(epubFile)
-    .withCache(true)
-    .parse();
+EpubCacheManager cacheManager = EpubCacheManager.getInstance();
+cacheManager.clear(); // 在批量处理前清理缓存
 
-// 并行处理多个资源
-EpubReader.fromFile(epubFile)
-    .withParallelProcessing(true)
-    .processResources(resourceProcessor);
-```
+List<File> epubFiles = getEpubFiles(); // 获取EPUB文件列表
+List<EpubBook> books = new ArrayList<>();
 
-### 3. 资源管理
-
-```java
-// 及时关闭异步处理器
-try (AsyncEpubProcessor processor = new AsyncEpubProcessor()) {
-    // 使用处理器
-    processor.parseBookAsync(epubFile)
-        .thenAccept(this::processBook)
-        .join();
-} // 自动关闭
-
-// 合理配置线程池
-ExecutorService customExecutor = Executors.newFixedThreadPool(4);
-AsyncEpubProcessor processor = new AsyncEpubProcessor(customExecutor);
-```
-
-## 错误处理
-
-### 1. 异步操作错误处理
-
-```java
-processor.parseBookAsync(epubFile)
-    .exceptionally(throwable -> {
-        System.err.println("解析失败: " + throwable.getMessage());
-        return null;
-    })
-    .thenAccept(book -> {
-        if (book != null) {
-            processBook(book);
+for (File file : epubFiles) {
+    try {
+        EpubBook book = EpubReader.fromFile(file).parse();
+        books.add(book);
+        
+        // 定期清理以释放内存
+        if (books.size() % 10 == 0) {
+            System.gc(); // 建议垃圾回收
         }
-    });
-```
-
-### 2. 流式处理错误处理
-
-```java
-try {
-    EpubReader.fromFile(epubFile).streamChapters((chapter, stream) -> {
-        try {
-            processChapter(chapter, stream);
-        } catch (IOException e) {
-            System.err.println("处理章节失败: " + chapter.getTitle());
-        }
-    });
-} catch (EpubParseException e) {
-    System.err.println("EPUB解析失败: " + e.getMessage());
+    } catch (Exception e) {
+        System.err.println("处理文件失败: " + file.getName() + " - " + e.getMessage());
+    }
 }
 ```
 
-## 迁移指南
+### 3. 资源释放
 
-### 从旧API迁移
+确保在使用完资源后正确释放：
 
-#### 基本解析（保持不变）
 ```java
-// 旧代码 - 仍然有效
-EpubParser parser = new EpubParser(epubFile);
-EpubBook book = parser.parse();
-
-// 新代码 - 更简洁
-EpubBook book = EpubReader.fromFile(epubFile).parse();
+EpubBook book = reader.parse();
+try {
+    // 使用书籍对象
+    processBook(book);
+} finally {
+    // 清理资源
+    if (book != null) {
+        book.close(); // 释放相关资源
+    }
+}
 ```
 
-#### 增强功能（新增）
-```java
-// 新增功能
-MetadataEnhanced enhancedMetadata = new MetadataEnhanced(book.getMetadata());
-LocalDate parsedDate = enhancedMetadata.getParsedDate();
+## 常见问题解答
 
-// 新增异步支持
-AsyncEpubProcessor processor = new AsyncEpubProcessor();
-CompletableFuture<EpubBook> future = processor.parseBookAsync(epubFile);
-```
+### Q: 如何处理受保护的EPUB文件？
+A: EPUBime 目前不支持 DRM 保护的 EPUB 文件。您需要先移除 DRM 保护再进行解析。
 
-## 最佳实践
+### Q: 解析大文件时出现内存不足错误怎么办？
+A: 建议启用延迟加载和缓存机制，并适当调整 JVM 内存参数。
 
-1. **选择合适的API级别**：简单场景使用`EpubReader`，复杂处理使用增强类
-2. **性能优化**：大文件使用流式处理，批量处理使用异步操作
-3. **错误处理**：异步操作正确处理异常，流式处理妥善处理I/O异常
-4. **资源管理**：及时关闭异步处理器，合理配置线程池
-5. **内存管理**：及时释放大对象，使用延迟加载减少内存占用
+### Q: 如何获取章节的实际内容？
+A: 使用 `chapter.getContentAsString()` 方法获取章节的 HTML 内容。
 
-## 总结
+### Q: 支持 EPUB 3 的哪些特性？
+A: EPUBime 支持 EPUB 3.3 规范的大部分特性，包括导航文档、媒体覆盖、固定布局等。
 
-新的EPUBime API提供了：
+## API 参考
 
-- 🚀 **更简洁的语法**：Fluent API设计
-- ⚡ **更好的性能**：流式处理和异步操作
-- 🔧 **更丰富的功能**：增强的工具方法
-- 🛡️ **类型安全**：减少运行时错误
-- 🔄 **完全向后兼容**：现有代码无需修改
-
-无论是开发移动应用、Web应用还是桌面应用，新的API都能提供更好的开发体验和性能表现。
+详细的 API 文档请参阅 [API 参考](/api/)。
