@@ -4,9 +4,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EnhancedXmlUtilsTest {
 
@@ -21,20 +21,22 @@ public class EnhancedXmlUtilsTest {
 
         Document doc = XmlUtils.parseXml(xmlContent);
         
-        assertNotNull("Document should not be null", doc);
+        assertNotNull(doc, "Document should not be null");
         assertEquals("package", doc.selectFirst("package").tagName());
         assertEquals("Test Book", doc.selectFirst("title").text());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseXmlNull() {
-        XmlUtils.parseXml(null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            XmlUtils.parseXml(null);
+        });
     }
 
     @Test
     public void testParseXmlEmpty() {
         Document doc = XmlUtils.parseXml("");
-        assertNotNull("Document should not be null for empty content", doc);
+        assertNotNull(doc, "Document should not be null for empty content");
     }
 
     @Test
@@ -85,11 +87,11 @@ public class EnhancedXmlUtilsTest {
         Document doc = XmlUtils.parseXml(xml);
 
         Element titleElement = XmlUtils.selectFirst(doc, "title");
-        assertNotNull("Title element should be found", titleElement);
+        assertNotNull(titleElement, "Title element should be found");
         assertEquals("Book Title", titleElement.text());
 
         Element nonExistent = XmlUtils.selectFirst(doc, "non-existent");
-        assertNull("Non-existent element should return null", nonExistent);
+        assertNull(nonExistent, "Non-existent element should return null");
     }
 
     @Test
@@ -97,9 +99,9 @@ public class EnhancedXmlUtilsTest {
         String xml = "<package><title>Test</title></package>";
         Document doc = XmlUtils.parseXml(xml);
 
-        assertNull("Should return null for null document", XmlUtils.selectFirst(null, "title"));
-        assertNull("Should return null for null query", XmlUtils.selectFirst(doc, null));
-        assertNull("Should return null for both null", XmlUtils.selectFirst(null, null));
+        assertNull(XmlUtils.selectFirst(null, "title"), "Should return null for null document");
+        assertNull(XmlUtils.selectFirst(doc, null), "Should return null for null query");
+        assertNull(XmlUtils.selectFirst(null, null), "Should return null for both null");
     }
 
     @Test
@@ -113,14 +115,14 @@ public class EnhancedXmlUtilsTest {
         Document doc = XmlUtils.parseXml(xml);
 
         Elements creators = XmlUtils.select(doc, "creator");
-        assertNotNull("Creators should not be null", creators);
-        assertEquals("Should find 2 creators", 2, creators.size());
+        assertNotNull(creators, "Creators should not be null");
+        assertEquals(2, creators.size(), "Should find 2 creators");
         assertEquals("Author 1", creators.get(0).text());
         assertEquals("Author 2", creators.get(1).text());
 
         Elements nonExistent = XmlUtils.select(doc, "non-existent");
-        assertNotNull("Should return empty elements", nonExistent);
-        assertEquals("Should be empty", 0, nonExistent.size());
+        assertNotNull(nonExistent, "Should return empty elements");
+        assertEquals(0, nonExistent.size(), "Should be empty");
     }
 
     @Test
@@ -129,16 +131,16 @@ public class EnhancedXmlUtilsTest {
         Document doc = XmlUtils.parseXml(xml);
 
         Elements result1 = XmlUtils.select(null, "title");
-        assertNotNull("Should return empty elements for null document", result1);
-        assertEquals("Should be empty", 0, result1.size());
+        assertNotNull(result1, "Should return empty elements for null document");
+        assertEquals(0, result1.size(), "Should be empty");
 
         Elements result2 = XmlUtils.select(doc, null);
-        assertNotNull("Should return empty elements for null query", result2);
-        assertEquals("Should be empty", 0, result2.size());
+        assertNotNull(result2, "Should return empty elements for null query");
+        assertEquals(0, result2.size(), "Should be empty");
 
         Elements result3 = XmlUtils.select(null, null);
-        assertNotNull("Should return empty elements for both null", result3);
-        assertEquals("Should be empty", 0, result3.size());
+        assertNotNull(result3, "Should return empty elements for both null");
+        assertEquals(0, result3.size(), "Should be empty");
     }
 
     @Test
@@ -152,11 +154,11 @@ public class EnhancedXmlUtilsTest {
         Element metadata = doc.selectFirst("metadata");
 
         Element title = XmlUtils.selectFirst(metadata, "title");
-        assertNotNull("Title should be found in metadata", title);
+        assertNotNull(title, "Title should be found in metadata");
         assertEquals("Book Title", title.text());
 
         Element nonExistent = XmlUtils.selectFirst(metadata, "non-existent");
-        assertNull("Non-existent element should return null", nonExistent);
+        assertNull(nonExistent, "Non-existent element should return null");
     }
 
     @Test
@@ -165,9 +167,9 @@ public class EnhancedXmlUtilsTest {
         Document doc = XmlUtils.parseXml(xml);
         Element metadata = doc.selectFirst("metadata");
 
-        assertNull("Should return null for null element", XmlUtils.selectFirst(null, "title"));
-        assertNull("Should return null for null query", XmlUtils.selectFirst(metadata, null));
-        assertNull("Should return null for both null", XmlUtils.selectFirst(null, null));
+        assertNull(XmlUtils.selectFirst(null, "title"), "Should return null for null element");
+        assertNull(XmlUtils.selectFirst(metadata, null), "Should return null for null query");
+        assertNull(XmlUtils.selectFirst(null, null), "Should return null for both null");
     }
 
     @Test
@@ -180,12 +182,12 @@ public class EnhancedXmlUtilsTest {
         Element metadata = doc.selectFirst("metadata");
 
         Elements creators = XmlUtils.select(metadata, "creator");
-        assertNotNull("Creators should not be null", creators);
-        assertEquals("Should find 2 creators", 2, creators.size());
+        assertNotNull(creators, "Creators should not be null");
+        assertEquals(2, creators.size(), "Should find 2 creators");
 
         Elements nonExistent = XmlUtils.select(metadata, "non-existent");
-        assertNotNull("Should return empty elements", nonExistent);
-        assertEquals("Should be empty", 0, nonExistent.size());
+        assertNotNull(nonExistent, "Should return empty elements");
+        assertEquals(0, nonExistent.size(), "Should be empty");
     }
 
     @Test
@@ -195,16 +197,16 @@ public class EnhancedXmlUtilsTest {
         Element metadata = doc.selectFirst("metadata");
 
         Elements result1 = XmlUtils.select(null, "title");
-        assertNotNull("Should return empty elements for null element", result1);
-        assertEquals("Should be empty", 0, result1.size());
+        assertNotNull(result1, "Should return empty elements for null element");
+        assertEquals(0, result1.size(), "Should be empty");
 
         Elements result2 = XmlUtils.select(metadata, null);
-        assertNotNull("Should return empty elements for null query", result2);
-        assertEquals("Should be empty", 0, result2.size());
+        assertNotNull(result2, "Should return empty elements for null query");
+        assertEquals(0, result2.size(), "Should be empty");
 
         Elements result3 = XmlUtils.select(null, null);
-        assertNotNull("Should return empty elements for both null", result3);
-        assertEquals("Should be empty", 0, result3.size());
+        assertNotNull(result3, "Should return empty elements for both null");
+        assertEquals(0, result3.size(), "Should be empty");
     }
 
     @Test
@@ -220,8 +222,8 @@ public class EnhancedXmlUtilsTest {
         String xpath = XmlUtils.buildXPath(title);
         assertNotNull("XPath should not be null", xpath);
         // The XPath might not contain all elements depending on the implementation
-        assertTrue("XPath should not be empty", xpath.length() > 0);
-        assertTrue("XPath should contain title", xpath.contains("title"));
+        assertTrue(xpath.length() > 0, "XPath should not be empty");
+        assertTrue(xpath.contains("title"), "XPath should contain title");
     }
 
     @Test
@@ -235,8 +237,8 @@ public class EnhancedXmlUtilsTest {
         Element metadata = doc.selectFirst("metadata");
 
         String xpath = XmlUtils.buildXPath(metadata);
-        assertTrue("XPath should use id for elements with id attribute", 
-                  xpath.contains("[@id='meta1']"));
+        assertTrue(xpath.contains("[@id='meta1']"),
+                  "XPath should use id for elements with id attribute");
     }
 
     @Test
@@ -250,8 +252,8 @@ public class EnhancedXmlUtilsTest {
         Element metadata = doc.selectFirst("metadata");
 
         String xpath = XmlUtils.buildXPath(metadata);
-        assertTrue("XPath should use class for elements with class attribute", 
-                  xpath.contains("[@class='book-meta']"));
+        assertTrue(xpath.contains("[@class='book-meta']"),
+                  "XPath should use class for elements with class attribute");
     }
 
     @Test
@@ -267,12 +269,12 @@ public class EnhancedXmlUtilsTest {
 
         String info = XmlUtils.buildElementInfo(element);
         
-        assertTrue("Info should contain tag name", info.contains("Element: element"));
-        assertTrue("Info should contain attributes", info.contains("Attributes:"));
-        assertTrue("Info should contain id", info.contains("id='test-id'"));
-        assertTrue("Info should contain class", info.contains("class='test-class'"));
-        assertTrue("Info should contain data-value", info.contains("data-value='123'"));
-        assertTrue("Info should contain text", info.contains("[Text: 'Element Text']"));
+        assertTrue(info.contains("Element: element"), "Info should contain tag name");
+        assertTrue(info.contains("Attributes:"), "Info should contain attributes");
+        assertTrue(info.contains("id='test-id'"), "Info should contain id");
+        assertTrue(info.contains("class='test-class'"), "Info should contain class");
+        assertTrue(info.contains("data-value='123'"), "Info should contain data-value");
+        assertTrue(info.contains("[Text: 'Element Text']"), "Info should contain text");
     }
 
     @Test
@@ -292,10 +294,10 @@ public class EnhancedXmlUtilsTest {
 
         String info = XmlUtils.buildElementInfo(element);
         
-        assertTrue("Info should contain tag name", info.contains("Element: empty"));
-        assertTrue("Info should contain attributes", info.contains("Attributes:"));
-        assertTrue("Info should contain id", info.contains("id='test'"));
-        assertFalse("Info should not contain text for empty elements", info.contains("[Text:"));
+        assertTrue(info.contains("Element: empty"), "Info should contain tag name");
+        assertTrue(info.contains("Attributes:"), "Info should contain attributes");
+        assertTrue(info.contains("id='test'"), "Info should contain id");
+        assertFalse(info.contains("[Text:"), "Info should not contain text for empty elements");
     }
 
     @Test
@@ -306,8 +308,8 @@ public class EnhancedXmlUtilsTest {
 
         String info = XmlUtils.buildElementInfo(element);
         
-        assertFalse("Info should not contain long text", info.contains(longText));
-        assertTrue("Info should contain tag name", info.contains("Element: element"));
+        assertFalse(info.contains(longText), "Info should not contain long text");
+        assertTrue(info.contains("Element: element"), "Info should contain tag name");
     }
 
     @Test
@@ -320,16 +322,16 @@ public class EnhancedXmlUtilsTest {
     public void testTruncateContent() {
         String shortContent = "Short content";
         String truncated = XmlUtils.truncateContent(shortContent);
-        assertEquals("Short content should not be truncated", shortContent, truncated);
+        assertEquals(shortContent, truncated, "Short content should not be truncated");
 
         String longContent = "";
         for (int i = 0; i < 300; i++) {
             longContent += "a";
         }
         String truncatedLong = XmlUtils.truncateContent(longContent);
-        assertTrue("Long content should be truncated", truncatedLong.contains("... (truncated)"));
-        assertTrue("Truncated content should start with 'a'", truncatedLong.startsWith("a"));
-        assertTrue("Truncated content should be around 217 chars", truncatedLong.length() <= 220);
+        assertTrue(truncatedLong.contains("... (truncated)"), "Long content should be truncated");
+        assertTrue(truncatedLong.startsWith("a"), "Truncated content should start with 'a'");
+        assertTrue(truncatedLong.length() <= 220, "Truncated content should be around 217 chars");
     }
 
     @Test
@@ -344,11 +346,11 @@ public class EnhancedXmlUtilsTest {
         
         // Test with max length longer than content
         String truncated1 = XmlUtils.truncateContent(content, 100);
-        assertEquals("Content shorter than max should not be truncated", content, truncated1);
+        assertEquals(content, truncated1, "Content shorter than max should not be truncated");
 
         // Test with max length shorter than content
         String truncated2 = XmlUtils.truncateContent(content, 10);
-        assertTrue("Content should be truncated", truncated2.contains("... (truncated)"));
+        assertTrue(truncated2.contains("... (truncated)"), "Content should be truncated");
         assertEquals("This is a ... (truncated)", truncated2);
     }
 
@@ -363,9 +365,9 @@ public class EnhancedXmlUtilsTest {
         String xml = "<element id=\"test-id\" class=\"test-class\">Content</element>";
         Element element = Jsoup.parse(xml).selectFirst("element");
 
-        assertTrue("Should have id attribute", XmlUtils.hasAttribute(element, "id"));
-        assertTrue("Should have class attribute", XmlUtils.hasAttribute(element, "class"));
-        assertFalse("Should not have non-existent attribute", XmlUtils.hasAttribute(element, "non-existent"));
+        assertTrue(XmlUtils.hasAttribute(element, "id"), "Should have id attribute");
+        assertTrue(XmlUtils.hasAttribute(element, "class"), "Should have class attribute");
+        assertFalse(XmlUtils.hasAttribute(element, "non-existent"), "Should not have non-existent attribute");
     }
 
     @Test
@@ -373,9 +375,9 @@ public class EnhancedXmlUtilsTest {
         String xml = "<element id=\"test\">Content</element>";
         Element element = Jsoup.parse(xml).selectFirst("element");
 
-        assertFalse("Should return false for null element", XmlUtils.hasAttribute(null, "id"));
-        assertFalse("Should return false for null attribute name", XmlUtils.hasAttribute(element, null));
-        assertFalse("Should return false for both null", XmlUtils.hasAttribute(null, null));
+        assertFalse(XmlUtils.hasAttribute(null, "id"), "Should return false for null element");
+        assertFalse(XmlUtils.hasAttribute(element, null), "Should return false for null attribute name");
+        assertFalse(XmlUtils.hasAttribute(null, null), "Should return false for both null");
     }
 
     @Test
@@ -388,7 +390,7 @@ public class EnhancedXmlUtilsTest {
         Element parent = Jsoup.parse(xml).selectFirst("parent");
 
         int childCount = XmlUtils.getChildCount(parent);
-        assertEquals("Should have 3 children", 3, childCount);
+        assertEquals(3, childCount, "Should have 3 children");
     }
 
     @Test
@@ -397,29 +399,29 @@ public class EnhancedXmlUtilsTest {
         Element element = Jsoup.parse(xml).selectFirst("empty");
 
         int childCount = XmlUtils.getChildCount(element);
-        assertEquals("Should have 0 children", 0, childCount);
+        assertEquals(0, childCount, "Should have 0 children");
     }
 
     @Test
     public void testGetChildCountNullElement() {
         int childCount = XmlUtils.getChildCount(null);
-        assertEquals("Should return 0 for null element", 0, childCount);
+        assertEquals(0, childCount, "Should return 0 for null element");
     }
 
     @Test
     public void testHasChildren() {
         String xmlWithChildren = "<parent><child>Child</child></parent>";
         Element parent = Jsoup.parse(xmlWithChildren).selectFirst("parent");
-        assertTrue("Should have children", XmlUtils.hasChildren(parent));
+        assertTrue(XmlUtils.hasChildren(parent), "Should have children");
 
         String xmlWithoutChildren = "<empty></empty>";
         Element empty = Jsoup.parse(xmlWithoutChildren).selectFirst("empty");
-        assertFalse("Should not have children", XmlUtils.hasChildren(empty));
+        assertFalse(XmlUtils.hasChildren(empty), "Should not have children");
     }
 
     @Test
     public void testHasChildrenNullElement() {
-        assertFalse("Should return false for null element", XmlUtils.hasChildren(null));
+        assertFalse(XmlUtils.hasChildren(null), "Should return false for null element");
     }
 
     @Test
@@ -441,14 +443,14 @@ public class EnhancedXmlUtilsTest {
         
         // Test basic element selection
         Elements creators = XmlUtils.select(doc, "creator");
-        assertEquals("Should find 2 creators in simple XML", 2, creators.size());
+        assertEquals(2, creators.size(), "Should find 2 creators in simple XML");
 
         Element title = XmlUtils.selectFirst(doc, "title");
-        assertNotNull("Should find title element", title);
+        assertNotNull(title, "Should find title element");
         assertEquals("Test Book", XmlUtils.getText(title));
 
         Element firstItem = XmlUtils.selectFirst(doc, "item");
-        assertNotNull("Should find first item", firstItem);
+        assertNotNull(firstItem, "Should find first item");
         assertEquals("ncx", XmlUtils.getAttribute(firstItem, "id"));
         assertEquals("toc.ncx", XmlUtils.getAttribute(firstItem, "href"));
         
@@ -463,6 +465,6 @@ public class EnhancedXmlUtilsTest {
         
         Document complexDoc = XmlUtils.parseXml(complexXml);
         // 对于带命名空间的复杂XML，选择器可能无法正常工作，但解析应该成功
-        assertNotNull("Complex XML should be parsed successfully", complexDoc);
+        assertNotNull(complexDoc, "Complex XML should be parsed successfully");
     }
 }

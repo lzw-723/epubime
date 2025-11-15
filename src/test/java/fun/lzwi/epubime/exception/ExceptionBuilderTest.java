@@ -1,8 +1,8 @@
 package fun.lzwi.epubime.exception;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExceptionBuilderTest {
 
@@ -17,9 +17,9 @@ public class ExceptionBuilderTest {
         // 直接使用EpubFormatException的构造器，而不是ExceptionBuilder
         EpubFormatException exception = new EpubFormatException(message, fileName, filePath);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         // 注意：EpubFormatException使用固定的operation和errorCode
@@ -39,9 +39,9 @@ public class ExceptionBuilderTest {
         // 直接使用EpubFormatException的构造器，而不是ExceptionBuilder
         EpubFormatException exception = new EpubFormatException(message, fileName, filePath, cause);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         // 注意：EpubFormatException使用固定的operation和errorCode
@@ -59,21 +59,21 @@ public class ExceptionBuilderTest {
 
         // Test EpubZipException
         EpubZipException zipException = new EpubZipException(message, fileName, filePath);
-        assertNotNull("EpubZipException should not be null", zipException);
-        assertTrue("Should be instance of EpubZipException", 
-                  zipException instanceof EpubZipException);
+        assertNotNull(zipException, "EpubZipException should not be null");
+        assertTrue(zipException instanceof EpubZipException,
+                  "Should be instance of EpubZipException");
 
         // Test EpubResourceException
         EpubResourceException resourceException = new EpubResourceException(message, fileName, filePath);
-        assertNotNull("EpubResourceException should not be null", resourceException);
-        assertTrue("Should be instance of EpubResourceException", 
-                  resourceException instanceof EpubResourceException);
+        assertNotNull(resourceException, "EpubResourceException should not be null");
+        assertTrue(resourceException instanceof EpubResourceException,
+                  "Should be instance of EpubResourceException");
 
         // Test EpubPathValidationException
         EpubPathValidationException pathException = EpubPathValidationException.createForCompatibility(message, fileName, filePath);
-        assertNotNull("EpubPathValidationException should not be null", pathException);
-        assertTrue("Should be instance of EpubPathValidationException", 
-                  pathException instanceof EpubPathValidationException);
+        assertNotNull(pathException, "EpubPathValidationException should not be null");
+        assertTrue(pathException instanceof EpubPathValidationException,
+                  "Should be instance of EpubPathValidationException");
     }
 
     @Test
@@ -87,13 +87,13 @@ public class ExceptionBuilderTest {
         EpubParseException.Builder builder = ExceptionBuilder.createBuilder(
             message, fileName, filePath, operation, errorCode);
 
-        assertNotNull("Builder should not be null", builder);
+        assertNotNull(builder, "Builder should not be null");
         
         // Build the exception to verify all values are set correctly
         EpubParseException exception = new EpubParseException(builder);
-        
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());
@@ -112,13 +112,13 @@ public class ExceptionBuilderTest {
         EpubParseException.Builder builder = ExceptionBuilder.createBuilderWithSuggestion(
             message, fileName, filePath, operation, errorCode, recoverySuggestion);
 
-        assertNotNull("Builder should not be null", builder);
-        
+        assertNotNull(builder, "Builder should not be null");
+
         // Build the exception to verify all values are set correctly
         EpubParseException exception = new EpubParseException(builder);
-        
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());
@@ -126,13 +126,15 @@ public class ExceptionBuilderTest {
         assertEquals(recoverySuggestion, exception.getRecoverySuggestion());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testBuildExceptionWithInvalidClass() {
         // Try to build an exception with ExceptionBuilder and an invalid class
         // This should fail because InvalidExceptionClass doesn't have Builder constructor
-        ExceptionBuilder.buildException(
-            InvalidExceptionClass.class, "message", "file", "path", "op", 
-            EpubParseException.ErrorCode.INTERNAL_ERROR);
+        assertThrows(RuntimeException.class, () -> {
+            ExceptionBuilder.buildException(
+                InvalidExceptionClass.class, "message", "file", "path", "op",
+                EpubParseException.ErrorCode.INTERNAL_ERROR);
+        });
     }
 
     @Test
@@ -147,13 +149,13 @@ public class ExceptionBuilderTest {
         EpubParseException.Builder builder = ExceptionBuilder.createBuilder(
             message, fileName, filePath, operation, errorCode);
 
-        assertNotNull("Builder should not be null", builder);
-        
-        // Build the exception using the builder
+        assertNotNull(builder, "Builder should not be null");
+
+        // Build the exception to verify all values are set correctly
         EpubParseException exception = new EpubParseException(builder);
-        
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());
@@ -175,12 +177,12 @@ public class ExceptionBuilderTest {
         EpubParseException exception1 = new EpubParseException(builder);
         EpubParseException exception2 = new EpubParseException(builder);
 
-        assertNotNull("First exception should not be null", exception1);
-        assertNotNull("Second exception should not be null", exception2);
-        assertEquals("Both exceptions should have the same message", 
-                    exception1.getMessage(), exception2.getMessage());
-        assertEquals("Both exceptions should have the same file name", 
-                    exception1.getFileName(), exception2.getFileName());
+        assertNotNull(exception1, "First exception should not be null");
+        assertNotNull(exception2, "Second exception should not be null");
+        assertEquals(exception1.getMessage(), exception2.getMessage(),
+                    "Both exceptions should have the same message");
+        assertEquals(exception1.getFileName(), exception2.getFileName(),
+                    "Both exceptions should have the same file name");
     }
 
     @Test
@@ -198,8 +200,8 @@ public class ExceptionBuilderTest {
 
         EpubParseException exception = new EpubParseException(builder);
 
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());

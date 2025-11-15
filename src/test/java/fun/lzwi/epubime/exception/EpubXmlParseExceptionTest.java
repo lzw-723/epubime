@@ -2,9 +2,9 @@ package fun.lzwi.epubime.exception;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubXmlParseExceptionTest {
 
@@ -20,8 +20,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             message, fileName, filePath, xpath, lineNumber, columnNumber);
 
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(fileName, exception.getFilePath()); // 简化实现中getFilePath()返回文件名
         assertNull(exception.getXPath());
@@ -46,8 +46,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             message, fileName, filePath, element, expectedStructure);
 
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(fileName, exception.getFilePath()); // 简化实现中getFilePath()返回文件名
         assertNull(exception.getExpectedStructure());
@@ -67,8 +67,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             message, fileName, filePath, (Element) null, expectedStructure);
 
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertNull(exception.getXPath());
         assertNull(exception.getElementInfo());
         assertNull(exception.getActualContent());
@@ -86,8 +86,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             message, fileName, filePath, xpath, expectedStructure, actualContent);
 
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(fileName, exception.getFilePath()); // 简化实现中getFilePath()返回文件名
         assertNull(exception.getXPath());
@@ -129,8 +129,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             fileName, filePath, missingElement, parentElement);
 
-        assertTrue("Message should contain missing element text", 
-                  exception.getMessage().contains("Missing required XML element: title"));
+        assertTrue(exception.getMessage().contains("Missing required XML element: title"),
+                  "Message should contain missing element text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(fileName, exception.getFilePath()); // 简化实现中getFilePath()返回文件名
         assertNull(exception.getXPath());
@@ -147,8 +147,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             fileName, filePath, missingElement, (Element) null);
 
-        assertTrue("Message should contain missing element text", 
-                  exception.getMessage().contains("Missing required XML element: package"));
+        assertTrue(exception.getMessage().contains("Missing required XML element: package"),
+                  "Message should contain missing element text");
         assertNull(exception.getXPath());
         assertNull(exception.getExpectedStructure());
         assertNull(exception.getActualContent());
@@ -168,8 +168,8 @@ public class EpubXmlParseExceptionTest {
         EpubXmlParseException exception = new EpubXmlParseException(
             fileName, filePath, element, attributeName, expectedValue, actualValue);
 
-        assertTrue("Message should contain invalid attribute text", 
-                  exception.getMessage().contains("Invalid XML attribute: src"));
+        assertTrue(exception.getMessage().contains("Invalid XML attribute: src"),
+                  "Message should contain invalid attribute text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(fileName, exception.getFilePath()); // 简化实现中getFilePath()返回文件名
         assertNull(exception.getXPath());

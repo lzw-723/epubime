@@ -4,20 +4,20 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SimplifiedEpubBookEnhancedTest {
 
     private EpubBookEnhanced enhancedBook;
     private File testFile;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // Create a simple test book
         Metadata metadata = new Metadata();

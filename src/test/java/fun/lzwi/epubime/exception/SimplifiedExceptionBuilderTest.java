@@ -1,8 +1,8 @@
 package fun.lzwi.epubime.exception;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SimplifiedExceptionBuilderTest {
 
@@ -17,13 +17,13 @@ public class SimplifiedExceptionBuilderTest {
         EpubParseException.Builder builder = ExceptionBuilder.createBuilder(
             message, fileName, filePath, operation, errorCode);
 
-        assertNotNull("Builder should not be null", builder);
-        
+        assertNotNull(builder, "Builder should not be null");
+
         // Build the exception to verify all values are set correctly
         EpubParseException exception = new EpubParseException(builder);
-        
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());
@@ -42,13 +42,13 @@ public class SimplifiedExceptionBuilderTest {
         EpubParseException.Builder builder = ExceptionBuilder.createBuilderWithSuggestion(
             message, fileName, filePath, operation, errorCode, recoverySuggestion);
 
-        assertNotNull("Builder should not be null", builder);
-        
+        assertNotNull(builder, "Builder should not be null");
+
         // Build the exception to verify all values are set correctly
         EpubParseException exception = new EpubParseException(builder);
-        
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());
@@ -71,8 +71,8 @@ public class SimplifiedExceptionBuilderTest {
 
         EpubParseException exception = new EpubParseException(builder);
 
-        assertTrue("Message should contain the expected text", 
-                  exception.getMessage().contains(message));
+        assertTrue(exception.getMessage().contains(message),
+                  "Message should contain the expected text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals(operation, exception.getOperation());
@@ -101,13 +101,13 @@ public class SimplifiedExceptionBuilderTest {
         EpubParseException exception1 = new EpubParseException(builder);
         EpubParseException exception2 = new EpubParseException(builder);
 
-        assertNotNull("First exception should not be null", exception1);
-        assertNotNull("Second exception should not be null", exception2);
-        assertTrue("Both exceptions should have the same message", 
-                    exception1.getMessage().contains(message));
-        assertTrue("Both exceptions should have the same message", 
-                    exception2.getMessage().contains(message));
-        assertEquals("Both exceptions should have the same file name", 
-                    exception1.getFileName(), exception2.getFileName());
+        assertNotNull(exception1, "First exception should not be null");
+        assertNotNull(exception2, "Second exception should not be null");
+        assertTrue(exception1.getMessage().contains(message),
+                    "Both exceptions should have the same message");
+        assertTrue(exception2.getMessage().contains(message),
+                    "Both exceptions should have the same message");
+        assertEquals(exception1.getFileName(), exception2.getFileName(),
+                    "Both exceptions should have the same file name");
     }
 }

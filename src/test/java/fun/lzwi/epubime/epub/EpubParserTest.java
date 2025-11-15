@@ -10,7 +10,7 @@ import fun.lzwi.epubime.epub.EpubStreamProcessor;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubParserTest {
 
@@ -45,12 +45,14 @@ public class EpubParserTest {
         assertEquals("application/epub+zip", content);
     }
     
-    @Test(expected = EpubPathValidationException.class)
-    public void readEpubContentWithTraversalPathShouldThrowException() throws EpubParseException, BaseEpubException {
+    @Test
+    public void readEpubContentWithTraversalPathShouldThrowException() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         // 测试使用目录穿越路径时应抛出异常
         EpubFileReader fileReader = new EpubFileReader(epubFile);
-        fileReader.readContent("../../../etc/passwd");
+        assertThrows(EpubPathValidationException.class, () -> {
+            fileReader.readContent("../../../etc/passwd");
+        });
     }
 
     @Test
@@ -364,18 +366,20 @@ public class EpubParserTest {
             }
         });
 
-        assertTrue("HTML chapter content should be processed", processed[0]);
+        assertTrue(processed[0], "HTML chapter content should be processed");
         assertEquals("application/epub+zip", content.toString());
     }
     
-    @Test(expected = EpubParseException.class)
-    public void processHtmlChapterContentWithTraversalPathShouldThrowException() throws Exception {
+    @Test
+    public void processHtmlChapterContentWithTraversalPathShouldThrowException() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         // 测试使用目录穿越路径时应抛出异常
         EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
-        streamProcessor.processHtmlChapter("../../../etc/passwd", (Consumer<InputStream>) inputStream -> {
-            // 不应该执行到这里
-            fail("Should have thrown EpubParseException");
+        assertThrows(EpubParseException.class, () -> {
+            streamProcessor.processHtmlChapter("../../../etc/passwd", (Consumer<InputStream>) inputStream -> {
+                // 不应该执行到这里
+                fail("Should have thrown EpubParseException");
+            });
         });
     }
 
@@ -403,20 +407,22 @@ public class EpubParserTest {
             }
         });
 
-        assertEquals("Should process 1 file", 1, processedCount[0]);
+        assertEquals(1, processedCount[0], "Should process 1 file");
         assertTrue(contents.containsKey("mimetype"));
         assertEquals("application/epub+zip", contents.get("mimetype"));
     }
     
-    @Test(expected = EpubParseException.class)
-    public void processMultipleHtmlChaptersWithTraversalPathShouldThrowException() throws Exception {
+    @Test
+    public void processMultipleHtmlChaptersWithTraversalPathShouldThrowException() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         java.util.List<String> filePaths = java.util.Arrays.asList("mimetype", "../../../etc/passwd");
         // 测试使用目录穿越路径时应抛出异常
         EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
-        streamProcessor.processMultipleHtmlChapters(filePaths, (BiConsumer<String, InputStream>) (fileName, inputStream) -> {
-            // 不应该执行到这里
-            fail("Should have thrown EpubParseException");
+        assertThrows(EpubParseException.class, () -> {
+            streamProcessor.processMultipleHtmlChapters(filePaths, (BiConsumer<String, InputStream>) (fileName, inputStream) -> {
+                // 不应该执行到这里
+                fail("Should have thrown EpubParseException");
+            });
         });
     }
     

@@ -2,13 +2,13 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.exception.BaseEpubException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubBookTest {
 
@@ -156,8 +156,8 @@ public class EpubBookTest {
 
         // 验证资源数据已加载
         byte[] data = testResource.getData();
-        assertNotNull("Resource data should be loaded", data);
-        assertTrue("Resource data should have content", data.length > 0);
+        assertNotNull(data, "Resource data should be loaded");
+        assertTrue(data.length > 0, "Resource data should have content");
     }
 
     @Test
@@ -252,9 +252,9 @@ public class EpubBookTest {
 
                     // 不实际读取输入流内容，只是验证可以访问
 
-                    assertNotNull("Chapter should not be null", chapter);
+                    assertNotNull(chapter, "Chapter should not be null");
 
-                    assertNotNull("InputStream should not be null", inputStream);
+                    assertNotNull(inputStream, "InputStream should not be null");
 
                 }
 
@@ -262,7 +262,7 @@ public class EpubBookTest {
 
             
 
-            assertTrue("Processed count should be greater than or equal to 0", processedCount[0] >= 0);
+            assertTrue(processedCount[0] >= 0, "Processed count should be greater than or equal to 0");
 
         }
 

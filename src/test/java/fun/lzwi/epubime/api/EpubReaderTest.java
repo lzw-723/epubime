@@ -6,9 +6,9 @@ import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.epubime.exception.BaseEpubException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,20 +19,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubReaderTest {
     
     private File testEpubFile;
     private AsyncEpubProcessor asyncProcessor;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         testEpubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         asyncProcessor = new AsyncEpubProcessor();
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
         if (asyncProcessor != null) {
             asyncProcessor.shutdown();
@@ -131,7 +131,7 @@ public class EpubReaderTest {
         
         // If we get here, streaming worked
         if (processingSucceeded.get()) {
-            assertTrue("Expected at least one chapter to be processed", chapterCount.get() > 0);
+            assertTrue(chapterCount.get() > 0, "Expected at least one chapter to be processed");
         } else {
             // No chapters were processed, but no exception was thrown
             // This might happen if the EPUB has no processable chapters
@@ -444,7 +444,7 @@ public class EpubReaderTest {
             processingFuture.get(); // Wait for completion
             // If we get here, async processing worked
             if (processingSucceeded.get()) {
-                assertTrue("Expected at least one chapter to be processed", processedChapters.get() > 0);
+                assertTrue(processedChapters.get() > 0, "Expected at least one chapter to be processed");
             } else {
                 System.out.println("No chapters were processed in async mode, but no error occurred");
             }
@@ -453,7 +453,7 @@ public class EpubReaderTest {
             // This is acceptable for some EPUB files
             System.out.println("Async streaming failed (acceptable): " + e.getMessage());
             // Don't fail the test, just ensure the exception was properly handled
-            assertTrue("Exception should be properly wrapped", e.getCause() instanceof RuntimeException);
+            assertTrue(e.getCause() instanceof RuntimeException, "Exception should be properly wrapped");
         }
     }
     
@@ -506,16 +506,20 @@ public class EpubReaderTest {
         assertTrue(resourceCount >= 0);
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNullFile() {
         // Test null file handling
-        EpubReader.fromFile((File) null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            EpubReader.fromFile((File) null);
+        });
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNullStringPath() {
         // Test null string path handling
-        EpubReader.fromFile((String) null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            EpubReader.fromFile((String) null);
+        });
     }
 
     @Test
@@ -562,7 +566,7 @@ public class EpubReaderTest {
                 );
 
                 processFuture.get(); // Wait for completion
-                assertTrue("Chapter should have been processed", processed.get());
+                assertTrue(processed.get(), "Chapter should have been processed");
             }
         }
     }
@@ -581,7 +585,7 @@ public class EpubReaderTest {
         );
 
         processFuture.get(); // Wait for completion
-        assertTrue("Should have processed at least some resources", resourceCount.get() >= 0);
+        assertTrue(resourceCount.get() >= 0, "Should have processed at least some resources");
     }
 
     @Test
@@ -653,7 +657,7 @@ public class EpubReaderTest {
                         }
                     });
 
-                    assertTrue("Chapter should have been processed", processed.get());
+                assertTrue(processed.get(), "Chapter should have been processed");
                 } catch (Exception e) {
                     // Streaming may fail for some EPUBs, acceptable
                     System.out.println("Streaming specific chapter failed (acceptable): " + e.getMessage());
@@ -673,7 +677,7 @@ public class EpubReaderTest {
                 return null;
             });
 
-            assertTrue("Should have processed at least some resources", resourceCount.get() >= 0);
+        assertTrue(resourceCount.get() >= 0, "Should have processed at least some resources");
         } catch (Exception e) {
             // Processing may fail, acceptable
             System.out.println("Resource processing failed (acceptable): " + e.getMessage());

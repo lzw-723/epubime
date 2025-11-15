@@ -2,9 +2,9 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.exception.EpubFormatException;
 import fun.lzwi.epubime.exception.EpubParseException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EnhancedEpubFormatExceptionTest {
 
@@ -15,9 +15,9 @@ public class EnhancedEpubFormatExceptionTest {
 
         EpubFormatException exception = EpubFormatException.missingMimetype(fileName, filePath);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain mimetype text", 
-                  exception.getMessage().contains("Missing required mimetype file"));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains("Missing required mimetype file"),
+                  "Message should contain mimetype text");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals("mimetypeValidation", exception.getOperation());
@@ -33,9 +33,9 @@ public class EnhancedEpubFormatExceptionTest {
 
         EpubFormatException exception = EpubFormatException.invalidContainer(fileName, filePath, details);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain details", 
-                  exception.getMessage().contains("Invalid container.xml: " + details));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains("Invalid container.xml: " + details),
+                  "Message should contain details");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals("containerValidation", exception.getOperation());
@@ -52,9 +52,9 @@ public class EnhancedEpubFormatExceptionTest {
 
         EpubFormatException exception = EpubFormatException.invalidOpf(fileName, filePath, opfPath, details);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain details", 
-                  exception.getMessage().contains("Invalid OPF file: " + details));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains("Invalid OPF file: " + details),
+                  "Message should contain details");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals("opfValidation", exception.getOperation());
@@ -71,9 +71,9 @@ public class EnhancedEpubFormatExceptionTest {
 
         EpubFormatException exception = EpubFormatException.invalidNcx(fileName, filePath, ncxPath, details);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain details", 
-                  exception.getMessage().contains("Invalid NCX file: " + details));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains("Invalid NCX file: " + details),
+                  "Message should contain details");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals("ncxValidation", exception.getOperation());
@@ -90,9 +90,9 @@ public class EnhancedEpubFormatExceptionTest {
 
         EpubFormatException exception = EpubFormatException.invalidNav(fileName, filePath, navPath, details);
 
-        assertNotNull("Exception should not be null", exception);
-        assertTrue("Message should contain details", 
-                  exception.getMessage().contains("Invalid NAV file: " + details));
+        assertNotNull(exception, "Exception should not be null");
+        assertTrue(exception.getMessage().contains("Invalid NAV file: " + details),
+                  "Message should contain details");
         assertEquals(fileName, exception.getFileName());
         assertEquals(filePath, exception.getFilePath());
         assertEquals("navValidation", exception.getOperation());
@@ -104,44 +104,44 @@ public class EnhancedEpubFormatExceptionTest {
     public void testStaticFactoryMethodsWithNullValues() {
         // Test with null values to ensure robustness
         EpubFormatException exception1 = EpubFormatException.missingMimetype(null, null);
-        assertNotNull("Exception should not be null", exception1);
+        assertNotNull(exception1, "Exception should not be null");
         // 消息格式包含错误码和详细信息
-        assertTrue("Message should contain expected text", 
-                  exception1.getMessage().contains("Missing required mimetype file"));
+        assertTrue(exception1.getMessage().contains("Missing required mimetype file"),
+                  "Message should contain expected text");
 
         EpubFormatException exception2 = EpubFormatException.invalidContainer(null, null, null);
-        assertNotNull("Exception should not be null", exception2);
-        assertTrue("Message should handle null details", 
-                  exception2.getMessage().contains("Invalid container.xml:"));
+        assertNotNull(exception2, "Exception should not be null");
+        assertTrue(exception2.getMessage().contains("Invalid container.xml:"),
+                  "Message should handle null details");
 
         EpubFormatException exception3 = EpubFormatException.invalidOpf(null, null, null, null);
-        assertNotNull("Exception should not be null", exception3);
-        assertTrue("Message should handle null details", 
-                  exception3.getMessage().contains("Invalid OPF file:"));
+        assertNotNull(exception3, "Exception should not be null");
+        assertTrue(exception3.getMessage().contains("Invalid OPF file:"),
+                  "Message should handle null details");
 
         EpubFormatException exception4 = EpubFormatException.invalidNcx(null, null, null, null);
-        assertNotNull("Exception should not be null", exception4);
-        assertTrue("Message should handle null details", 
-                  exception4.getMessage().contains("Invalid NCX file:"));
+        assertNotNull(exception4, "Exception should not be null");
+        assertTrue(exception4.getMessage().contains("Invalid NCX file:"),
+                  "Message should handle null details");
 
         EpubFormatException exception5 = EpubFormatException.invalidNav(null, null, null, null);
-        assertNotNull("Exception should not be null", exception5);
-        assertTrue("Message should handle null details", 
-                  exception5.getMessage().contains("Invalid NAV file:"));
+        assertNotNull(exception5, "Exception should not be null");
+        assertTrue(exception5.getMessage().contains("Invalid NAV file:"),
+                  "Message should handle null details");
     }
 
     @Test
     public void testStaticFactoryMethodsWithEmptyStrings() {
         // Test with empty strings
         EpubFormatException exception1 = EpubFormatException.missingMimetype("", "");
-        assertNotNull("Exception should not be null", exception1);
-        assertTrue("Message should contain expected text", 
-                  exception1.getMessage().contains("Missing required mimetype file"));
+        assertNotNull(exception1, "Exception should not be null");
+        assertTrue(exception1.getMessage().contains("Missing required mimetype file"),
+                  "Message should contain expected text");
 
         EpubFormatException exception2 = EpubFormatException.invalidContainer("", "", "");
-        assertNotNull("Exception should not be null", exception2);
-        assertTrue("Message should handle empty details", 
-                  exception2.getMessage().contains("Invalid container.xml:"));
+        assertNotNull(exception2, "Exception should not be null");
+        assertTrue(exception2.getMessage().contains("Invalid container.xml:"),
+                  "Message should handle empty details");
     }
 
     @Test

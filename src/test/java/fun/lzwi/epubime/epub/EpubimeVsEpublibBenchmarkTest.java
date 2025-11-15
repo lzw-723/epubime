@@ -6,7 +6,7 @@ import fun.lzwi.epubime.epub.EpubFileReader;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Performance benchmark tests comparing EPUBime library with epublib

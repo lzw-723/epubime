@@ -5,7 +5,7 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubParser;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import fun.lzwi.epubime.zip.ZipUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 线程安全测试类
@@ -84,10 +84,10 @@ public class ThreadSafetyTest {
         System.out.println("Error count: " + errorCount.get());
         
         // 验证结果
-        assertEquals("Should have no errors", 0, errorCount.get());
-        assertTrue("Should have successful operations", successCount.get() > 0);
+        assertEquals(0, errorCount.get(), "Should have no errors");
+        assertTrue(successCount.get() > 0, "Should have successful operations");
     }
-    
+
     @Test
     public void testZipFileManagerThreadSafety() throws InterruptedException, ExecutionException {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -142,12 +142,12 @@ public class ThreadSafetyTest {
         System.out.println("ZIP File Manager Thread Safety Test:");
         System.out.println("Success count: " + successCount.get());
         System.out.println("Error count: " + errorCount.get());
-        
+
         // 验证结果
-        assertEquals("Should have no errors", 0, errorCount.get());
-        assertTrue("Should have successful operations", successCount.get() > 0);
+        assertEquals(0, errorCount.get(), "Should have no errors");
+        assertTrue(successCount.get() > 0, "Should have successful operations");
     }
-    
+
     @Test
     public void testEpubParserThreadSafety() throws InterruptedException, ExecutionException {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -195,10 +195,10 @@ public class ThreadSafetyTest {
         System.out.println("Error count: " + errorCount.get());
         
         // 验证结果
-        assertTrue("Should have some successful operations", successCount.get() > 0);
+        assertTrue(successCount.get() > 0, "Should have some successful operations");
         // 允许一些错误，因为并发解析可能会有资源竞争
-        assertTrue("Error rate should be reasonable", 
-                   errorCount.get() < successCount.get() * 0.1); // 错误率应小于10%
+        assertTrue(errorCount.get() < successCount.get() * 0.1,
+                   "Error rate should be reasonable"); // 错误率应小于10%
     }
     
     @Test
@@ -263,8 +263,8 @@ public class ThreadSafetyTest {
         System.out.println("Conflict count: " + conflictCount.get());
         
         // 在当前的同步实现下，冲突应该很少
-        assertTrue("Should have minimal conflicts with proper synchronization", 
-                   conflictCount.get() <= THREAD_COUNT * 0.1); // 允许最多10%的冲突率
+        assertTrue(conflictCount.get() <= THREAD_COUNT * 0.1,
+                   "Should have minimal conflicts with proper synchronization"); // 允许最多10%的冲突率
     }
     
     /**
@@ -275,7 +275,7 @@ public class ThreadSafetyTest {
         if (!epubFile.exists()) {
             epubFile = new File("target/test-classes/fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         }
-        assertTrue("EPUB file should exist", epubFile.exists());
+        assertTrue(epubFile.exists(), "EPUB file should exist");
         return epubFile;
     }
 }

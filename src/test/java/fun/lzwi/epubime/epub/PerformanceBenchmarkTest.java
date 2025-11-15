@@ -3,18 +3,17 @@ package fun.lzwi.epubime.epub;
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.epub.EpubFileReader;
-import fun.lzwi.epubime.exception.EpubParseException;
-import fun.lzwi.epubime.exception.BaseEpubException;
+import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.zip.ZipFileManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Performance benchmark tests for EPUBime library

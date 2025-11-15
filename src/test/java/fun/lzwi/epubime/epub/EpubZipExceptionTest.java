@@ -1,9 +1,9 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.exception.EpubZipException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubZipExceptionTest {
 

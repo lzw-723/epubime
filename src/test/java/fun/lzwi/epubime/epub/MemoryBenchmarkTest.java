@@ -8,7 +8,7 @@ import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +16,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Memory benchmark tests for EPUBime library
@@ -87,7 +87,7 @@ public class MemoryBenchmarkTest {
         memoryResults.put("parse_full_epub_memory", memoryUsed);
 
         // Memory threshold check (reasonable limit for a small EPUB file)
-        assertTrue("Memory usage exceeds 50 MB, may indicate memory leak", memoryUsed < 50 * 1024 * 1024L); // 50 MB
+        assertTrue(memoryUsed < 50 * 1024 * 1024L, "Memory usage exceeds 50 MB, may indicate memory leak"); // 50 MB
     }
 
     /**
@@ -114,7 +114,7 @@ public class MemoryBenchmarkTest {
         memoryResults.put("read_epub_content_memory", memoryUsed);
 
         // Memory threshold check
-        assertTrue("Memory usage exceeds 10 MB, may indicate memory leak", memoryUsed < 10 * 1024 * 1024L); // 10 MB
+        assertTrue(memoryUsed < 10 * 1024 * 1024L, "Memory usage exceeds 10 MB, may indicate memory leak"); // 10 MB
     }
 
     /**
@@ -144,7 +144,7 @@ public class MemoryBenchmarkTest {
         memoryResults.put("parse_metadata_memory", memoryUsed);
 
         // Memory threshold check
-        assertTrue("Memory usage exceeds 5 MB, may indicate memory leak", memoryUsed < 5 * 1024 * 1024L); // 5 MB
+        assertTrue(memoryUsed < 5 * 1024 * 1024L, "Memory usage exceeds 5 MB, may indicate memory leak"); // 5 MB
     }
 
     /**
@@ -187,8 +187,8 @@ public class MemoryBenchmarkTest {
 
         // Cache should use less memory on second parse
         if (memoryUsedFirst > 0) {
-            assertTrue("Cached parse should use less or equal memory than first parse",
-                       memoryUsedSecond <= memoryUsedFirst);
+            assertTrue(memoryUsedSecond <= memoryUsedFirst,
+                       "Cached parse should use less or equal memory than first parse");
         }
     }
 

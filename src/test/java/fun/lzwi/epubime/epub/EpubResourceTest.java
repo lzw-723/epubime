@@ -1,13 +1,13 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubResourceTest {
 
@@ -26,14 +26,14 @@ public class EpubResourceTest {
         
         // 验证可以通过流访问资源
         try (InputStream inputStream = resource.getInputStream()) {
-            assertNotNull("InputStream should not be null for valid resource", inputStream);
-            assertTrue("InputStream should be able to read data", inputStream.read() != -1);
+            assertNotNull(inputStream, "InputStream should not be null for valid resource");
+            assertTrue(inputStream.read() != -1, "InputStream should be able to read data");
         }
         
         // 验证getData()仍然可以按需加载数据
         byte[] data = resource.getData();
-        assertNotNull("Data should be available when requested", data);
-        assertTrue("Data array should have content", data.length > 0);
+        assertNotNull(data, "Data should be available when requested");
+        assertTrue(data.length > 0, "Data array should have content");
     }
 
     @Test
@@ -45,12 +45,12 @@ public class EpubResourceTest {
         
         // 当epubFile为null时，getInputStream应该返回null
         try (InputStream inputStream = resource.getInputStream()) {
-            assertNull("InputStream should be null when epubFile is null", inputStream);
+            assertNull(inputStream, "InputStream should be null when epubFile is null");
         }
-        
+
         // 当epubFile为null时，getData也应该返回null
         byte[] data = resource.getData();
-        assertNull("Data should be null when epubFile is null", data);
+        assertNull(data, "Data should be null when epubFile is null");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class EpubResourceTest {
         
         // 当href为null时，getInputStream应该返回null
         try (InputStream inputStream = resource.getInputStream()) {
-            assertNull("InputStream should be null when href is null", inputStream);
+            assertNull(inputStream, "InputStream should be null when href is null");
         }
     }
 
@@ -89,8 +89,8 @@ public class EpubResourceTest {
 
         // 验证资源数据已加载
         byte[] data = testResource.getData();
-        assertNotNull("Resource data should be loaded", data);
-        assertTrue("Resource data should have content", data.length > 0);
+        assertNotNull(data, "Resource data should be loaded");
+        assertTrue(data.length > 0, "Resource data should have content");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class EpubResourceTest {
         EpubResource.loadResourceData(emptyResources, epubFile);
 
         // 验证空列表仍为空
-        assertTrue("Resource list should remain empty", emptyResources.isEmpty());
+        assertTrue(emptyResources.isEmpty(), "Resource list should remain empty");
     }
     
     @Test
@@ -133,7 +133,7 @@ public class EpubResourceTest {
             }
         });
         
-        assertTrue("Resource content should be processed", processed[0]);
+        assertTrue(processed[0], "Resource content should be processed");
         assertEquals("application/epub+zip", content.toString());
     }
     

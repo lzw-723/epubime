@@ -5,9 +5,9 @@ import fun.lzwi.epubime.api.EpubReaderConfig;
 import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.epubime.exception.BaseEpubException;
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 
 /**
@@ -17,7 +17,7 @@ public class SimpleFunctionTest {
     
     private File testFile;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         // Use actual test file from project
         testFile = new File("src/test/resources/fun/lzwi/epubime/epub/《坟》鲁迅.epub");
@@ -33,27 +33,27 @@ public class SimpleFunctionTest {
         EpubReaderConfig config = new EpubReaderConfig().withCache(false);
         EpubBook book = EpubReader.fromFile(testFile, config).parse();
 
-        assertNotNull("Book should not be null", book);
+        assertNotNull(book, "Book should not be null");
 
         // Test metadata
         Metadata metadata = book.getMetadata();
-        assertNotNull("Metadata should not be null", metadata);
+        assertNotNull(metadata, "Metadata should not be null");
 
         // Test chapters
         int chapterCount = book.getChapters().size();
-        assertTrue("Should have chapters", chapterCount > 0);
+        assertTrue(chapterCount > 0, "Should have chapters");
 
         // Test resources
         int resourceCount = book.getResources().size();
-        assertTrue("Should have resources", resourceCount > 0);
+        assertTrue(resourceCount > 0, "Should have resources");
 
         // Test book info
         EpubReader.EpubInfo info = EpubReader.fromFile(testFile).getInfo();
-        assertNotNull("Book info should not be null", info);
+        assertNotNull(info, "Book info should not be null");
 
         // Test validation
         boolean isValid = EpubReader.fromFile(testFile).isValid();
-        assertTrue("EPUB should be valid", isValid);
+        assertTrue(isValid, "EPUB should be valid");
     }
     
     @Test
@@ -62,35 +62,35 @@ public class SimpleFunctionTest {
             // Test file exception
             throw new fun.lzwi.epubime.exception.EpubFileException("File not found", new File("test.epub"));
         } catch (fun.lzwi.epubime.exception.EpubFileException e) {
-            assertTrue("Message should contain file info", e.getMessage().contains("test.epub"));
+            assertTrue(e.getMessage().contains("test.epub"), "Message should contain file info");
         }
 
         try {
             // Test ZIP exception
             throw new fun.lzwi.epubime.exception.EpubZipException("ZIP error", new File("test.epub"), "content.html", null);
         } catch (fun.lzwi.epubime.exception.EpubZipException e) {
-            assertTrue("Message should contain ZIP info", e.getMessage().contains("ZIP error"));
+            assertTrue(e.getMessage().contains("ZIP error"), "Message should contain ZIP info");
         }
 
         try {
             // Test format exception
             throw new fun.lzwi.epubime.exception.EpubFormatException("Format error", new File("test.epub"), "Missing mimetype");
         } catch (fun.lzwi.epubime.exception.EpubFormatException e) {
-            assertTrue("Message should contain format info", e.getMessage().contains("Format error"));
+            assertTrue(e.getMessage().contains("Format error"), "Message should contain format info");
         }
 
         try {
             // Test path validation exception
             throw new fun.lzwi.epubime.exception.EpubPathValidationException("Path validation failed", "../../../etc/passwd");
         } catch (fun.lzwi.epubime.exception.EpubPathValidationException e) {
-            assertTrue("Message should contain path info", e.getMessage().contains("Path validation failed"));
+            assertTrue(e.getMessage().contains("Path validation failed"), "Message should contain path info");
         }
 
         try {
             // Test XML parsing exception
             throw new fun.lzwi.epubime.exception.EpubXmlParseException("XML parsing failed", "content.opf", 10, 25, null);
         } catch (fun.lzwi.epubime.exception.EpubXmlParseException e) {
-            assertTrue("Message should contain XML info", e.getMessage().contains("XML parsing failed"));
+            assertTrue(e.getMessage().contains("XML parsing failed"), "Message should contain XML info");
         }
     }
 }

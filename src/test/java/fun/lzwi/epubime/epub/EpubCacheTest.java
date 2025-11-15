@@ -3,12 +3,15 @@ package fun.lzwi.epubime.epub;
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.epub.EpubFileReader;
+import fun.lzwi.epubime.epub.Metadata;
+import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.ResourceParser;
-import org.junit.Test;
+import fun.lzwi.epubime.zip.ZipFileManager;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EpubCacheTest {
 
@@ -44,7 +47,7 @@ public class EpubCacheTest {
         // 驗证缓存存在
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
-        assertNotNull("完整解析结果应被缓存", cache.getParsedResult(cacheKey));
+        assertNotNull(cache.getParsedResult(cacheKey), "完整解析结果应被缓存");
     }
 
     @Test
@@ -65,7 +68,7 @@ public class EpubCacheTest {
         
         // 验证缓存存在
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        assertNotNull("文本内容应被缓存", cache.getTextContent("mimetype"));
+        assertNotNull(cache.getTextContent("mimetype"), "文本内容应被缓存");
     }
 
     @Test
@@ -100,7 +103,7 @@ public class EpubCacheTest {
         // 驗证缓存存在
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-        assertNotNull("资源解析结果应被缓存", cache.getParsedResult(cacheKey));
+        assertNotNull(cache.getParsedResult(cacheKey), "资源解析结果应被缓存");
     }
 
     @Test
@@ -115,7 +118,7 @@ public class EpubCacheTest {
         // 验证缓存存在
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
-        assertNotNull("缓存应存在", cache.getParsedResult(cacheKey));
+        assertNotNull(cache.getParsedResult(cacheKey), "缓存应存在");
         
         // 清除缓存
         EpubCacheManager.getInstance().clearFileCache(epubFile);
@@ -126,6 +129,6 @@ public class EpubCacheTest {
         // 由于我们刚刚清除了缓存，结果应该是null
         // 实际上，由于测试代码，我们可能仍然可以访问，所以让我们验证缓存的大小或使用其他方法
         // 这里我们简化测试，只验证方法调用不会出错
-        assertTrue("缓存清除方法应成功执行", true);
+        assertTrue(true, "缓存清除方法应成功执行");
     }
 }

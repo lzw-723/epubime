@@ -1,7 +1,7 @@
 package fun.lzwi.epubime.zip;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,14 +24,14 @@ public class ZipFileManagerTest {
             // 如果在src/test/resources下找不到，尝试在target/test-classes下查找
             epubFile = new File("target/test-classes/fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         }
-        assertTrue("EPUB file should exist", epubFile.exists());
+        assertTrue(epubFile.exists(), "EPUB file should exist");
         
         ZipFileManager manager = ZipFileManager.getInstance();
         ZipFile zipFile1 = manager.getZipFile(epubFile);
         ZipFile zipFile2 = manager.getZipFile(epubFile);
         
         // 验证ZIP文件句柄重用
-        assertSame("ZIP file should be reused", zipFile1, zipFile2);
+        assertSame(zipFile1, zipFile2, "ZIP file should be reused");
         
         // 清理资源
         manager.closeCurrentZipFile();
@@ -45,14 +45,14 @@ public class ZipFileManagerTest {
             // 如果在src/test/resources下找不到，尝试在target/test-classes下查找
             epubFile = new File("target/test-classes/fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         }
-        assertTrue("EPUB file should exist", epubFile.exists());
+        assertTrue(epubFile.exists(), "EPUB file should exist");
         
         ZipFileManager manager = ZipFileManager.getInstance();
         ZipFile zipFile1 = manager.getZipFile(epubFile);
         ZipFile zipFile2 = manager.getZipFile(epubFile);
         
         // 验证ZIP文件句柄重用
-        assertSame("ZIP file should be reused", zipFile1, zipFile2);
+        assertSame(zipFile1, zipFile2, "ZIP file should be reused");
         
         // 释放ZIP文件句柄
         manager.releaseZipFile();
@@ -60,7 +60,7 @@ public class ZipFileManagerTest {
         
         // 由于引用计数已归零，下次获取应该创建新的ZIP文件句柄
         ZipFile zipFile3 = manager.getZipFile(epubFile);
-        assertNotSame("New ZIP file should be created", zipFile1, zipFile3);
+        assertNotSame(zipFile1, zipFile3, "New ZIP file should be created");
         
         // 清理资源
         manager.closeCurrentZipFile();

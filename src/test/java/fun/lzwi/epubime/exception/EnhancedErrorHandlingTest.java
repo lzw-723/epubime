@@ -2,13 +2,13 @@ package fun.lzwi.epubime.exception;
 
 import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.Metadata;
-import org.junit.Test;
-import org.junit.Before;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 增强错误处理测试类
@@ -22,7 +22,7 @@ public class EnhancedErrorHandlingTest {
     
     private ErrorContext errorContext;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         errorContext = new ErrorContext(100, ParseOptions.LogLevel.DEBUG);
     }
