@@ -26,8 +26,10 @@ features:
     details: 详细的异常分类和错误信息，便于调试和错误定位
   - title: 丰富的功能
     details: 元数据提取、章节解析、资源文件处理、目录解析等
-  - title: 简洁的 API
-    details: 易于使用和集成的 API 设计
+  - title: 现代流式 API
+    details: Fluent API 设计，支持异步处理和流式解析
+  - title: 增强的错误处理
+    details: 企业级错误处理系统，支持错误恢复和降级处理
   - title: 高质量代码
     details: 严格的测试覆盖率和静态代码分析
 ---
