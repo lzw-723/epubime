@@ -280,8 +280,8 @@ public class ErrorContext {
                                            errorCode, exception, context, recovered);
         errors.add(record);
         
-        // 控制台输出（简单的日志实现）
-        if (logLevel != ParseOptions.LogLevel.NONE) {
+        // 控制台输出（简单的日志实现）- 只打印警告和错误级别
+        if (level == ErrorLevel.WARNING || level == ErrorLevel.ERROR || level == ErrorLevel.FATAL) {
             System.out.println(record.toString());
         }
     }
@@ -291,6 +291,20 @@ public class ErrorContext {
      */
     private boolean shouldLog(ParseOptions.LogLevel level) {
         return logLevel.ordinal() >= level.ordinal();
+    }
+
+    /**
+     * 将ErrorLevel映射到LogLevel用于日志检查
+     */
+    private ParseOptions.LogLevel mapToLogLevel(ErrorLevel level) {
+        switch (level) {
+            case DEBUG: return ParseOptions.LogLevel.DEBUG;
+            case INFO: return ParseOptions.LogLevel.INFO;
+            case WARNING: return ParseOptions.LogLevel.WARNING;
+            case ERROR:
+            case FATAL: return ParseOptions.LogLevel.ERROR;
+            default: return ParseOptions.LogLevel.ERROR;
+        }
     }
     
     /**

@@ -102,11 +102,7 @@ public class EpubResource {
                 return data.clone(); // Clone to prevent external modification
 
             } catch (IOException e) {
-
-                // Log the error for debugging (in a real application, you might want to use a proper logging framework)
-
-                System.err.println("Warning: Failed to read resource data for " + href + " from EPUB file " + epubFile.getName() + ": " + e.getMessage());
-
+                // Silently return null for failed resource reads to avoid excessive debug output
                 return null;
 
             }
