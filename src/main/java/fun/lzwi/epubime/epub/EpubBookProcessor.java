@@ -1,7 +1,5 @@
 package fun.lzwi.epubime.epub;
 
-import java.util.List;
-
 /**
  * EPUB书籍处理器
  * 负责处理EpubBook相关的业务逻辑，遵循单一职责原则

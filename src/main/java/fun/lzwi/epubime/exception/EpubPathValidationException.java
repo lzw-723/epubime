@@ -87,27 +87,5 @@ public class EpubPathValidationException extends EpubParseException {
         return (ErrorCode) errorCode;
     }
     
-    private static String formatMessage(String message, String invalidPath) {
-        StringBuilder sb = new StringBuilder(message);
-        if (invalidPath != null) {
-            sb.append(" [Invalid Path: ").append(invalidPath).append("]");
-        }
-        return sb.toString();
-    }
-    
-    private static String formatMessageWithErrorCode(String message, String invalidPath, String fileName, Object errorCode) {
-        StringBuilder sb = new StringBuilder();
-        if (errorCode != null) {
-            sb.append("[").append(errorCode.toString()).append("] ");
-        }
-        sb.append(message);
-        if (fileName != null) {
-            sb.append(" [File: ").append(fileName).append("]");
-        }
-        if (invalidPath != null) {
-            sb.append(" [Path: ").append(invalidPath).append("]");
-        }
-        sb.append(" [Operation: pathValidation]");
-        return sb.toString();
-    }
+
 }

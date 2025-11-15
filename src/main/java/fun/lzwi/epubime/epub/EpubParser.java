@@ -2,10 +2,6 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.exception.EpubFormatException;
-import fun.lzwi.epubime.exception.EpubParseException;
-import fun.lzwi.epubime.exception.EpubPathValidationException;
-import fun.lzwi.epubime.exception.EpubResourceException;
-import fun.lzwi.epubime.exception.EpubXmlParseException;
 import fun.lzwi.epubime.exception.EpubZipException;
 import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.parser.MetadataParser;

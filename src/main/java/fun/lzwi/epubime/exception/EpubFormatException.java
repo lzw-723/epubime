@@ -161,10 +161,7 @@ public class EpubFormatException extends BaseEpubException {
         return sb.toString();
     }
     
-    private static String formatMessage(String message, File file, String details) {
-        return formatMessageWithErrorCode(message, file, details, null, null);
-    }
-    
+
     private static String formatMessage(String message, String fileName, String filePath) {
         StringBuilder sb = new StringBuilder();
         sb.append(message);
