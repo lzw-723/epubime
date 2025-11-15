@@ -2,7 +2,6 @@ package fun.lzwi.epubime.cache;
 
 import java.io.File;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -10,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 提供对ZIP文件内容、解析结果等的缓存，避免重复解析相同内容
  */
 public class EpubCacheManager {
-    // 每个EPUB文件的缓存，使用WeakHashMap避免内存泄漏
-    private final Map<File, EpubFileCache> fileCaches = new WeakHashMap<>();
+    // 每个EPUB文件的缓存，使用ConcurrentHashMap提高并发性能
+    private final Map<File, EpubFileCache> fileCaches = new ConcurrentHashMap<>();
     
     /**
      * 私有构造函数，防止外部实例化
@@ -39,14 +38,7 @@ public class EpubCacheManager {
      * @return 文件缓存
      */
     public EpubFileCache getFileCache(File epubFile) {
-        synchronized (fileCaches) {
-            EpubFileCache cache = fileCaches.get(epubFile);
-            if (cache == null) {
-                cache = new EpubFileCache();
-                fileCaches.put(epubFile, cache);
-            }
-            return cache;
-        }
+        return fileCaches.computeIfAbsent(epubFile, k -> new EpubFileCache());
     }
     
     /**
@@ -54,18 +46,22 @@ public class EpubCacheManager {
      * @param epubFile EPUB文件
      */
     public void clearFileCache(File epubFile) {
-        synchronized (fileCaches) {
-            fileCaches.remove(epubFile);
-        }
+        fileCaches.remove(epubFile);
     }
     
     /**
      * 清除所有缓存
      */
     public void clearAllCaches() {
-        synchronized (fileCaches) {
-            fileCaches.clear();
-        }
+        fileCaches.clear();
+    }
+
+    /**
+     * 清理不存在文件的缓存，避免内存泄漏
+     * 建议定期调用此方法
+     */
+    public void cleanupInvalidCaches() {
+        fileCaches.entrySet().removeIf(entry -> !entry.getKey().exists());
     }
     
     /**
