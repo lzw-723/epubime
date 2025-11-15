@@ -25,9 +25,12 @@ export default defineConfig({
                 { text: '基础用法', link: '/guide/basic-usage' },
                 { text: '高级功能', link: '/guide/advanced-features' },
                 { text: '异常处理', link: '/guide/exception-handling' },
-                { text: '性能优化', link: '/guide/performance' },
-                { text: 'API使用指南', link: '/guide/api-usage-guide' },
-                { text: '错误处理', link: '/guide/error-handling' },
+                 { text: '性能优化', link: '/guide/performance' },
+                 { text: '基准测试', link: '/guide/benchmarking' },
+                 { text: '开发指南', link: '/guide/development-guidelines' },
+                 { text: 'EPUB2兼容性', link: '/guide/epub2-compatibility' },
+                 { text: 'API使用指南', link: '/guide/api-usage-guide' },
+                 { text: '错误处理', link: '/guide/error-handling' },
               ]
             }
           ],
@@ -101,9 +104,12 @@ export default defineConfig({
                 { text: 'Basic Usage', link: '/en/guide/basic-usage' },
                 { text: 'Advanced Features', link: '/en/guide/advanced-features' },
                 { text: 'Exception Handling', link: '/en/guide/exception-handling' },
-                { text: 'Performance', link: '/en/guide/performance' },
-                { text: 'API Usage Guide', link: '/en/guide/api-usage-guide' },
-                { text: 'Error Handling', link: '/en/guide/error-handling' },
+                 { text: 'Performance', link: '/en/guide/performance' },
+                 { text: 'Benchmarking', link: '/en/guide/benchmarking' },
+                 { text: 'Development Guidelines', link: '/en/guide/development-guidelines' },
+                 { text: 'EPUB2 Compatibility', link: '/en/guide/epub2-compatibility' },
+                 { text: 'API Usage Guide', link: '/en/guide/api-usage-guide' },
+                 { text: 'Error Handling', link: '/en/guide/error-handling' },
               ]
             }
           ],
