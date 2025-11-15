@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class EpubBookTest {
 
     @Test
-    public void getCover() throws BaseEpubException {
+    public void getCover() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
         EpubResource cover = EpubBookProcessor.getCover(book);

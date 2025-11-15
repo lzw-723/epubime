@@ -207,7 +207,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parse() throws EpubParseException, BaseEpubException {
+    public void parse() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
         assertNotNull(book);

@@ -253,43 +253,43 @@ public class Metadata {
     public Metadata(Metadata metadata) {
 
 
-        this.titles = new ArrayList<>(List.copyOf(metadata.titles));
+        this.titles = new ArrayList<>(metadata.titles);
 
 
-        this.creators = new ArrayList<>(List.copyOf(metadata.creators));
+        this.creators = new ArrayList<>(metadata.creators);
 
 
-        this.contributors = new ArrayList<>(List.copyOf(metadata.contributors));
+        this.contributors = new ArrayList<>(metadata.contributors);
 
 
-        this.publishers = new ArrayList<>(List.copyOf(metadata.publishers));
+        this.publishers = new ArrayList<>(metadata.publishers);
 
 
-        this.identifiers = new ArrayList<>(List.copyOf(metadata.identifiers));
+        this.identifiers = new ArrayList<>(metadata.identifiers);
 
 
-        this.subjects = new ArrayList<>(List.copyOf(metadata.subjects));
+        this.subjects = new ArrayList<>(metadata.subjects);
 
 
-        this.dates = new ArrayList<>(List.copyOf(metadata.dates));
+        this.dates = new ArrayList<>(metadata.dates);
 
 
-        this.languages = new ArrayList<>(List.copyOf(metadata.languages));
+        this.languages = new ArrayList<>(metadata.languages);
 
 
-        this.descriptions = new ArrayList<>(List.copyOf(metadata.descriptions));
+        this.descriptions = new ArrayList<>(metadata.descriptions);
 
 
-        this.rightsList = new ArrayList<>(List.copyOf(metadata.rightsList));
+        this.rightsList = new ArrayList<>(metadata.rightsList);
 
 
-        this.types = new ArrayList<>(List.copyOf(metadata.types));
+        this.types = new ArrayList<>(metadata.types);
 
 
-        this.formats = new ArrayList<>(List.copyOf(metadata.formats));
+        this.formats = new ArrayList<>(metadata.formats);
 
 
-        this.sources = new ArrayList<>(List.copyOf(metadata.sources));
+        this.sources = new ArrayList<>(metadata.sources);
 
 
         this.modified = metadata.modified;
@@ -301,13 +301,13 @@ public class Metadata {
         this.cover = metadata.cover;
 
 
-        this.accessibilityFeatures = new ArrayList<>(List.copyOf(metadata.accessibilityFeatures));
+        this.accessibilityFeatures = new ArrayList<>(metadata.accessibilityFeatures);
 
 
-        this.accessibilityHazard = new ArrayList<>(List.copyOf(metadata.accessibilityHazard));
+        this.accessibilityHazard = new ArrayList<>(metadata.accessibilityHazard);
 
 
-        this.accessibilitySummary = new ArrayList<>(List.copyOf(metadata.accessibilitySummary));
+        this.accessibilitySummary = new ArrayList<>(metadata.accessibilitySummary);
 
 
         this.layout = metadata.layout;

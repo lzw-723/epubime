@@ -24,7 +24,7 @@ public class SimpleFunctionTest {
     }
     
     @Test
-    public void testBasicEpubParsing() throws BaseEpubException {
+    public void testBasicEpubParsing() throws Exception {
         if (!testFile.exists()) {
             System.out.println("Test file not found: " + testFile.getAbsolutePath());
             return;
