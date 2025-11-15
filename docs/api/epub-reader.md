@@ -2,65 +2,31 @@
 
 ## EpubReader
 
-`EpubReader` 是 EPUBime 库提供的现代 Fluent API 类，支持链式方法调用和高级功能。
+`EpubReader` 是 EPUBime 库提供的现代 Fluent API 类，支持链式方法调用和高级功能。遵循单一职责原则，专注于 API 协调和用户交互。
 
 ### 创建实例
 
 ```java
-// 从文件对象创建
+// 从文件对象创建（使用默认配置）
 public static EpubReader fromFile(File epubFile)
 
-// 从文件路径创建
+// 从文件路径创建（使用默认配置）
 public static EpubReader fromFile(String filePath)
+
+// 从文件对象创建（使用自定义配置）
+public static EpubReader fromFile(File epubFile, EpubReaderConfig config)
 ```
 
 参数:
 - `epubFile`: EPUB 文件对象
 - `filePath`: EPUB 文件路径
+- `config`: EpubReaderConfig 配置对象
 
 返回:
 - `EpubReader`: EpubReader 实例
 
 抛出:
-- `IllegalArgumentException`: 如果文件参数为 null
-
-### 配置方法
-
-#### withCache()
-```java
-public EpubReader withCache(boolean useCache)
-```
-启用或禁用缓存机制。
-
-参数:
-- `useCache`: 是否使用缓存
-
-返回:
-- `EpubReader`: this，用于方法链式调用
-
-#### withLazyLoading()
-```java
-public EpubReader withLazyLoading(boolean lazyLoading)
-```
-启用或禁用延迟加载。
-
-参数:
-- `lazyLoading`: 是否使用延迟加载
-
-返回:
-- `EpubReader`: this，用于方法链式调用
-
-#### withParallelProcessing()
-```java
-public EpubReader withParallelProcessing(boolean parallelProcessing)
-```
-启用或禁用并行处理。
-
-参数:
-- `parallelProcessing`: 是否使用并行处理
-
-返回:
-- `EpubReader`: this，用于方法链式调用
+- `IllegalArgumentException`: 如果文件参数或配置参数为 null
 
 ### 解析方法
 
@@ -209,10 +175,15 @@ public static class EpubInfo {
 ### 使用示例
 
 ```java
-// 基础使用
-EpubBook book = EpubReader.fromFile(epubFile)
+// 基础使用（使用默认配置）
+EpubBook book = EpubReader.fromFile(epubFile).parse();
+
+// 使用自定义配置
+EpubReaderConfig config = new EpubReaderConfig()
     .withCache(true)
-    .parse();
+    .withLazyLoading(false)
+    .withParallelProcessing(true);
+EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 
 // 流式处理
 EpubReader.fromFile(epubFile)

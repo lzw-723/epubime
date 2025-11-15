@@ -45,11 +45,12 @@ import fun.lzwi.epubime.epub.*;
 
 File epubFile = new File("path/to/your/book.epub");
 
-// Using the new Fluent API
-EpubBook book = EpubReader.fromFile(epubFile)
+// Using modern Fluent API (Recommended)
+EpubReaderConfig config = new EpubReaderConfig()
     .withCache(true)
-    .withLazyLoading(true)
-    .parse();
+    .withLazyLoading(false)
+    .withParallelProcessing(true);
+EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 
 // Get metadata
 Metadata metadata = book.getMetadata();
@@ -64,8 +65,8 @@ for (EpubChapter chapter : chapters) {
     System.out.println("Content path: " + chapter.getContent());
 }
 
-// Get cover
-EpubResource cover = book.getCover();
+// Get cover (using dedicated processor)
+EpubResource cover = EpubBookProcessor.getCover(book);
 if (cover != null) {
     byte[] coverData = cover.getData();
 }

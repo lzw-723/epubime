@@ -2,6 +2,7 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
+import fun.lzwi.epubime.epub.EpubFileReader;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
@@ -91,7 +92,8 @@ public class EpubimeVsEpublibBenchmarkTest {
         
         // Test EPUBime reading performance
         long startTime = System.nanoTime();
-        String epubimeContent = EpubParser.readEpubContent(epubFile, "mimetype");
+        EpubFileReader fileReader = new EpubFileReader(epubFile);
+        String epubimeContent = fileReader.readContent("mimetype");
         long endTime = System.nanoTime();
         long epubimeDuration = endTime - startTime;
         

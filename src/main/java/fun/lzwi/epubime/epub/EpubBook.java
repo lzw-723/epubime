@@ -358,47 +358,7 @@ public class EpubBook {
 
      */
 
-    public EpubResource getCover() {
 
-        // Prioritize using properties="cover-image" attribute to find cover image
-
-        EpubResource coverResource = resources.stream()
-
-            .filter(r -> r.getProperties() != null && r.getProperties().contains("cover-image"))
-
-            .findFirst()
-
-            .orElse(null);
-
-        
-
-        // If no resource with properties="cover-image" is found, try the old meta tag method
-
-        if (coverResource == null && metadata.getCover() != null) {
-
-            coverResource = resources.stream()
-
-                .filter(r -> r.getId().equals(metadata.getCover()))
-
-                .findFirst()
-
-                .orElse(null);
-
-        }
-
-        
-
-        // Apply fallback mechanism to get the final available resource
-
-        if (coverResource != null) {
-
-            return coverResource.getFallbackResource(resources);
-
-        }
-
-        return coverResource;
-
-    }
 
 
 
@@ -412,19 +372,7 @@ public class EpubBook {
 
      */
 
-    public EpubResource getResourceWithFallback(String resourceId) {
 
-        return resources.stream()
-
-                .filter(r -> resourceId.equals(r.getId()))
-
-                .findFirst()
-
-                .map(r -> r.getFallbackResource(resources))
-
-                .orElse(null);
-
-    }
 
 
 
@@ -438,17 +386,7 @@ public class EpubBook {
 
      */
 
-    public EpubResource getResource(String resourceId) {
 
-        return resources.stream()
-
-                .filter(r -> resourceId.equals(r.getId()))
-
-                .findFirst()
-
-                .orElse(null);
-
-    }
 
 
 
@@ -462,11 +400,7 @@ public class EpubBook {
 
      */
 
-    public void loadAllResourceData(File epubFile) throws IOException {
 
-        EpubResource.loadResourceData(resources, epubFile);
-
-    }
 
     
 
@@ -480,34 +414,6 @@ public class EpubBook {
 
      */
 
-    public void processHtmlChapters(BiConsumer<EpubChapter, InputStream> processor) throws BaseEpubException {
 
-        File epubFile = this.resources.isEmpty() ? null : this.resources.get(0).getEpubFile();
-
-        if (epubFile == null) {
-
-            throw new BaseEpubException("No EPUB file reference available for streaming");
-
-        }
-
-        
-
-        List<EpubChapter> chapters = getChapters();
-
-        for (EpubChapter chapter : chapters) {
-
-            try {
-
-                EpubParser.processHtmlChapterContent(epubFile, chapter.getContent(), inputStream -> processor.accept(chapter, inputStream));
-
-            } catch (Exception e) {
-
-                throw new EpubResourceException("Failed to process chapter: " + chapter.getContent(), epubFile.getName(), chapter.getContent(), e);
-
-            }
-
-        }
-
-    }
 
 }

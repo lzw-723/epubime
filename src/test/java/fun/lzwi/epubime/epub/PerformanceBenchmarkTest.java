@@ -2,8 +2,10 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
+import fun.lzwi.epubime.epub.EpubFileReader;
 import fun.lzwi.epubime.exception.EpubParseException;
 import fun.lzwi.epubime.exception.BaseEpubException;
+import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import org.junit.Test;
 
@@ -66,7 +68,8 @@ public class PerformanceBenchmarkTest {
         clearEpubimeCaches();
         
         long startTime = System.nanoTime();
-        String content = EpubParser.readEpubContent(epubFile, "mimetype");
+        EpubFileReader fileReader = new EpubFileReader(epubFile);
+        String content = fileReader.readContent("mimetype");
         long endTime = System.nanoTime();
         long duration = endTime - startTime;
         
@@ -99,11 +102,13 @@ public class PerformanceBenchmarkTest {
 
         
 
-        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        EpubFileReader fileReader = new EpubFileReader(epubFile);
+        String opfContent = fileReader.readContent("OEBPS/book.opf");
 
         long startTime = System.nanoTime();
 
-        Metadata metadata = EpubParser.parseMetadata(opfContent);
+        MetadataParser metadataParser = new MetadataParser();
+        Metadata metadata = metadataParser.parseMetadata(opfContent);
 
         long endTime = System.nanoTime();
 
@@ -237,34 +242,36 @@ public class PerformanceBenchmarkTest {
 
         
 
+        EpubFileReader fileReader = new EpubFileReader(epubFile);
+
         // Test small file performance (only read mimetype)
 
         long startTime = System.nanoTime();
 
-        String mimetype = EpubParser.readEpubContent(epubFile, "mimetype");
+        String mimetype = fileReader.readContent("mimetype");
 
         long endTime = System.nanoTime();
 
         long mimetypeDuration = endTime - startTime;
 
-        
+
 
         System.out.println("Reading small file (mimetype) time: " + mimetypeDuration / 1_000_000.0 + " ms");
 
         benchmarkResults.put("read_small_file", mimetypeDuration);
-        
+
         // Test medium file performance (read OPF file)
         startTime = System.nanoTime();
-        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        String opfContent = fileReader.readContent("OEBPS/book.opf");
         endTime = System.nanoTime();
         long opfDuration = endTime - startTime;
-        
+
         System.out.println("Reading medium file (OPF) time: " + opfDuration / 1_000_000.0 + " ms");
         benchmarkResults.put("read_medium_file", opfDuration);
-        
+
         // Test large file performance (read NCX file)
         startTime = System.nanoTime();
-        String ncxContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.ncx");
+        String ncxContent = fileReader.readContent("OEBPS/book.ncx");
         endTime = System.nanoTime();
         long ncxDuration = endTime - startTime;
         

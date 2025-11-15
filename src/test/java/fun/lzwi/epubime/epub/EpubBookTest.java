@@ -16,7 +16,7 @@ public class EpubBookTest {
     public void getCover() throws BaseEpubException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
-        EpubResource cover = book.getCover();
+        EpubResource cover = EpubBookProcessor.getCover(book);
         assertNotNull(cover);
         // 验证封面资源的href包含"Cover.jpg"或类似图片文件名
         assertTrue(cover.getHref().toLowerCase().contains("cover"));
@@ -75,7 +75,7 @@ public class EpubBookTest {
         book.setResources(resources);
 
         // 验证新的封面图片识别逻辑
-        EpubResource cover = book.getCover();
+        EpubResource cover = EpubBookProcessor.getCover(book);
         assertNotNull(cover);
         assertEquals("cover", cover.getId());
         assertEquals("cover-image", cover.getProperties());
@@ -129,7 +129,7 @@ public class EpubBookTest {
         book.setResources(resources);
 
         // 验证回退到meta标签的封面识别逻辑
-        EpubResource cover = book.getCover();
+        EpubResource cover = EpubBookProcessor.getCover(book);
         assertNotNull(cover);
         assertEquals("cover-img", cover.getId());
         assertEquals("cover.jpg", cover.getHref());
@@ -210,21 +210,14 @@ public class EpubBookTest {
 
             try {
 
-                book.processHtmlChapters(new BiConsumer<EpubChapter, InputStream>() {
-
-                    @Override
-
-                    public void accept(EpubChapter chapter, InputStream inputStream) {
-
-                        // 不执行任何操作
-
-                    }
-
+                EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
+                streamProcessor.processBookChapters(book, (chapter, inputStream) -> {
+                    // 不执行任何操作
                 });
 
             } catch (Exception e) {
 
-                fail("processHtmlChapters should not throw exception when no chapters available");
+                fail("processBookChapters should not throw exception when no chapters available");
 
             }
 
@@ -238,7 +231,8 @@ public class EpubBookTest {
 
             
 
-            book.processHtmlChapters(new BiConsumer<EpubChapter, InputStream>() {
+            EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
+            streamProcessor.processBookChapters(book, new BiConsumer<EpubChapter, InputStream>() {
 
                 @Override
 

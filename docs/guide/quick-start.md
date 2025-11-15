@@ -58,7 +58,7 @@ if (cover != null) {
 }
 ```
 
-### 现代Fluent API（推荐）
+### 现代 Fluent API（推荐）
 
 ```java
 import fun.lzwi.epubime.api.*;
@@ -66,12 +66,15 @@ import fun.lzwi.epubime.epub.*;
 
 File epubFile = new File("path/to/your/book.epub");
 
-// 使用Fluent API进行链式调用
-EpubBook book = EpubReader.fromFile(epubFile)
+// 使用默认配置
+EpubBook book = EpubReader.fromFile(epubFile).parse();
+
+// 或使用自定义配置
+EpubReaderConfig config = new EpubReaderConfig()
     .withCache(true)              // 启用缓存
-    .withLazyLoading(true)        // 启用延迟加载
-    .withParallelProcessing(true) // 启用并行处理
-    .parse();
+    .withLazyLoading(false)       // 禁用延迟加载
+    .withParallelProcessing(true); // 启用并行处理
+EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 
 // 获取元数据
 Metadata metadata = book.getMetadata();
@@ -86,8 +89,8 @@ for (EpubChapter chapter : chapters) {
     System.out.println("内容路径: " + chapter.getContent());
 }
 
-// 获取封面
-EpubResource cover = book.getCover();
+// 获取封面（使用专用处理器）
+EpubResource cover = EpubBookProcessor.getCover(book);
 if (cover != null) {
     byte[] coverData = cover.getData();
 }

@@ -93,11 +93,11 @@ public class EpubResourceFallbackTest {
         book.setResources(resources);
         
         // 测试getResource方法
-        EpubResource retrieved = book.getResource("primary-resource");
+        EpubResource retrieved = EpubBookProcessor.getResource(book, "primary-resource");
         assertSame(resource1, retrieved);
-        
+
         // 测试getResourceWithFallback方法
-        EpubResource fallbackRetrieved = book.getResourceWithFallback("primary-resource");
+        EpubResource fallbackRetrieved = EpubBookProcessor.getResourceWithFallback(book, "primary-resource");
         assertSame(resource2, fallbackRetrieved);
     }
 }

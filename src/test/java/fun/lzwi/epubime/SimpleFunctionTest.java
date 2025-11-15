@@ -1,6 +1,7 @@
 package fun.lzwi.epubime;
 
 import fun.lzwi.epubime.api.EpubReader;
+import fun.lzwi.epubime.api.EpubReaderConfig;
 import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.epubime.exception.BaseEpubException;
@@ -33,9 +34,8 @@ public class SimpleFunctionTest {
         System.out.println("File size: " + testFile.length() + " bytes");
         
         // Test basic parsing
-        EpubBook book = EpubReader.fromFile(testFile)
-                .withCache(false)
-                .parse();
+        EpubReaderConfig config = new EpubReaderConfig().withCache(false);
+        EpubBook book = EpubReader.fromFile(testFile, config).parse();
         
         assertNotNull("Book should not be null", book);
         System.out.println("[SUCCESS] EPUB file parsing successful");

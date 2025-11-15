@@ -5,6 +5,7 @@ import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.epubime.exception.BaseEpubException;
+import fun.lzwi.epubime.exception.EpubPathValidationException;
 
 import java.io.File;
 import java.io.InputStream;
@@ -54,7 +55,7 @@ public class AsyncEpubProcessor {
     }
     
     /**
-     * Parse EPUB file asynchronously with options
+     * Parse an EPUB file asynchronously
      * @param epubFile the EPUB file to parse
      * @param useCache whether to use caching
      * @param lazyLoading whether to use lazy loading
@@ -63,16 +64,16 @@ public class AsyncEpubProcessor {
     public CompletableFuture<EpubBook> parseBookAsync(File epubFile, boolean useCache, boolean lazyLoading) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return EpubReader.fromFile(epubFile)
+                EpubReaderConfig config = new EpubReaderConfig()
                         .withCache(useCache)
-                        .withLazyLoading(lazyLoading)
-                        .parse();
+                        .withLazyLoading(lazyLoading);
+                return EpubReader.fromFile(epubFile, config).parse();
             } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to parse EPUB", e);
             }
         }, executor);
     }
-    
+
     /**
      * Parse metadata asynchronously
      * @param epubFile the EPUB file to parse
@@ -145,7 +146,7 @@ public class AsyncEpubProcessor {
         return CompletableFuture.runAsync(() -> {
             try {
                 EpubReader.fromFile(epubFile).streamChapter(chapterId, processor);
-            } catch (BaseEpubException e) {
+            } catch (BaseEpubException | EpubPathValidationException e) {
                 throw new RuntimeException("Failed to process chapter: " + chapterId, e);
             }
         }, executor);
@@ -154,21 +155,20 @@ public class AsyncEpubProcessor {
     /**
      * Process all resources asynchronously
      * @param epubFile the EPUB file
-     * @param processor the processor for each resource
-     * @return CompletableFuture that completes when all resources are processed
+     * @param processor function to process each resource
+     * @return CompletableFuture that completes when processing is done
      */
     public CompletableFuture<Void> processResourcesAsync(File epubFile, Function<EpubResource, Void> processor) {
         return CompletableFuture.runAsync(() -> {
             try {
-                EpubReader.fromFile(epubFile)
-                        .withParallelProcessing(true)
-                        .processResources(processor);
+                EpubReaderConfig config = new EpubReaderConfig().withParallelProcessing(true);
+                EpubReader.fromFile(epubFile, config).processResources(processor);
             } catch (BaseEpubException e) {
                 throw new RuntimeException("Failed to process resources", e);
             }
         }, executor);
     }
-    
+
     /**
      * Get cover resource asynchronously
      * @param epubFile the EPUB file

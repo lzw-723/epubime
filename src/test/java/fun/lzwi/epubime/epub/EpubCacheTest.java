@@ -2,6 +2,8 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
+import fun.lzwi.epubime.epub.EpubFileReader;
+import fun.lzwi.epubime.parser.ResourceParser;
 import org.junit.Test;
 
 import java.io.File;
@@ -50,11 +52,12 @@ public class EpubCacheTest {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         
         // 第一次读取内容
-        String content1 = EpubParser.readEpubContent(epubFile, "mimetype");
+        EpubFileReader fileReader = new EpubFileReader(epubFile);
+        String content1 = fileReader.readContent("mimetype");
         assertNotNull(content1);
-        
+
         // 第二次读取相同内容 - 应该从缓存获取
-        String content2 = EpubParser.readEpubContent(epubFile, "mimetype");
+        String content2 = fileReader.readContent("mimetype");
         assertNotNull(content2);
         
         // 验证内容一致
@@ -70,20 +73,22 @@ public class EpubCacheTest {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         
         // 读取OPF内容
-        String opfContent = EpubParser.readEpubContent(epubFile, "OEBPS/book.opf");
+        EpubFileReader fileReader = new EpubFileReader(epubFile);
+        String opfContent = fileReader.readContent("OEBPS/book.opf");
         String opfDir = "OEBPS/";
         
         // 第一次解析资源
         long startTime1 = System.currentTimeMillis();
-        java.util.List<EpubResource> resources1 = EpubParser.parseResources(opfContent, opfDir, epubFile);
+        ResourceParser resourceParser = new ResourceParser(epubFile);
+        java.util.List<EpubResource> resources1 = resourceParser.parseResources(opfContent, opfDir);
         long endTime1 = System.currentTimeMillis();
         long firstParseTime = endTime1 - startTime1;
-        
+
         assertFalse(resources1.isEmpty());
-        
+
         // 第二次解析相同资源 - 应该从缓存获取
         long startTime2 = System.currentTimeMillis();
-        java.util.List<EpubResource> resources2 = EpubParser.parseResources(opfContent, opfDir, epubFile);
+        java.util.List<EpubResource> resources2 = resourceParser.parseResources(opfContent, opfDir);
         long endTime2 = System.currentTimeMillis();
         long secondParseTime = endTime2 - startTime2;
         

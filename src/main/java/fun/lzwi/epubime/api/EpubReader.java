@@ -1,11 +1,13 @@
 package fun.lzwi.epubime.api;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
+import fun.lzwi.epubime.epub.EpubBookProcessor;
+import fun.lzwi.epubime.epub.EpubStreamProcessor;
 import fun.lzwi.epubime.exception.BaseEpubException;
+import fun.lzwi.epubime.exception.EpubPathValidationException;
 import fun.lzwi.epubime.epub.EpubParser;
 
 import java.io.File;
@@ -36,29 +38,30 @@ import java.util.function.Function;
  */
 public class EpubReader {
     private final File epubFile;
-    private boolean useCache = true;
-    @SuppressFBWarnings("URF_UNREAD_FIELD") // TODO: Implement lazy loading functionality
-    private boolean lazyLoading = false;
-    private boolean parallelProcessing = false;
-    
-    private EpubReader(File epubFile) {
+    private final EpubReaderConfig config;
+
+    private EpubReader(File epubFile, EpubReaderConfig config) {
         if (epubFile == null) {
             throw new IllegalArgumentException("EPUB file cannot be null");
         }
+        if (config == null) {
+            throw new IllegalArgumentException("Config cannot be null");
+        }
         this.epubFile = epubFile;
+        this.config = config;
     }
     
     /**
-     * Create an EpubReader from a File
+     * Create an EpubReader from a File with default config
      * @param epubFile the EPUB file
      * @return a new EpubReader instance
      */
     public static EpubReader fromFile(File epubFile) {
-        return new EpubReader(epubFile);
+        return new EpubReader(epubFile, new EpubReaderConfig());
     }
-    
+
     /**
-     * Create an EpubReader from a file path
+     * Create an EpubReader from a file path with default config
      * @param filePath the path to the EPUB file
      * @return a new EpubReader instance
      */
@@ -66,38 +69,20 @@ public class EpubReader {
         if (filePath == null) {
             throw new IllegalArgumentException("File path cannot be null");
         }
-        return new EpubReader(new File(filePath));
+        return new EpubReader(new File(filePath), new EpubReaderConfig());
+    }
+
+    /**
+     * Create an EpubReader from a File with custom config
+     * @param epubFile the EPUB file
+     * @param config the configuration
+     * @return a new EpubReader instance
+     */
+    public static EpubReader fromFile(File epubFile, EpubReaderConfig config) {
+        return new EpubReader(epubFile, config);
     }
     
-    /**
-     * Enable or disable caching
-     * @param useCache whether to use caching
-     * @return this reader for method chaining
-     */
-    public EpubReader withCache(boolean useCache) {
-        this.useCache = useCache;
-        return this;
-    }
-    
-    /**
-     * Enable or disable lazy loading of resources
-     * @param lazyLoading whether to use lazy loading
-     * @return this reader for method chaining
-     */
-    public EpubReader withLazyLoading(boolean lazyLoading) {
-        this.lazyLoading = lazyLoading;
-        return this;
-    }
-    
-    /**
-     * Enable or disable parallel processing for multiple resources
-     * @param parallelProcessing whether to use parallel processing
-     * @return this reader for method chaining
-     */
-    public EpubReader withParallelProcessing(boolean parallelProcessing) {
-        this.parallelProcessing = parallelProcessing;
-        return this;
-    }
+
     
     /**
      * Parse the EPUB file and return an EpubBook
@@ -106,14 +91,14 @@ public class EpubReader {
      */
     public EpubBook parse() throws BaseEpubException {
         EpubParser parser = new EpubParser(epubFile);
-        
+
         EpubBook book;
-        if (useCache) {
+        if (config.isUseCache()) {
             book = parser.parse();
         } else {
             book = parser.parseWithoutCache();
         }
-        
+
         // Ensure all resources have a reference to the EPUB file for streaming
         if (!book.getResources().isEmpty()) {
             for (EpubResource resource : book.getResources()) {
@@ -122,7 +107,7 @@ public class EpubReader {
                 }
             }
         }
-        
+
         return book;
     }
     
@@ -153,17 +138,8 @@ public class EpubReader {
      */
     public void streamChapters(BiConsumer<EpubChapter, InputStream> processor) throws BaseEpubException {
         EpubBook book = parse();
-        
-        // Ensure the book has a reference to the EPUB file for streaming
-        if (!book.getResources().isEmpty()) {
-            for (EpubResource resource : book.getResources()) {
-                if (resource.getEpubFile() == null) {
-                    resource.setEpubFile(epubFile);
-                }
-            }
-        }
-        
-        book.processHtmlChapters(processor);
+        EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
+        streamProcessor.processBookChapters(book, processor);
     }
     
     /**
@@ -171,22 +147,20 @@ public class EpubReader {
      * @param chapterId the ID of the chapter to process
      * @param processor a consumer that processes the chapter content stream
      * @throws BaseEpubException if processing fails
+     * @throws EpubPathValidationException if path validation fails
      */
-    public void streamChapter(String chapterId, Consumer<InputStream> processor) throws BaseEpubException {
+    public void streamChapter(String chapterId, Consumer<InputStream> processor) throws BaseEpubException, EpubPathValidationException {
         EpubBook book = parse();
-        
+
         // Find the chapter by ID
         EpubChapter targetChapter = findChapterById(book.getChapters(), chapterId);
         if (targetChapter == null) {
             throw new BaseEpubException("Chapter not found: " + chapterId);
         }
-        
+
         // Stream the chapter content
-        book.processHtmlChapters((chapter, inputStream) -> {
-            if (chapter.getId().equals(chapterId)) {
-                processor.accept(inputStream);
-            }
-        });
+        EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
+        streamProcessor.processHtmlChapter(targetChapter.getContent(), processor);
     }
     
     /**
@@ -197,8 +171,8 @@ public class EpubReader {
     public void processResources(Function<EpubResource, Void> processor) throws BaseEpubException {
         EpubBook book = parse();
         List<EpubResource> resources = book.getResources();
-        
-        if (parallelProcessing) {
+
+        if (config.isParallelProcessing()) {
             resources.parallelStream().forEach(processor::apply);
         } else {
             resources.forEach(processor::apply);
@@ -213,7 +187,7 @@ public class EpubReader {
      */
     public EpubResource getResource(String resourceId) throws BaseEpubException {
         EpubBook book = parse();
-        return book.getResource(resourceId);
+        return EpubBookProcessor.getResource(book, resourceId);
     }
     
     /**
@@ -223,7 +197,7 @@ public class EpubReader {
      */
     public EpubResource getCover() throws BaseEpubException {
         EpubBook book = parse();
-        return book.getCover();
+        return EpubBookProcessor.getCover(book);
     }
     
     /**

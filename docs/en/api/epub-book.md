@@ -1,221 +1,184 @@
 # EpubBook
 
-`EpubBook` class represents a parsed EPUB book, containing all book information including metadata, chapters, and resources.
+`EpubBook` class represents a parsed EPUB book, following the Single Responsibility Principle, dedicated to storing book information as a data model. Business logic operations should use corresponding processor classes.
 
 ## Constructor
 
 ```java
-public EpubBook(Metadata metadata, List<EpubChapter> chapters, List<EpubResource> resources)
+public EpubBook()
 ```
-Creates a new EpubBook instance.
+Creates an empty EpubBook instance.
+
+```java
+public EpubBook(EpubBook other)
+```
+Copy constructor for caching.
 
 Parameters:
-- `metadata`: Book metadata
-- `chapters`: Chapter list
-- `resources`: Resource list
+- `other`: EpubBook instance to copy
 
 ## Main Methods
 
-### getMetadata()
+### Metadata Operations
+
+#### getMetadata()
 ```java
 public Metadata getMetadata()
 ```
-Gets book metadata.
+Gets book metadata copy.
 
 Returns:
-- `Metadata`: Book metadata object
+- `Metadata`: Book metadata object copy
 
-### getChapters()
+#### setMetadata()
+```java
+public void setMetadata(Metadata metadata)
+```
+Sets book metadata.
+
+Parameters:
+- `metadata`: Metadata object
+
+### Chapter Operations
+
+#### getNcx()
+```java
+public List<EpubChapter> getNcx()
+```
+Gets NCX format table of contents chapter list.
+
+Returns:
+- `List<EpubChapter>`: NCX table of contents list (unmodifiable)
+
+#### setNcx()
+```java
+public void setNcx(List<EpubChapter> ncx)
+```
+Sets NCX format table of contents chapter list.
+
+Parameters:
+- `ncx`: NCX table of contents list
+
+#### getNav()
+```java
+public List<EpubChapter> getNav()
+```
+Gets NAV format table of contents chapter list.
+
+Returns:
+- `List<EpubChapter>`: NAV table of contents list (unmodifiable)
+
+#### setNav()
+```java
+public void setNav(List<EpubChapter> nav)
+```
+Sets NAV format table of contents chapter list.
+
+Parameters:
+- `nav`: NAV table of contents list
+
+#### getLandmarks()
+```java
+public List<EpubChapter> getLandmarks()
+```
+Gets landmark navigation chapter list.
+
+Returns:
+- `List<EpubChapter>`: Landmark navigation list (unmodifiable)
+
+#### setLandmarks()
+```java
+public void setLandmarks(List<EpubChapter> landmarks)
+```
+Sets landmark navigation chapter list.
+
+Parameters:
+- `landmarks`: Landmark navigation list
+
+#### getPageList()
+```java
+public List<EpubChapter> getPageList()
+```
+Gets page list navigation chapter list.
+
+Returns:
+- `List<EpubChapter>`: Page list navigation list (unmodifiable)
+
+#### setPageList()
+```java
+public void setPageList(List<EpubChapter> pageList)
+```
+Sets page list navigation chapter list.
+
+Parameters:
+- `pageList`: Page list navigation list
+
+#### getChapters()
 ```java
 public List<EpubChapter> getChapters()
 ```
-Gets book chapter list.
+Gets main chapter list, preferring NAV table of contents if NAV is empty then NCX table of contents.
 
 Returns:
-- `List<EpubChapter>`: Chapter list
+- `List<EpubChapter>`: Chapter list (unmodifiable)
 
-### getResources()
+### Resource Operations
+
+#### getResources()
 ```java
 public List<EpubResource> getResources()
 ```
-Gets book resource list.
+Gets resource file list.
 
 Returns:
-- `List<EpubResource>`: Resource list
+- `List<EpubResource>`: Resource list (unmodifiable)
 
-### getCover()
+#### setResources()
 ```java
-public EpubResource getCover()
+public void setResources(List<EpubResource> resources)
 ```
-Gets book cover resource.
-
-Returns:
-- `EpubResource`: Cover resource object, or null if no cover is found
-
-### getResourceByHref()
-```java
-public EpubResource getResourceByHref(String href)
-```
-Finds resource by href.
+Sets resource file list.
 
 Parameters:
-- `href`: Resource href attribute
+- `resources`: Resource list
 
-Returns:
-- `EpubResource`: Found resource object, or null if not found
+## Related Processor Classes
 
-### getChapterById()
+Since EpubBook follows the Single Responsibility Principle and is only responsible for data storage, business logic operations should use the following processor classes:
+
+### EpubBookProcessor
+Handles book-related business logic:
+- `getCover(EpubBook book)` - Gets cover resource
+- `getResource(EpubBook book, String resourceId)` - Gets specific resource
+- `getResourceWithFallback(EpubBook book, String resourceId)` - Gets resource with fallback mechanism
+- `loadAllResourceData(EpubBook book)` - Batch loads resource data
+
+### EpubStreamProcessor
+Handles streaming operations:
+- `processBookChapters(EpubBook book, BiConsumer<EpubChapter, InputStream> processor)` - Streams book chapters
+
+## Usage Example
+
 ```java
-public EpubChapter getChapterById(String id)
+// Create EpubBook instance
+EpubBook book = new EpubBook();
+
+// Set metadata
+Metadata metadata = new Metadata();
+metadata.addTitle("Sample Book");
+book.setMetadata(metadata);
+
+// Set chapters
+List<EpubChapter> chapters = new ArrayList<>();
+// ... add chapters
+book.setNcx(chapters);
+
+// Set resources
+List<EpubResource> resources = new ArrayList<>();
+// ... add resources
+book.setResources(resources);
+
+// Use processor classes for business operations
+EpubResource cover = EpubBookProcessor.getCover(book);
+EpubResource resource = EpubBookProcessor.getResource(book, "image1");
 ```
-Finds chapter by ID.
-
-Parameters:
-- `id`: Chapter ID
-
-Returns:
-- `EpubChapter`: Found chapter object, or null if not found
-
-### getChapterByPath()
-```java
-public EpubChapter getChapterByPath(String path)
-```
-Finds chapter by path.
-
-Parameters:
-- `path`: Chapter path
-
-Returns:
-- `EpubChapter`: Found chapter object, or null if not found
-
-### getTableOfContents()
-```java
-public List<EpubChapter> getTableOfContents()
-```
-Gets book's table of contents structure.
-
-Returns:
-- `List<EpubChapter>`: Table of contents chapter list
-
-### hasCover()
-```java
-public boolean hasCover()
-```
-Checks if book has a cover.
-
-Returns:
-- `boolean`: Returns true if book has a cover, otherwise false
-
-### hasResources()
-```java
-public boolean hasResources()
-```
-Checks if book has resource files.
-
-Returns:
-- `boolean`: Returns true if book has resource files, otherwise false
-
-### hasChapters()
-```java
-public boolean hasChapters()
-```
-Checks if book has chapters.
-
-Returns:
-- `boolean`: Returns true if book has chapters, otherwise false
-
-### getResourceCount()
-```java
-public int getResourceCount()
-```
-Gets resource file count.
-
-Returns:
-- `int`: Resource file count
-
-### getChapterCount()
-```java
-public int getChapterCount()
-```
-Gets chapter count.
-
-Returns:
-- `int`: Chapter count
-
-### getAllChapters()
-```java
-public List<EpubChapter> getAllChapters()
-```
-Gets all chapters, including nested subchapters.
-
-Returns:
-- `List<EpubChapter>`: List of all chapters
-
-### getChaptersByMediaType()
-```java
-public List<EpubChapter> getChaptersByMediaType(String mediaType)
-```
-Gets chapters by media type.
-
-Parameters:
-- `mediaType`: Media type (e.g., "application/xhtml+xml")
-
-Returns:
-- `List<EpubChapter>`: Chapter list matching media type
-
-### getResourcesByMediaType()
-```java
-public List<EpubResource> getResourcesByMediaType(String mediaType)
-```
-Gets resources by media type.
-
-Parameters:
-- `mediaType`: Media type (e.g., "image/jpeg")
-
-Returns:
-- `List<EpubResource>`: Resource list matching media type
-
-### getImages()
-```java
-public List<EpubResource> getImages()
-```
-Gets all image resources.
-
-Returns:
-- `List<EpubResource>`: Image resource list
-
-### getStylesheets()
-```java
-public List<EpubResource> getStylesheets()
-```
-Gets all stylesheet resources.
-
-Returns:
-- `List<EpubResource>`: Stylesheet resource list
-
-### getFonts()
-```java
-public List<EpubResource> getFonts()
-```
-Gets all font resources.
-
-Returns:
-- `List<EpubResource>`: Font resource list
-
-### getResourcePaths()
-```java
-public Set<String> getResourcePaths()
-```
-Gets collection of all resource paths.
-
-Returns:
-- `Set<String>`: Resource path collection
-
-### getChapterPaths()
-```java
-public Set<String> getChapterPaths()
-```
-Gets collection of all chapter paths.
-
-Returns:
-- `Set<String>`: Chapter path collection

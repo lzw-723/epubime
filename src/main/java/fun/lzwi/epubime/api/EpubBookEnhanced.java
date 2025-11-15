@@ -4,8 +4,11 @@ import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
 import fun.lzwi.epubime.epub.Metadata;
+import fun.lzwi.epubime.epub.EpubBookProcessor;
+import fun.lzwi.epubime.epub.EpubStreamProcessor;
 import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.exception.EpubResourceException;
+import fun.lzwi.epubime.exception.EpubPathValidationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -193,15 +196,15 @@ public class EpubBookEnhanced {
      * @return the cover resource, or null if not found
      */
     public EpubResource getCover() {
-        return book.getCover();
+        return EpubBookProcessor.getCover(book);
     }
-    
+
     /**
      * Check if the book has a cover
      * @return true if cover exists
      */
     public boolean hasCover() {
-        return book.getCover() != null;
+        return EpubBookProcessor.getCover(book) != null;
     }
     
     /**
@@ -218,14 +221,11 @@ public class EpubBookEnhanced {
         }
         
         try {
-            // Use the existing streaming mechanism
-            book.processHtmlChapters((ch, inputStream) -> {
-                if (ch.getId().equals(chapter.getId())) {
-                    processor.accept(inputStream);
-                }
-            });
-        } catch (BaseEpubException e) {
-            throw new EpubResourceException("Failed to process chapter content", 
+            // Use the streaming processor
+            EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
+            streamProcessor.processHtmlChapter(chapter.getContent(), processor);
+        } catch (BaseEpubException | EpubPathValidationException e) {
+            throw new EpubResourceException("Failed to process chapter content",
                     epubFile.getName(), chapter.getContent(), e);
         }
     }
@@ -264,7 +264,7 @@ public class EpubBookEnhanced {
      * @throws IOException if loading fails
      */
     public void loadAllResources() throws IOException {
-        book.loadAllResourceData(epubFile);
+        EpubBookProcessor.loadAllResourceData(book);
     }
     
     /**

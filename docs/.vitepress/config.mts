@@ -32,13 +32,41 @@ export default defineConfig({
           ],
           '/api/': [
             {
-              text: 'API 参考',
+              text: '现代 API',
               items: [
-                { text: 'EpubParser', link: '/api/epub-parser' },
+                { text: 'EpubReader', link: '/api/epub-reader' },
+                { text: 'EpubReaderConfig', link: '/api/epub-reader-config' },
+                { text: 'AsyncEpubProcessor', link: '/api/async-processor' },
+              ]
+            },
+            {
+              text: '核心数据模型',
+              items: [
                 { text: 'EpubBook', link: '/api/epub-book' },
                 { text: 'Metadata', link: '/api/metadata' },
                 { text: 'EpubChapter', link: '/api/epub-chapter' },
                 { text: 'EpubResource', link: '/api/epub-resource' },
+              ]
+            },
+            {
+              text: '专用处理器',
+              items: [
+                { text: 'EpubParser', link: '/api/epub-parser' },
+                { text: 'EpubFileReader', link: '/api/epub-file-reader' },
+                { text: 'EpubStreamProcessor', link: '/api/epub-stream-processor' },
+                { text: 'EpubBookProcessor', link: '/api/epub-book-processor' },
+              ]
+            },
+            {
+              text: '增强功能',
+              items: [
+                { text: 'EpubBookEnhanced', link: '/api/epub-book-enhanced' },
+                { text: 'MetadataEnhanced', link: '/api/metadata-enhanced' },
+              ]
+            },
+            {
+              text: '异常处理',
+              items: [
                 { text: '异常类', link: '/api/exceptions' },
               ]
             }
@@ -77,19 +105,47 @@ export default defineConfig({
               ]
             }
           ],
-          '/en/api/': [
-            {
-              text: 'API Reference',
-              items: [
-                { text: 'EpubParser', link: '/en/api/epub-parser' },
-                { text: 'EpubBook', link: '/en/api/epub-book' },
-                { text: 'Metadata', link: '/en/api/metadata' },
-                { text: 'EpubChapter', link: '/en/api/epub-chapter' },
-                { text: 'EpubResource', link: '/en/api/epub-resource' },
-                { text: 'Exception Classes', link: '/en/api/exceptions' },
-              ]
-            }
-          ]
+           '/en/api/': [
+             {
+               text: 'Modern API',
+               items: [
+                 { text: 'EpubReader', link: '/en/api/epub-reader' },
+                 { text: 'EpubReaderConfig', link: '/en/api/epub-reader-config' },
+                 { text: 'AsyncEpubProcessor', link: '/en/api/async-processor' },
+               ]
+             },
+             {
+               text: 'Core Data Models',
+               items: [
+                 { text: 'EpubBook', link: '/en/api/epub-book' },
+                 { text: 'Metadata', link: '/en/api/metadata' },
+                 { text: 'EpubChapter', link: '/en/api/epub-chapter' },
+                 { text: 'EpubResource', link: '/en/api/epub-resource' },
+               ]
+             },
+             {
+               text: 'Dedicated Processors',
+               items: [
+                 { text: 'EpubParser', link: '/en/api/epub-parser' },
+                 { text: 'EpubFileReader', link: '/en/api/epub-file-reader' },
+                 { text: 'EpubStreamProcessor', link: '/en/api/epub-stream-processor' },
+                 { text: 'EpubBookProcessor', link: '/en/api/epub-book-processor' },
+               ]
+             },
+             {
+               text: 'Enhanced Features',
+               items: [
+                 { text: 'EpubBookEnhanced', link: '/en/api/epub-book-enhanced' },
+                 { text: 'MetadataEnhanced', link: '/en/api/metadata-enhanced' },
+               ]
+             },
+             {
+               text: 'Exception Handling',
+               items: [
+                 { text: 'Exception Classes', link: '/en/api/exceptions' },
+               ]
+             }
+           ]
         },
         footer: {
           message: 'Released under the MIT License',

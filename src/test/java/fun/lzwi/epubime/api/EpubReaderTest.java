@@ -42,9 +42,8 @@ public class EpubReaderTest {
     @Test
     public void testBasicEpubReader() throws BaseEpubException {
         // Test basic parsing
-        EpubBook book = EpubReader.fromFile(testEpubFile)
-                .withCache(true)
-                .parse();
+        EpubReaderConfig config = new EpubReaderConfig().withCache(true);
+        EpubBook book = EpubReader.fromFile(testEpubFile, config).parse();
         
         assertNotNull(book);
         assertNotNull(book.getMetadata());
@@ -54,9 +53,8 @@ public class EpubReaderTest {
     @Test
     public void testEpubReaderFromStringPath() throws BaseEpubException {
         // Test parsing from string path
-        EpubBook book = EpubReader.fromFile(testEpubFile.getAbsolutePath())
-                .withCache(false)
-                .parse();
+        EpubReaderConfig config = new EpubReaderConfig().withCache(false);
+        EpubBook book = EpubReader.fromFile(new File(testEpubFile.getAbsolutePath()), config).parse();
         
         assertNotNull(book);
         assertNotNull(book.getMetadata());
@@ -685,20 +683,20 @@ public class EpubReaderTest {
     @Test
     public void testEpubReaderOptions() throws BaseEpubException {
         // Test chaining options and parsing still works
-        EpubBook book1 = EpubReader.fromFile(testEpubFile)
+        EpubReaderConfig config1 = new EpubReaderConfig()
                 .withCache(true)
                 .withLazyLoading(true)
-                .withParallelProcessing(true)
-                .parse();
+                .withParallelProcessing(true);
+        EpubBook book1 = EpubReader.fromFile(testEpubFile, config1).parse();
 
         assertNotNull(book1);
         assertNotNull(book1.getMetadata());
 
-        EpubBook book2 = EpubReader.fromFile(testEpubFile)
+        EpubReaderConfig config2 = new EpubReaderConfig()
                 .withCache(false)
                 .withLazyLoading(false)
-                .withParallelProcessing(false)
-                .parse();
+                .withParallelProcessing(false);
+        EpubBook book2 = EpubReader.fromFile(testEpubFile, config2).parse();
 
         assertNotNull(book2);
         assertNotNull(book2.getMetadata());
@@ -708,8 +706,8 @@ public class EpubReaderTest {
         AtomicInteger sequentialCount = new AtomicInteger(0);
 
         try {
-            EpubReader.fromFile(testEpubFile)
-                    .withParallelProcessing(true)
+            EpubReaderConfig parallelConfig = new EpubReaderConfig().withParallelProcessing(true);
+            EpubReader.fromFile(testEpubFile, parallelConfig)
                     .processResources(resource -> {
                         parallelCount.incrementAndGet();
                         return null;
@@ -719,8 +717,8 @@ public class EpubReaderTest {
         }
 
         try {
-            EpubReader.fromFile(testEpubFile)
-                    .withParallelProcessing(false)
+            EpubReaderConfig sequentialConfig = new EpubReaderConfig().withParallelProcessing(false);
+            EpubReader.fromFile(testEpubFile, sequentialConfig)
                     .processResources(resource -> {
                         sequentialCount.incrementAndGet();
                         return null;

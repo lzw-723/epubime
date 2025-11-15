@@ -1,5 +1,6 @@
 package fun.lzwi.epubime.epub;
 
+import fun.lzwi.epubime.parser.MetadataParser;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -18,7 +19,8 @@ public class Epub33MetadataTest {
                 "  </metadata>\n" +
                 "</package>";
         
-        Metadata metadata = EpubParser.parseMetadata(opfContent);
+        MetadataParser metadataParser = new MetadataParser();
+        Metadata metadata = metadataParser.parseMetadata(opfContent);
         assertNotNull(metadata);
         assertEquals("Test Book", metadata.getTitle());
         assertEquals("urn:uuid:123456789", metadata.getIdentifier());
@@ -49,7 +51,8 @@ public class Epub33MetadataTest {
                 "  </metadata>\n" +
                 "</package>";
         
-        Metadata metadata = EpubParser.parseMetadata(opfContent);
+        MetadataParser metadataParser = new MetadataParser();
+        Metadata metadata = metadataParser.parseMetadata(opfContent);
         assertNotNull(metadata);
         
         // 验证可访问性特征
@@ -85,7 +88,8 @@ public class Epub33MetadataTest {
                 "  </metadata>\n" +
                 "</package>";
         
-        Metadata metadata = EpubParser.parseMetadata(opfContent);
+        MetadataParser metadataParser = new MetadataParser();
+        Metadata metadata = metadataParser.parseMetadata(opfContent);
         assertNotNull(metadata);
         
         assertEquals("pre-paginated", metadata.getLayout());
