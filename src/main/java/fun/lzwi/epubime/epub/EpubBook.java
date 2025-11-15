@@ -20,7 +20,7 @@ public class EpubBook {
 
     private Metadata metadata;
 
-
+    private String version; // EPUB版本
 
     private List<EpubChapter> ncx = new ArrayList<>();
 
@@ -57,6 +57,8 @@ public class EpubBook {
      */
 
     public EpubBook(EpubBook other) {
+
+        this.version = other.version;
 
         if (other.metadata != null) {
 
@@ -308,6 +310,24 @@ public class EpubBook {
 
         this.metadata = new Metadata(metadata);
 
+    }
+
+    /**
+     * 获取EPUB版本
+     *
+     * @return EPUB版本字符串
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * 设置EPUB版本
+     *
+     * @param version EPUB版本字符串
+     */
+    public void setVersion(String version) {
+        this.version = version;
     }
 
 

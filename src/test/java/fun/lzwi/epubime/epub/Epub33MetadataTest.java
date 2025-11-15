@@ -18,9 +18,9 @@ public class Epub33MetadataTest {
                 "    <meta property=\"dcterms:modified\">2023-01-01T12:00:00Z</meta>\n" +
                 "  </metadata>\n" +
                 "</package>";
-        
+
         MetadataParser metadataParser = new MetadataParser();
-        Metadata metadata = metadataParser.parseMetadata(opfContent);
+        Metadata metadata = metadataParser.parseMetadata(opfContent, "3.0");
         assertNotNull(metadata);
         assertEquals("Test Book", metadata.getTitle());
         assertEquals("urn:uuid:123456789", metadata.getIdentifier());
@@ -47,12 +47,12 @@ public class Epub33MetadataTest {
                 "    <meta property=\"schema:accessibilityHazard\">noFlashingHazard</meta>\n" +
                 "    <meta property=\"schema:accessibilityHazard\">noMotionSimulationHazard</meta>\n" +
                 "    <meta property=\"schema:accessibilityHazard\">noSoundHazard</meta>\n" +
-                "    <meta property=\"schema:accessibilitySummary\">This publication includes markup to enable accessibility and compatibility with assistive technology.</meta>\n" +
-                "  </metadata>\n" +
-                "</package>";
-        
+                 "    <meta property=\"schema:accessibilitySummary\">This publication includes markup to enable accessibility and compatibility with assistive technology.</meta>\n" +
+                 "  </metadata>\n" +
+                 "</package>";
+
         MetadataParser metadataParser = new MetadataParser();
-        Metadata metadata = metadataParser.parseMetadata(opfContent);
+        Metadata metadata = metadataParser.parseMetadata(opfContent, "3.0");
         assertNotNull(metadata);
         
         // 验证可访问性特征
@@ -84,12 +84,12 @@ public class Epub33MetadataTest {
                 "    <meta property=\"dcterms:modified\">2023-01-01T12:00:00Z</meta>\n" +
                 "    <meta property=\"rendition:layout\">pre-paginated</meta>\n" +
                 "    <meta property=\"rendition:orientation\">landscape</meta>\n" +
-                "    <meta property=\"rendition:spread\">both</meta>\n" +
-                "  </metadata>\n" +
-                "</package>";
-        
+                 "    <meta property=\"rendition:spread\">both</meta>\n" +
+                 "  </metadata>\n" +
+                 "</package>";
+
         MetadataParser metadataParser = new MetadataParser();
-        Metadata metadata = metadataParser.parseMetadata(opfContent);
+        Metadata metadata = metadataParser.parseMetadata(opfContent, "3.0");
         assertNotNull(metadata);
         
         assertEquals("pre-paginated", metadata.getLayout());

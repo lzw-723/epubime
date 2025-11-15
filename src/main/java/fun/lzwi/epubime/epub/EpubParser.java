@@ -91,6 +91,26 @@ public class EpubParser {
     }
 
     /**
+     * 检测EPUB版本
+     *
+     * @param opfContent OPF文件内容
+     * @return EPUB版本字符串
+     */
+    private String detectEpubVersion(String opfContent) {
+        // 使用更快的解析配置
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+        org.jsoup.nodes.Element packageElement = opfDocument.selectFirst("package");
+        if (packageElement != null) {
+            String version = packageElement.attr("version");
+            if (!version.isEmpty()) {
+                return version;
+            }
+        }
+        // 默认返回3.0，如果无法检测
+        return "3.0";
+    }
+
+    /**
      * 解析EPUB文件并返回EpubBook对象
      *
      * @return 解析后的EpubBook对象
@@ -124,8 +144,12 @@ public class EpubParser {
             throw new EpubFormatException("OPF file not found", epubFile, opfPath);
         }
 
+        // 检测EPUB版本
+        String epubVersion = detectEpubVersion(opfContent);
+        book.setVersion(epubVersion);
+
         // 解析元数据
-        book.setMetadata(metadataParser.parseMetadata(opfContent));
+        book.setMetadata(metadataParser.parseMetadata(opfContent, epubVersion));
 
         // 解析资源文件 - 现在只设置引用，不加载数据
         List<EpubResource> resources = resourceParser.parseResources(opfContent, opfDir);

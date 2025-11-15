@@ -137,7 +137,7 @@ public class MemoryBenchmarkTest {
         long memoryUsed = measureMemoryUsage(() -> {
             try {
                 MetadataParser metadataParser = new MetadataParser();
-                Metadata metadata = metadataParser.parseMetadata(opfContent);
+                Metadata metadata = metadataParser.parseMetadata(opfContent, "3.0");
                 assertNotNull(metadata);
             } catch (Exception e) {
                 throw new RuntimeException(e);

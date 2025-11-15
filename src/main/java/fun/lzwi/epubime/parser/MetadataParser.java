@@ -20,7 +20,8 @@ public class MetadataParser {
     private static final Map<String, String> META_PROPERTY_MAP = new HashMap<>();
     
     static {
-        // 初始化DC元素映射
+        // 初始化DC元素映射 - 支持EPUB2和EPUB3
+        // EPUB3格式 (带命名空间前缀)
         DC_ELEMENT_MAP.put("dc:title", "title");
         DC_ELEMENT_MAP.put("dc:creator", "creator");
         DC_ELEMENT_MAP.put("dc:language", "language");
@@ -34,6 +35,21 @@ public class MetadataParser {
         DC_ELEMENT_MAP.put("dc:source", "source");
         DC_ELEMENT_MAP.put("dc:rights", "rights");
         DC_ELEMENT_MAP.put("dc:contributor", "contributor");
+
+        // EPUB2格式 (不带命名空间前缀或不同命名空间)
+        DC_ELEMENT_MAP.put("title", "title");
+        DC_ELEMENT_MAP.put("creator", "creator");
+        DC_ELEMENT_MAP.put("language", "language");
+        DC_ELEMENT_MAP.put("identifier", "identifier");
+        DC_ELEMENT_MAP.put("publisher", "publisher");
+        DC_ELEMENT_MAP.put("date", "date");
+        DC_ELEMENT_MAP.put("description", "description");
+        DC_ELEMENT_MAP.put("subject", "subject");
+        DC_ELEMENT_MAP.put("type", "type");
+        DC_ELEMENT_MAP.put("format", "format");
+        DC_ELEMENT_MAP.put("source", "source");
+        DC_ELEMENT_MAP.put("rights", "rights");
+        DC_ELEMENT_MAP.put("contributor", "contributor");
         
         // 初始化meta属性映射
         META_PROPERTY_MAP.put("dcterms:rightsHolder", "rightsHolder");
@@ -54,9 +70,10 @@ public class MetadataParser {
      * 解析OPF内容中的元数据
      *
      * @param opfContent OPF文件内容
+     * @param epubVersion EPUB版本
      * @return 元数据对象
      */
-    public Metadata parseMetadata(String opfContent) {
+    public Metadata parseMetadata(String opfContent, String epubVersion) {
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
@@ -71,8 +88,8 @@ public class MetadataParser {
         if (packageElement != null) {
             String uniqueIdentifierId = packageElement.attr("unique-identifier");
             if (!uniqueIdentifierId.isEmpty()) {
-                // 使用更高效的查询方式
-                for (Element identifier : packageElement.select("metadata > dc|identifier")) {
+                // 使用更高效的查询方式，支持EPUB2和EPUB3
+                for (Element identifier : packageElement.select("metadata > dc\\|identifier, metadata > identifier")) {
                     if (uniqueIdentifierId.equals(identifier.attr("id"))) {
                         metadata.setUniqueIdentifier(identifier.text());
                         break; // 找到后立即退出
@@ -97,10 +114,11 @@ public class MetadataParser {
      * 流式解析OPF内容中的元数据，避免加载整个文件到内存
      *
      * @param opfInputStream OPF文件输入流
+     * @param epubVersion EPUB版本
      * @return 元数据对象
      * @throws java.io.IOException IO异常
      */
-    public Metadata parseMetadata(java.io.InputStream opfInputStream) throws java.io.IOException {
+    public Metadata parseMetadata(java.io.InputStream opfInputStream, String epubVersion) throws java.io.IOException {
         if (opfInputStream == null) {
             throw new IllegalArgumentException("OPF input stream cannot be null");
         }
@@ -108,7 +126,7 @@ public class MetadataParser {
         // 对于流式处理，我们仍然需要读取整个流来解析XML结构
         // 但这比预加载所有文件内容要好，因为只处理OPF文件
         String opfContent = readStreamToString(opfInputStream);
-        return parseMetadata(opfContent);
+        return parseMetadata(opfContent, epubVersion);
     }
 
     /**

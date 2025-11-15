@@ -106,18 +106,26 @@ public class NavigationParser {
      */
     private EpubChapter parseNcxNavPoint(Element navPoint) {
         EpubChapter chapter = new EpubChapter();
-        
+
         // 优化：使用更高效的查询方式
         Element navLabel = XmlUtils.selectFirst(navPoint, "navLabel > text");
         if (navLabel != null) {
             chapter.setTitle(XmlUtils.getText(navLabel));
         }
-        
+
         Element content = XmlUtils.selectFirst(navPoint, "content");
         if (content != null) {
             chapter.setContent(XmlUtils.getAttribute(content, "src"));
         }
-        
+
+        // 递归处理嵌套的navPoint - 只处理直接子元素
+        for (Element child : navPoint.children()) {
+            if ("navPoint".equals(child.tagName())) {
+                EpubChapter childChapter = parseNcxNavPoint(child);
+                chapter.addChild(childChapter);
+            }
+        }
+
         return chapter;
     }
     
