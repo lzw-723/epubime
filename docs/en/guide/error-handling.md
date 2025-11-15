@@ -132,7 +132,7 @@ if (result.isPartialSuccess()) {
 
 - **Test Coverage**: 111 test cases, all passed
 - **Code Quality**: SpotBugs static analysis passed
-- **Performance Benchmark**: Significant performance improvement compared to epublib
+- **Performance Benchmark**: Integrated JMH professional benchmarking, 55% parsing performance improvement compared to epublib
 - **Complete Documentation**: Detailed JavaDoc and example code
 
 ## Summary

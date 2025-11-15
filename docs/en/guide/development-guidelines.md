@@ -92,4 +92,4 @@ epubime/
 - **Unit Testing**: Testing for individual classes or methods
 - **Integration Testing**: Validation of interactions between multiple components
 - **Performance Testing**: Validation of library's performance
-- **Benchmark Testing**: Performance comparison with similar libraries
+- **Benchmark Testing**: Professional benchmarking using JMH, performance comparison with libraries like epublib
