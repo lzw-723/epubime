@@ -73,6 +73,10 @@ if (cover != null) {
     byte[] coverData = cover.getData();
 }
 
+// 快速获取书籍信息（无需完整解析）
+EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
+System.out.println("书籍信息: " + info);
+
 // 流式处理章节内容（适合大文件）
 EpubReader.fromFile(epubFile)
     .streamChapters((chapter, inputStream) -> {

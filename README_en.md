@@ -72,6 +72,10 @@ if (cover != null) {
     byte[] coverData = cover.getData();
 }
 
+// Quick book info without full parsing
+EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
+System.out.println("Book info: " + info);
+
 // Stream processing chapters (suitable for large files)
 EpubReader.fromFile(epubFile)
     .streamChapters((chapter, inputStream) -> {
