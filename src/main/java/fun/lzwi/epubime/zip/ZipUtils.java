@@ -90,19 +90,23 @@ public class ZipUtils {
 
         // 缓存未命中，从ZIP文件读取
         ZipFile zip = ZipOperations.getZipFile(zipFile);
-        ZipEntry entry = ZipOperations.getZipEntry(zip, fileName);
-        
-        if (entry == null) {
-            return null;
-        }
+        try {
+            ZipEntry entry = ZipOperations.getZipEntry(zip, fileName);
+            
+            if (entry == null) {
+                return null;
+            }
 
-        try (InputStream in = zip.getInputStream(entry)) {
-            byte[] data = ZipOperations.readBinaryContent(in, entry.getSize());
-            // 缓存结果
-            ZipOperations.cacheBinaryContent(zipFile, fileName, data.clone());
-            return data;
+            try (InputStream in = zip.getInputStream(entry)) {
+                byte[] data = ZipOperations.readBinaryContent(in, entry.getSize());
+                // 缓存结果
+                ZipOperations.cacheBinaryContent(zipFile, fileName, data.clone());
+                return data;
+            }
+        } finally {
+            // 释放ZIP文件句柄，减少引用计数
+            ZipOperations.releaseZipFile();
         }
-        // 注意：这里不关闭ZIP文件，因为它可能被复用
     }
 
     /**
@@ -186,27 +190,31 @@ public class ZipUtils {
         java.util.Map<String, byte[]> contents = new java.util.HashMap<>((int) (fileNames.size() / 0.75f) + 1);
         ZipFile zip = ZipOperations.getZipFile(zipFile);
         
-        byte[] buffer = new byte[ZipOperations.BUFFER_SIZE];
-        
-        for (String fileName : fileNames) {
-            ZipEntry entry = ZipOperations.getZipEntry(zip, fileName);
-            if (entry != null) {
-                try (InputStream in = zip.getInputStream(entry); 
-                     ByteArrayOutputStream out = new ByteArrayOutputStream((int) entry.getSize())) {
-                    
-                    int bytesRead;
-                    while ((bytesRead = in.read(buffer)) != -1) {
-                        out.write(buffer, 0, bytesRead);
+        try {
+            byte[] buffer = new byte[ZipOperations.BUFFER_SIZE];
+            
+            for (String fileName : fileNames) {
+                ZipEntry entry = ZipOperations.getZipEntry(zip, fileName);
+                if (entry != null) {
+                    try (InputStream in = zip.getInputStream(entry); 
+                         ByteArrayOutputStream out = new ByteArrayOutputStream((int) entry.getSize())) {
+                        
+                        int bytesRead;
+                        while ((bytesRead = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, bytesRead);
+                        }
+                        
+                        contents.put(fileName, out.toByteArray());
                     }
-                    
-                    contents.put(fileName, out.toByteArray());
+                } else {
+                    contents.put(fileName, null);
                 }
-            } else {
-                contents.put(fileName, null);
             }
+        } finally {
+            // 释放ZIP文件句柄，减少引用计数
+            ZipOperations.releaseZipFile();
         }
         
-        // 注意：这里不关闭ZIP文件，因为它可能被复用
         return contents;
     }
 
@@ -250,64 +258,5 @@ public class ZipUtils {
         }
     }
 
-    /**
-     * 自定义输入流，自动释放ZIP文件句柄引用
-     */
-    private static class ZipFileInputStream extends InputStream {
-        private final InputStream inputStream;
 
-        public ZipFileInputStream(InputStream inputStream) {
-            this.inputStream = inputStream;
-        }
-
-        @Override
-        public int read() throws IOException {
-            return inputStream.read();
-        }
-
-        @Override
-        public int read(byte[] b) throws IOException {
-            return inputStream.read(b);
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            return inputStream.read(b, off, len);
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            return inputStream.skip(n);
-        }
-
-        @Override
-        public int available() throws IOException {
-            return inputStream.available();
-        }
-
-        @Override
-        public void close() throws IOException {
-            try {
-                inputStream.close();
-            } finally {
-                // 当流关闭时释放ZIP文件句柄引用
-                ZipOperations.releaseZipFile();
-            }
-        }
-
-        @Override
-        public void mark(int readlimit) {
-            inputStream.mark(readlimit);
-        }
-
-        @Override
-        public void reset() throws IOException {
-            inputStream.reset();
-        }
-
-        @Override
-        public boolean markSupported() {
-            return inputStream.markSupported();
-        }
-    }
 }

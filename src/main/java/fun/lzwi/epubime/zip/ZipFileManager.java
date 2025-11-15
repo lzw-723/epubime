@@ -1,1 +1,340 @@
-package fun.lzwi.epubime.zip;import java.io.Closeable;import java.io.File;import java.io.IOException;import java.util.concurrent.atomic.AtomicInteger;import java.util.zip.ZipFile;/** * ZIP文件句柄管理器 * 提供ZIP文件句柄的重用和管理，优化延迟加载性能 */public class ZipFileManager {    // 单例实例    private static final ZipFileManager INSTANCE = new ZipFileManager();        // 线程本地存储，每个线程维护自己的ZIP文件句柄    private final ThreadLocal<ZipFileHolder> threadLocalZipFile = new ThreadLocal<>();        /**     * 私有构造函数，防止外部实例化     */    private ZipFileManager() {}        /**     * 获取ZIP文件管理器实例     * @return ZIP文件管理器实例     */    public static ZipFileManager getInstance() {        return INSTANCE;    }        /**     * 获取ZIP文件句柄，支持重用     * @param zipFile ZIP文件     * @return ZIP文件句柄     * @throws IOException IO异常     */    public ZipFile getZipFile(File zipFile) throws IOException {        ZipFileHolder holder = threadLocalZipFile.get();        if (holder != null && holder.isValid() && holder.getFile().equals(zipFile)) {            // 重用现有的ZIP文件句柄，增加引用计数            holder.incrementUsage();            return holder.getZipFile();        } else {            // 关闭旧的句柄（如果存在）            if (holder != null) {                holder.decrementUsage(); // 减少旧句柄的引用计数，可能会导致关闭            }                        // 创建新的ZIP文件句柄            ZipFile newZipFile = new ZipFile(zipFile);            holder = new ZipFileHolder(newZipFile, zipFile);            threadLocalZipFile.set(holder);            return newZipFile;        }    }        /**     * 释放ZIP文件句柄，减少引用计数     * 当引用计数归零时，关闭ZIP文件句柄     */    public void releaseZipFile() {        ZipFileHolder holder = threadLocalZipFile.get();        if (holder != null) {            holder.decrementUsage(); // 减少引用计数，可能会导致关闭        }    }        /**     * 显式关闭当前线程的ZIP文件句柄     */    public void closeCurrentZipFile() {        ZipFileHolder holder = threadLocalZipFile.get();        if (holder != null) {            holder.forceClose(); // 强制关闭，忽略引用计数            threadLocalZipFile.remove();        }    }        /**     * 清理当前线程的所有资源     */    public void cleanup() {        closeCurrentZipFile();    }        /**     * ZIP文件句柄包装器     */    private static class ZipFileHolder implements Closeable {        private ZipFile zipFile;        private File file;        private final AtomicInteger usageCount; // 使用原子计数器以确保线程安全        private volatile boolean closed; // 使用volatile确保多线程可见性                /**         * 构造函数         * @param zipFile ZIP文件句柄         * @param file 对应的文件         */        public ZipFileHolder(ZipFile zipFile, File file) {            this.zipFile = zipFile;            this.file = file;            this.usageCount = new AtomicInteger(1);            this.closed = false;        }                /**         * 获取ZIP文件句柄         * @return ZIP文件句柄         */        public ZipFile getZipFile() {            return zipFile;        }                /**         * 获取对应的文件         * @return 对应的文件         */        public File getFile() {            return file;        }                /**         * 增加使用计数         */        public void incrementUsage() {            usageCount.incrementAndGet();        }                /**         * 减少使用计数，当计数归零时自动关闭ZIP文件         */        public void decrementUsage() {            int count = usageCount.decrementAndGet();            if (count <= 0) {                close();            }        }                /**         * 强制关闭ZIP文件，忽略引用计数         */        public void forceClose() {            close();        }                /**         * 检查句柄是否有效         * @return 如果有效返回true，否则返回false         */        public boolean isValid() {            return !closed && zipFile != null;        }                @Override        public void close() {            if (!closed && zipFile != null) {                synchronized (this) {                    if (!closed && zipFile != null) {                        try {                            zipFile.close();                        } catch (IOException e) {                            // 忽略关闭异常                        } finally {                            zipFile = null;                            closed = true;                        }                    }                }            }        }    }}
+package fun.lzwi.epubime.zip;
+
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.ZipFile;
+
+
+
+/**
+
+ * ZIP文件句柄管理器
+
+ * 提供ZIP文件句柄的重用和管理，优化延迟加载性能
+
+ */
+
+public class ZipFileManager {
+
+    // 单例实例
+
+    private static final ZipFileManager INSTANCE = new ZipFileManager();
+
+    
+
+    // 线程本地存储，每个线程维护自己的ZIP文件句柄
+
+    private final ThreadLocal<ZipFileHolder> threadLocalZipFile = new ThreadLocal<>();
+
+    
+
+    /**
+
+     * 私有构造函数，防止外部实例化
+
+     */
+
+    private ZipFileManager() {}
+
+    
+
+    /**
+
+     * 获取ZIP文件管理器实例
+
+     * @return ZIP文件管理器实例
+
+     */
+
+    public static ZipFileManager getInstance() {
+
+        return INSTANCE;
+
+    }
+
+    
+
+    /**
+
+     * 获取ZIP文件句柄，支持重用
+
+     * @param zipFile ZIP文件
+
+     * @return ZIP文件句柄
+
+     * @throws IOException IO异常
+
+     */
+
+    public ZipFile getZipFile(File zipFile) throws IOException {
+
+        ZipFileHolder holder = threadLocalZipFile.get();
+
+        if (holder != null && holder.isValid() && holder.getFile().equals(zipFile)) {
+
+            // 重用现有的ZIP文件句柄，增加引用计数
+
+            holder.incrementUsage();
+
+            return holder.getZipFile();
+
+        } else {
+
+            // 关闭旧的句柄（如果存在）
+
+            if (holder != null) {
+
+                holder.decrementUsage(); // 减少旧句柄的引用计数，可能会导致关闭
+
+            }
+
+            
+
+            // 创建新的ZIP文件句柄
+
+            ZipFile newZipFile = new ZipFile(zipFile);
+
+            holder = new ZipFileHolder(newZipFile, zipFile);
+
+            threadLocalZipFile.set(holder);
+
+            return newZipFile;
+
+        }
+
+    }
+
+    
+
+    /**
+
+     * 释放ZIP文件句柄，减少引用计数
+
+     * 当引用计数归零时，关闭ZIP文件句柄
+
+     */
+
+    public void releaseZipFile() {
+
+        ZipFileHolder holder = threadLocalZipFile.get();
+
+        if (holder != null) {
+
+            holder.decrementUsage(); // 减少引用计数，可能会导致关闭
+
+        }
+
+    }
+
+    
+
+    /**
+
+     * 显式关闭当前线程的ZIP文件句柄
+
+     */
+
+    public void closeCurrentZipFile() {
+
+        ZipFileHolder holder = threadLocalZipFile.get();
+
+        if (holder != null) {
+
+            holder.forceClose(); // 强制关闭，忽略引用计数
+
+            threadLocalZipFile.remove();
+
+        }
+
+    }
+
+    
+
+    /**
+
+     * 清理当前线程的所有资源
+
+     */
+
+    public void cleanup() {
+
+        closeCurrentZipFile();
+
+    }
+
+    
+
+    /**
+
+     * ZIP文件句柄包装器
+
+     */
+
+    private static class ZipFileHolder implements Closeable {
+
+        private ZipFile zipFile;
+
+        private File file;
+
+        private final AtomicInteger usageCount; // 使用原子计数器以确保线程安全
+
+        private volatile boolean closed; // 使用volatile确保多线程可见性
+
+        
+
+        /**
+
+         * 构造函数
+
+         * @param zipFile ZIP文件句柄
+
+         * @param file 对应的文件
+
+         */
+
+        public ZipFileHolder(ZipFile zipFile, File file) {
+
+            this.zipFile = zipFile;
+
+            this.file = file;
+
+            this.usageCount = new AtomicInteger(1);
+
+            this.closed = false;
+
+        }
+
+        
+
+        /**
+
+         * 获取ZIP文件句柄
+
+         * @return ZIP文件句柄
+
+         */
+
+        public ZipFile getZipFile() {
+
+            return zipFile;
+
+        }
+
+        
+
+        /**
+
+         * 获取对应的文件
+
+         * @return 对应的文件
+
+         */
+
+        public File getFile() {
+
+            return file;
+
+        }
+
+        
+
+        /**
+
+         * 增加使用计数
+
+         */
+
+        public void incrementUsage() {
+
+            usageCount.incrementAndGet();
+
+        }
+
+        
+
+        /**
+
+         * 减少使用计数，当计数归零时自动关闭ZIP文件
+
+         */
+
+        public void decrementUsage() {
+
+            int count = usageCount.decrementAndGet();
+
+            if (count <= 0) {
+
+                close();
+
+            }
+
+        }
+
+        
+
+        /**
+
+         * 强制关闭ZIP文件，忽略引用计数
+
+         */
+
+        public void forceClose() {
+
+            close();
+
+        }
+
+        
+
+        /**
+
+         * 检查句柄是否有效
+
+         * @return 如果有效返回true，否则返回false
+
+         */
+
+        public boolean isValid() {
+
+            return !closed && zipFile != null;
+
+        }
+
+        
+
+        @Override
+
+        public void close() {
+
+            synchronized (this) {
+
+                if (!closed && zipFile != null) {
+
+                    try {
+
+                        zipFile.close();
+
+                    } catch (IOException e) {
+
+                        // 忽略关闭异常
+
+                    } finally {
+
+                        zipFile = null;
+
+                        closed = true;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
