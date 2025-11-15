@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +44,8 @@ public class MemoryBenchmarkTest {
      * Measures memory usage before and after an operation
      */
     private long measureMemoryUsage(Runnable operation) {
+        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+
         // Force garbage collection to get more accurate measurements
         System.gc();
         try {
@@ -50,7 +54,7 @@ public class MemoryBenchmarkTest {
             Thread.currentThread().interrupt();
         }
 
-        long beforeMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long beforeMemory = memoryBean.getHeapMemoryUsage().getUsed();
 
         operation.run();
 
@@ -62,9 +66,9 @@ public class MemoryBenchmarkTest {
             Thread.currentThread().interrupt();
         }
 
-        long afterMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long afterMemory = memoryBean.getHeapMemoryUsage().getUsed();
 
-        return afterMemory - beforeMemory;
+        return Math.max(0, afterMemory - beforeMemory);
     }
 
     /**
