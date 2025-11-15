@@ -68,7 +68,7 @@ Asynchronously gets basic information about an EPUB file.
 **Returns:**
 - `CompletableFuture<EpubReader.EpubInfo>`: CompletableFuture containing basic EPUB information
 
-### processChaptersAsync(File epubFile, BiConsumer<EpubChapter, InputStream> processor)
+### processChaptersAsync(File epubFile, BiConsumer&lt;EpubChapter, InputStream&gt; processor)
 Asynchronously processes chapters using stream processing.
 
 **Parameters:**
@@ -78,7 +78,7 @@ Asynchronously processes chapters using stream processing.
 **Returns:**
 - `CompletableFuture<Void>`: CompletableFuture that completes when all chapters are processed
 
-### processChapterAsync(File epubFile, String chapterId, Consumer<InputStream> processor)
+### processChapterAsync(File epubFile, String chapterId, Consumer&lt;InputStream&gt; processor)
 Asynchronously processes a specific chapter.
 
 **Parameters:**
@@ -89,7 +89,7 @@ Asynchronously processes a specific chapter.
 **Returns:**
 - `CompletableFuture<Void>`: CompletableFuture that completes when the chapter is processed
 
-### processResourcesAsync(File epubFile, Function<EpubResource, Void> processor)
+### processResourcesAsync(File epubFile, Function&lt;EpubResource, Void&gt; processor)
 Asynchronously processes all resources.
 
 **Parameters:**
@@ -145,7 +145,7 @@ Asynchronously loads enhanced metadata.
 **Returns:**
 - `CompletableFuture<MetadataEnhanced>`: CompletableFuture containing the enhanced metadata
 
-### processMultipleBooksAsync(List<File> epubFiles, Function<EpubBook, EpubBook> processor)
+### processMultipleBooksAsync(List&lt;File&gt; epubFiles, Function&lt;EpubBook, EpubBook&gt; processor)
 Processes multiple EPUB files in parallel.
 
 **Parameters:**

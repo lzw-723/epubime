@@ -86,7 +86,7 @@ Parses only the table of contents of the EPUB file.
 - `IOException`: I/O operation failures
 - `EpubPathValidationException`: Path validation failures
 
-### streamChapters(BiConsumer<EpubChapter, InputStream> processor)
+### streamChapters(BiConsumer&lt;EpubChapter, InputStream&gt; processor)
 Processes chapter content in a streaming manner without loading the entire content into memory.
 
 **Parameters:**
@@ -97,7 +97,7 @@ Processes chapter content in a streaming manner without loading the entire conte
 - `IOException`: I/O operation failures
 - `EpubPathValidationException`: Path validation failures
 
-### streamChapter(String chapterId, Consumer<InputStream> processor)
+### streamChapter(String chapterId, Consumer&lt;InputStream&gt; processor)
 Processes the content of a specific chapter in a streaming manner.
 
 **Parameters:**
@@ -109,7 +109,7 @@ Processes the content of a specific chapter in a streaming manner.
 - `EpubPathValidationException`: Path validation failures
 - `IOException`: I/O operation failures
 
-### processResources(Function<EpubResource, Void> processor)
+### processResources(Function&lt;EpubResource, Void&gt; processor)
 Processes all resource files.
 
 **Parameters:**

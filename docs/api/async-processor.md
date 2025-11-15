@@ -68,7 +68,7 @@ public class AsyncEpubProcessor
 **返回值:**
 - `CompletableFuture<EpubReader.EpubInfo>`: 包含基本 EPUB 信息的 CompletableFuture
 
-### processChaptersAsync(File epubFile, BiConsumer<EpubChapter, InputStream> processor)
+### processChaptersAsync(File epubFile, BiConsumer&lt;EpubChapter, InputStream&gt; processor)
 使用流处理异步处理章节。
 
 **参数:**
@@ -78,7 +78,7 @@ public class AsyncEpubProcessor
 **返回值:**
 - `CompletableFuture<Void>`: 在所有章节处理完成时完成的 CompletableFuture
 
-### processChapterAsync(File epubFile, String chapterId, Consumer<InputStream> processor)
+### processChapterAsync(File epubFile, String chapterId, Consumer&lt;InputStream&gt; processor)
 异步处理特定章节。
 
 **参数:**
@@ -89,7 +89,7 @@ public class AsyncEpubProcessor
 **返回值:**
 - `CompletableFuture<Void>`: 在章节处理完成时完成的 CompletableFuture
 
-### processResourcesAsync(File epubFile, Function<EpubResource, Void> processor)
+### processResourcesAsync(File epubFile, Function&lt;EpubResource, Void&gt; processor)
 异步处理所有资源。
 
 **参数:**
@@ -145,7 +145,7 @@ public class AsyncEpubProcessor
 **返回值:**
 - `CompletableFuture<MetadataEnhanced>`: 包含增强元数据的 CompletableFuture
 
-### processMultipleBooksAsync(List<File> epubFiles, Function<EpubBook, EpubBook> processor)
+### processMultipleBooksAsync(List&lt;File&gt; epubFiles, Function&lt;EpubBook, EpubBook&gt; processor)
 并行处理多个 EPUB 文件。
 
 **参数:**

@@ -142,7 +142,7 @@ Checks if the book has a cover.
 **Returns:**
 - `boolean`: True if the book has a cover
 
-### processChapterContent(EpubChapter chapter, Consumer<InputStream> processor)
+### processChapterContent(EpubChapter chapter, Consumer&lt;InputStream&gt; processor)
 Processes chapter content using stream processing.
 
 **Parameters:**

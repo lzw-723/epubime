@@ -142,7 +142,7 @@ public class EpubBookEnhanced
 **返回值:**
 - `boolean`: 如果有封面返回 true
 
-### processChapterContent(EpubChapter chapter, Consumer<InputStream> processor)
+### processChapterContent(EpubChapter chapter, Consumer&lt;InputStream&gt; processor)
 使用流处理处理章节内容。
 
 **参数:**

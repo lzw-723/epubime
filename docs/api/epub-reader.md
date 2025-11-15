@@ -86,7 +86,7 @@ public class EpubReader
 - `IOException`: I/O 操作失败
 - `EpubPathValidationException`: 路径验证失败
 
-### streamChapters(BiConsumer<EpubChapter, InputStream> processor)
+### streamChapters(BiConsumer&lt;EpubChapter, InputStream&gt; processor)
 流式处理章节内容，不将整个内容加载到内存中。
 
 **参数:**
@@ -97,7 +97,7 @@ public class EpubReader
 - `IOException`: I/O 操作失败
 - `EpubPathValidationException`: 路径验证失败
 
-### streamChapter(String chapterId, Consumer<InputStream> processor)
+### streamChapter(String chapterId, Consumer&lt;InputStream&gt; processor)
 流式处理特定章节的内容。
 
 **参数:**
@@ -109,7 +109,7 @@ public class EpubReader
 - `EpubPathValidationException`: 路径验证失败
 - `IOException`: I/O 操作失败
 
-### processResources(Function<EpubResource, Void> processor)
+### processResources(Function&lt;EpubResource, Void&gt; processor)
 处理所有资源文件。
 
 **参数:**
