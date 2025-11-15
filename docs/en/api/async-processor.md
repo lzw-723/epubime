@@ -1,440 +1,221 @@
-# API Reference
+# AsyncEpubProcessor
 
-## AsyncEpubProcessor
+`AsyncEpubProcessor` is an asynchronous processor in the EPUBime library that provides non-blocking EPUB processing operations. This class allows users to execute various EPUB parsing and processing tasks in background threads, avoiding blocking the main thread.
 
-`AsyncEpubProcessor` is the asynchronous processor class provided by the EPUBime library, supporting asynchronous parsing and processing of EPUB files.
-
-### Constructor
+## Class Definition
 
 ```java
-public AsyncEpubProcessor()
-```
-Creates a new asynchronous processor instance.
-
-### Asynchronous Parsing Methods
-
-#### parseBookAsync()
-```java
-public CompletableFuture<EpubBook> parseBookAsync(File epubFile)
-```
-Parses EPUB file asynchronously.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<EpubBook>`: Asynchronous return of parsed book object
-
-#### parseMetadataAsync()
-```java
-public CompletableFuture<Metadata> parseMetadataAsync(File epubFile)
-```
-Parses EPUB file metadata asynchronously.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<Metadata>`: Asynchronous return of parsed metadata object
-
-#### getBookInfoAsync()
-```java
-public CompletableFuture<EpubReader.EpubInfo> getBookInfoAsync(File epubFile)
-```
-Gets EPUB file basic information asynchronously.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<EpubReader.EpubInfo>`: Asynchronous return of book basic information
-
-### Asynchronous Processing Methods
-
-#### processChaptersAsync()
-```java
-public CompletableFuture<Void> processChaptersAsync(File epubFile, BiConsumer<EpubChapter, InputStream> processor)
-```
-Asynchronously stream processes all chapter content.
-
-Parameters:
-- `epubFile`: EPUB file
-- `processor`: Chapter content processor
-
-Returns:
-- `CompletableFuture<Void>`: Asynchronous processing completion signal
-
-#### validateAsync()
-```java
-public CompletableFuture<Boolean> validateAsync(File epubFile)
-```
-Asynchronously validates EPUB file validity.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<Boolean>`: Asynchronous return of validation result
-
-### Enhanced Object Asynchronous Loading
-
-#### loadEnhancedBookAsync()
-```java
-public CompletableFuture<EpubBookEnhanced> loadEnhancedBookAsync(File epubFile)
-```
-Asynchronously loads enhanced book object.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<EpubBookEnhanced>`: Asynchronous return of enhanced book object
-
-#### loadEnhancedMetadataAsync()
-```java
-public CompletableFuture<MetadataEnhanced> loadEnhancedMetadataAsync(File epubFile)
-```
-Asynchronously loads enhanced metadata object.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<MetadataEnhanced>`: Asynchronous return of enhanced metadata object
-
-### Statistical Information Asynchronous Retrieval
-
-#### getChapterCountAsync()
-```java
-public CompletableFuture<Integer> getChapterCountAsync(File epubFile)
-```
-Asynchronously gets chapter count.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<Integer>`: Asynchronous return of chapter count
-
-#### getResourceCountAsync()
-```java
-public CompletableFuture<Integer> getResourceCountAsync(File epubFile)
-```
-Asynchronously gets resource count.
-
-Parameters:
-- `epubFile`: EPUB file
-
-Returns:
-- `CompletableFuture<Integer>`: Asynchronous return of resource count
-
-### Batch Processing
-
-#### processMultipleBooksAsync()
-```java
-public CompletableFuture<List<EpubBook>> processMultipleBooksAsync(List<File> epubFiles,
-                                                                  Function<EpubBook, EpubBook> processor)
-```
-Asynchronously batch processes multiple EPUB files.
-
-Parameters:
-- `epubFiles`: EPUB file list
-- `processor`: Book processor function
-
-Returns:
-- `CompletableFuture<List<EpubBook>>`: Asynchronous return of processed book list
-
-### Lifecycle Management
-
-#### shutdown()
-```java
-public void shutdown()
-```
-Shuts down the asynchronous processor and releases resources.
-
-### Usage Examples
-
-#### Basic Asynchronous Operations
-
-```java
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
-
-try {
-    // Asynchronous book parsing
-    CompletableFuture<EpubBook> bookFuture = asyncProcessor.parseBookAsync(epubFile);
-
-    // Asynchronous metadata parsing
-    CompletableFuture<Metadata> metadataFuture = asyncProcessor.parseMetadataAsync(epubFile);
-
-    // Asynchronous basic information retrieval
-    CompletableFuture<EpubReader.EpubInfo> infoFuture = asyncProcessor.getBookInfoAsync(epubFile);
-
-    // Wait for all asynchronous operations to complete
-    CompletableFuture.allOf(bookFuture, metadataFuture, infoFuture).join();
-
-    // Get results
-    EpubBook book = bookFuture.get();
-    Metadata metadata = metadataFuture.get();
-    EpubReader.EpubInfo info = infoFuture.get();
-
-    System.out.println("Asynchronous parsing completed:");
-    System.out.println("Title: " + metadata.getTitle());
-    System.out.println("Chapter count: " + book.getChapters().size());
-    System.out.println("File size: " + info.getFileSize() + " bytes");
-
-} finally {
-    asyncProcessor.shutdown();
-}
+public class AsyncEpubProcessor
 ```
 
-#### Asynchronous Streaming Processing
+## Constructors
+
+### AsyncEpubProcessor()
+Creates an asynchronous processor with the default executor (cached thread pool).
+
+### AsyncEpubProcessor(Executor executor)
+Creates an asynchronous processor with a custom executor.
+
+**Parameters:**
+- `executor`: The executor to use for asynchronous operations
+
+## Methods
+
+### parseBookAsync(File epubFile)
+Asynchronously parses an EPUB file.
+
+**Parameters:**
+- `epubFile`: The EPUB file to parse
+
+**Returns:**
+- `CompletableFuture<EpubBook>`: CompletableFuture containing the parsed EpubBook
+
+### parseBookAsync(File epubFile, boolean useCache, boolean lazyLoading)
+Asynchronously parses an EPUB file with specified cache and lazy loading options.
+
+**Parameters:**
+- `epubFile`: The EPUB file to parse
+- `useCache`: Whether to use caching
+- `lazyLoading`: Whether to use lazy loading
+
+**Returns:**
+- `CompletableFuture<EpubBook>`: CompletableFuture containing the parsed EpubBook
+
+### parseMetadataAsync(File epubFile)
+Asynchronously parses the metadata of an EPUB file.
+
+**Parameters:**
+- `epubFile`: The EPUB file to parse
+
+**Returns:**
+- `CompletableFuture<Metadata>`: CompletableFuture containing the metadata
+
+### parseTableOfContentsAsync(File epubFile)
+Asynchronously parses the table of contents of an EPUB file.
+
+**Parameters:**
+- `epubFile`: The EPUB file to parse
+
+**Returns:**
+- `CompletableFuture<List<EpubChapter>>`: CompletableFuture containing the list of chapters
+
+### getBookInfoAsync(File epubFile)
+Asynchronously gets basic information about an EPUB file.
+
+**Parameters:**
+- `epubFile`: The EPUB file to analyze
+
+**Returns:**
+- `CompletableFuture<EpubReader.EpubInfo>`: CompletableFuture containing basic EPUB information
+
+### processChaptersAsync(File epubFile, BiConsumer<EpubChapter, InputStream> processor)
+Asynchronously processes chapters using stream processing.
+
+**Parameters:**
+- `epubFile`: The EPUB file to process
+- `processor`: Processor for each chapter
+
+**Returns:**
+- `CompletableFuture<Void>`: CompletableFuture that completes when all chapters are processed
+
+### processChapterAsync(File epubFile, String chapterId, Consumer<InputStream> processor)
+Asynchronously processes a specific chapter.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+- `chapterId`: The ID of the chapter to process
+- `processor`: Processor for the chapter content
+
+**Returns:**
+- `CompletableFuture<Void>`: CompletableFuture that completes when the chapter is processed
+
+### processResourcesAsync(File epubFile, Function<EpubResource, Void> processor)
+Asynchronously processes all resources.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+- `processor`: Function to process each resource
+
+**Returns:**
+- `CompletableFuture<Void>`: CompletableFuture that completes when processing is done
+
+### getCoverAsync(File epubFile)
+Asynchronously gets the cover resource.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+
+**Returns:**
+- `CompletableFuture<EpubResource>`: CompletableFuture containing the cover resource, or null if not found
+
+### getResourceAsync(File epubFile, String resourceId)
+Asynchronously gets a specific resource.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+- `resourceId`: The resource ID
+
+**Returns:**
+- `CompletableFuture<EpubResource>`: CompletableFuture containing the resource, or null if not found
+
+### validateAsync(File epubFile)
+Asynchronously validates an EPUB file.
+
+**Parameters:**
+- `epubFile`: The EPUB file to validate
+
+**Returns:**
+- `CompletableFuture<Boolean>`: CompletableFuture containing the validation result
+
+### loadEnhancedBookAsync(File epubFile)
+Asynchronously loads an enhanced book object.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+
+**Returns:**
+- `CompletableFuture<EpubBookEnhanced>`: CompletableFuture containing the enhanced book object
+
+### loadEnhancedMetadataAsync(File epubFile)
+Asynchronously loads enhanced metadata.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+
+**Returns:**
+- `CompletableFuture<MetadataEnhanced>`: CompletableFuture containing the enhanced metadata
+
+### processMultipleBooksAsync(List<File> epubFiles, Function<EpubBook, EpubBook> processor)
+Processes multiple EPUB files in parallel.
+
+**Parameters:**
+- `epubFiles`: List of EPUB files to process
+- `processor`: Function to process each book
+
+**Returns:**
+- `CompletableFuture<List<EpubBook>>`: CompletableFuture containing the list of processed books
+
+### getChapterCountAsync(File epubFile)
+Asynchronously gets the chapter count.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+
+**Returns:**
+- `CompletableFuture<Integer>`: CompletableFuture containing the chapter count
+
+### getResourceCountAsync(File epubFile)
+Asynchronously gets the resource count.
+
+**Parameters:**
+- `epubFile`: The EPUB file
+
+**Returns:**
+- `CompletableFuture<Integer>`: CompletableFuture containing the resource count
+
+### shutdown()
+Shuts down the processor and releases resources.
+
+## Usage Examples
 
 ```java
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+// Create asynchronous processor
+AsyncEpubProcessor processor = new AsyncEpubProcessor();
 
-try {
-    // Asynchronous streaming processing of all chapters
-    CompletableFuture<Void> processingFuture = asyncProcessor.processChaptersAsync(
-        epubFile,
-        (chapter, inputStream) -> {
-            try {
-                System.out.println("Asynchronously processing chapter: " + chapter.getTitle());
+// Asynchronously parse book
+CompletableFuture<EpubBook> futureBook = processor.parseBookAsync(new File("book.epub"));
+futureBook.thenAccept(book -> {
+    System.out.println("Parsing completed: " + book.getMetadata().getTitle());
+}).exceptionally(throwable -> {
+    System.err.println("Parsing failed: " + throwable.getMessage());
+    return null;
+});
 
-                // Calculate chapter size
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                int totalBytes = 0;
-
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    totalBytes += bytesRead;
-                }
-
-                System.out.println("Chapter '" + chapter.getTitle() + "' size: " + totalBytes + " bytes");
-
-            } catch (IOException e) {
-                System.err.println("Failed to process chapter: " + chapter.getTitle());
-            }
-        }
-    );
-
-    // Wait for processing to complete
-    processingFuture.join();
-    System.out.println("Asynchronous chapter processing completed");
-
-} finally {
-    asyncProcessor.shutdown();
-}
-```
-
-#### Asynchronous Validation and Enhanced Objects
-
-```java
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
-
-try {
-    // Asynchronous validation
-    asyncProcessor.validateAsync(epubFile)
-        .thenAccept(isValid -> {
-            System.out.println("EPUB validation result: " + (isValid ? "Valid" : "Invalid"));
-        })
-        .join();
-
-    // Asynchronous loading of enhanced book object
-    CompletableFuture<EpubBookEnhanced> enhancedBookFuture =
-        asyncProcessor.loadEnhancedBookAsync(epubFile);
-
-    EpubBookEnhanced enhancedBook = enhancedBookFuture.get();
-
-    System.out.println("Enhanced book information:");
-    System.out.println("Title: " + enhancedBook.getTitle());
-    System.out.println("Total chapter count: " + enhancedBook.getChapterCount());
-    System.out.println("Image resource count: " + enhancedBook.getImageResources().size());
-
-    // Asynchronous loading of enhanced metadata
-    CompletableFuture<MetadataEnhanced> enhancedMetadataFuture =
-        asyncProcessor.loadEnhancedMetadataAsync(epubFile);
-
-    MetadataEnhanced enhancedMetadata = enhancedMetadataFuture.get();
-
-    System.out.println("Enhanced metadata information:");
-    System.out.println("Summary: " + enhancedMetadata.getSummary());
-
-    if (enhancedMetadata.hasAccessibilityFeatures()) {
-        System.out.println("Accessibility features: " + enhancedMetadata.getAccessibilityFeatures());
+// Asynchronously get cover
+CompletableFuture<EpubResource> futureCover = processor.getCoverAsync(new File("book.epub"));
+futureCover.thenAccept(cover -> {
+    if (cover != null) {
+        System.out.println("Cover found: " + cover.getHref());
     }
+});
 
-} finally {
-    asyncProcessor.shutdown();
-}
-```
-
-#### Batch Processing Example
-
-```java
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
-
-try {
-    List<File> epubFiles = Arrays.asList(
-        new File("book1.epub"),
-        new File("book2.epub"),
-        new File("book3.epub"),
-        new File("book4.epub")
-    );
-
-    // Asynchronous batch processing of multiple books
-    asyncProcessor.processMultipleBooksAsync(epubFiles, book -> {
-        String title = book.getMetadata().getTitle();
-        int chapterCount = book.getChapters().size();
-        int resourceCount = book.getResources().size();
-
-        System.out.println("Processing completed: '" + title + "'");
-        System.out.println("  Chapter count: " + chapterCount);
-        System.out.println("  Resource count: " + resourceCount);
-
-        return book;
-    }).thenAccept(books -> {
-        System.out.println("Batch processing completed, processed " + books.size() + " books");
-
-        // Calculate statistics
-        int totalChapters = books.stream().mapToInt(b -> b.getChapters().size()).sum();
-        int totalResources = books.stream().mapToInt(b -> b.getResources().size()).sum();
-
-        System.out.println("Total chapters: " + totalChapters);
-        System.out.println("Total resources: " + totalResources);
-    }).join();
-
-} finally {
-    asyncProcessor.shutdown();
-}
-```
-
-#### Advanced Asynchronous Patterns
-
-```java
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
-
-try {
-    File epubFile = new File("large-book.epub");
-
-    // Combine multiple asynchronous operations
-    CompletableFuture<EpubBook> bookFuture = asyncProcessor.parseBookAsync(epubFile);
-    CompletableFuture<Metadata> metadataFuture = asyncProcessor.parseMetadataAsync(epubFile);
-    CompletableFuture<EpubReader.EpubInfo> infoFuture = asyncProcessor.getBookInfoAsync(epubFile);
-
-    // When book parsing completes, asynchronously process its content
-    CompletableFuture<Void> contentProcessingFuture = bookFuture.thenCompose(book -> {
-        return asyncProcessor.processChaptersAsync(epubFile, (chapter, inputStream) -> {
-            // Asynchronously process each chapter
-            processChapterAsync(chapter, inputStream);
-        });
-    });
-
-    // When metadata parsing completes, asynchronously validate and enhance
-    CompletableFuture<Void> metadataProcessingFuture = metadataFuture.thenCompose(metadata -> {
-        return asyncProcessor.loadEnhancedMetadataAsync(epubFile)
-            .thenAccept(enhanced -> {
-                System.out.println("Enhanced metadata summary: " + enhanced.getSummary());
-            });
-    });
-
-    // Wait for all operations to complete
-    CompletableFuture.allOf(
-        bookFuture,
-        metadataFuture,
-        infoFuture,
-        contentProcessingFuture,
-        metadataProcessingFuture
-    ).join();
-
-    System.out.println("All asynchronous operations completed");
-
-} finally {
-    asyncProcessor.shutdown();
-}
-
-// Helper method
-private void processChapterAsync(EpubChapter chapter, InputStream inputStream) {
-    // Logic for asynchronously processing chapter content
-    CompletableFuture.runAsync(() -> {
-        try {
-            // Actual chapter processing logic
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            int totalBytes = 0;
-
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                totalBytes += bytesRead;
-            }
-
-            System.out.println("Asynchronously processed chapter '" + chapter.getTitle() + "': " + totalBytes + " bytes");
-
-        } catch (IOException e) {
-            System.err.println("Asynchronous chapter processing failed: " + chapter.getTitle());
-        }
-    });
-}
-```
-
-#### Error Handling and Timeouts
-
-```java
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
-
-try {
-    // Set timeout
-    CompletableFuture<EpubBook> bookFuture = asyncProcessor.parseBookAsync(epubFile)
-        .orTimeout(30, TimeUnit.SECONDS)  // 30 second timeout
-        .exceptionally(throwable -> {
-            System.err.println("Parsing failed: " + throwable.getMessage());
-            return null;  // Return default value
-        });
-
-    // Process result
-    EpubBook book = bookFuture.get();
-    if (book != null) {
-        System.out.println("Successfully parsed: " + book.getMetadata().getTitle());
-    } else {
-        System.out.println("Parsing failed, using default handling");
-    }
-
-    // Error handling in batch processing
-    List<File> epubFiles = Arrays.asList(file1, file2, file3);
-
-    asyncProcessor.processMultipleBooksAsync(epubFiles, book -> {
+// Asynchronously process multiple books
+List<File> epubFiles = Arrays.asList(new File("book1.epub"), new File("book2.epub"));
+CompletableFuture<List<EpubBook>> futureBooks = processor.processMultipleBooksAsync(epubFiles, 
+    book -> {
         // Process each book
         return book;
-    }).exceptionally(throwable -> {
-        System.err.println("Batch processing error: " + throwable.getMessage());
-        return Collections.emptyList();  // Return empty list
-    }).thenAccept(books -> {
-        System.out.println("Successfully processed " + books.size() + " books");
-    }).join();
+    });
+futureBooks.thenAccept(books -> {
+    System.out.println("Processed " + books.size() + " books");
+});
 
-} finally {
-    asyncProcessor.shutdown();
-}
+// Shutdown processor when done
+processor.shutdown();
 ```
 
-#### Custom Executor
+## Notes
 
-```java
-// Use custom thread pool
-ExecutorService customExecutor = Executors.newFixedThreadPool(4);
-AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor(customExecutor);
-
-try {
-    // Use custom executor for asynchronous processing
-    List<File> epubFiles = Arrays.asList(file1, file2, file3, file4, file5);
-
-    asyncProcessor.processMultipleBooksAsync(epubFiles, book -> {
-        System.out.println("Processing with custom executor: " + book.getMetadata().getTitle());
-        return book;
-    }).thenAccept(books -> {
-        System.out.println("Custom executor processing completed: " + books.size() + " books");
-    }).join();
-
-} finally {
-    asyncProcessor.shutdown();
-    customExecutor.shutdown();  // Shutdown custom executor
-}
-```
+- When using the asynchronous processor, ensure that the processor is shut down before the application ends to release thread resources.
+- The results of asynchronous operations are provided through CompletableFuture, which can be followed up with methods like thenAccept and thenApply.
+- For long-running asynchronous operations, it is recommended to use appropriate thread pool configurations.

@@ -1,367 +1,206 @@
-# API Reference
+# EpubReader
 
-## EpubReader
+`EpubReader` is the modern Fluent API entry point for the EPUBime library, providing a chained method approach to configure and parse EPUB files.
 
-`EpubReader` is the modern Fluent API class provided by the EPUBime library, supporting method chaining and advanced features. It follows the single responsibility principle, focusing on API coordination and user interaction.
-
-### Creating Instances
+## Class Definition
 
 ```java
-// Create from File object (with default config)
-public static EpubReader fromFile(File epubFile)
-
-// Create from file path (with default config)
-public static EpubReader fromFile(String filePath)
-
-// Create from File object (with custom config)
-public static EpubReader fromFile(File epubFile, EpubReaderConfig config)
+public class EpubReader
 ```
 
-Parameters:
-- `epubFile`: EPUB file object
-- `filePath`: EPUB file path
-- `config`: EpubReaderConfig configuration object
+## Constructors
 
-Returns:
-- `EpubReader`: EpubReader instance
+This class cannot be instantiated directly and must be created using static factory methods.
 
-Throws:
-- `IllegalArgumentException`: If file parameter or config parameter is null
+## Static Methods
 
-### Parsing Methods
+### fromFile(File epubFile)
+Creates an EpubReader instance with default configuration.
 
-#### parse()
-```java
-public EpubBook parse() throws EpubParseException
-```
+**Parameters:**
+- `epubFile`: The EPUB file to parse
+
+**Returns:**
+- `EpubReader`: A new EpubReader instance
+
+**Exceptions:**
+- `IllegalArgumentException`: If epubFile is null
+
+### fromFile(String filePath)
+Creates an EpubReader instance with default configuration from a file path.
+
+**Parameters:**
+- `filePath`: Path to the EPUB file
+
+**Returns:**
+- `EpubReader`: A new EpubReader instance
+
+**Exceptions:**
+- `IllegalArgumentException`: If filePath is null
+
+### fromFile(File epubFile, EpubReaderConfig config)
+Creates an EpubReader instance with custom configuration.
+
+**Parameters:**
+- `epubFile`: The EPUB file to parse
+- `config`: Configuration object
+
+**Returns:**
+- `EpubReader`: A new EpubReader instance
+
+**Exceptions:**
+- `IllegalArgumentException`: If epubFile or config is null
+
+## Instance Methods
+
+### parse()
 Parses the EPUB file and returns an EpubBook object.
 
-Returns:
-- `EpubBook`: Parsed EPUB book object
+**Returns:**
+- `EpubBook`: The parsed EPUB book object
 
-Throws:
-- `EpubParseException`: Error during parsing
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during parsing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-#### parseMetadata()
-```java
-public Metadata parseMetadata() throws EpubParseException
-```
-Parses only metadata without parsing the complete book content.
+### parseMetadata()
+Parses only the metadata of the EPUB file.
 
-Returns:
-- `Metadata`: Parsed metadata object
+**Returns:**
+- `Metadata`: EPUB metadata
 
-Throws:
-- `EpubParseException`: Error during parsing
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during parsing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-#### parseTableOfContents()
-```java
-public List<EpubChapter> parseTableOfContents() throws EpubParseException
-```
-Parses only the table of contents structure without parsing the complete book content.
+### parseTableOfContents()
+Parses only the table of contents of the EPUB file.
 
-Returns:
+**Returns:**
 - `List<EpubChapter>`: List of chapters
 
-Throws:
-- `EpubParseException`: Error during parsing
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during parsing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-### Streaming Processing Methods
+### streamChapters(BiConsumer<EpubChapter, InputStream> processor)
+Processes chapter content in a streaming manner without loading the entire content into memory.
 
-#### streamChapters()
-```java
-public void streamChapters(BiConsumer<EpubChapter, InputStream> processor) throws EpubParseException
-```
-Stream processes all chapter content to avoid loading the entire file into memory.
+**Parameters:**
+- `processor`: Consumer function to process each chapter and its content stream
 
-Parameters:
-- `processor`: Chapter content processor that receives chapter object and input stream
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during processing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-Throws:
-- `EpubParseException`: Error during processing
+### streamChapter(String chapterId, Consumer<InputStream> processor)
+Processes the content of a specific chapter in a streaming manner.
 
-#### streamChapter()
-```java
-public void streamChapter(String chapterId, Consumer<InputStream> processor) throws EpubParseException
-```
-Stream processes specific chapter content.
+**Parameters:**
+- `chapterId`: The ID of the chapter to process
+- `processor`: Consumer function to process the chapter content stream
 
-Parameters:
-- `chapterId`: Chapter ID
-- `processor`: Content processor that receives input stream
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during processing
+- `EpubPathValidationException`: Path validation failures
+- `IOException`: I/O operation failures
 
-Throws:
-- `EpubParseException`: Error during processing
-
-### Resource Processing Methods
-
-#### processResources()
-```java
-public void processResources(Function<EpubResource, Void> processor) throws EpubParseException
-```
+### processResources(Function<EpubResource, Void> processor)
 Processes all resource files.
 
-Parameters:
-- `processor`: Resource processor function
+**Parameters:**
+- `processor`: Function to process each resource
 
-Throws:
-- `EpubParseException`: Error during processing
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during processing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-#### getResource()
-```java
-public EpubResource getResource(String resourceId) throws EpubParseException
-```
-Gets a specific resource.
+### getResource(String resourceId)
+Gets a specific resource by resource ID.
 
-Parameters:
-- `resourceId`: Resource ID
+**Parameters:**
+- `resourceId`: The resource ID
 
-Returns:
-- `EpubResource`: Resource object, or null if not found
+**Returns:**
+- `EpubResource`: The resource object, or null if not found
 
-Throws:
-- `EpubParseException`: Error during parsing
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during parsing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-#### getCover()
-```java
-public EpubResource getCover() throws EpubParseException
-```
-Gets the cover resource.
+### getCover()
+Gets the cover resource of the EPUB file.
 
-Returns:
-- `EpubResource`: Cover resource object, or null if not found
+**Returns:**
+- `EpubResource`: The cover resource, or null if not found
 
-Throws:
-- `EpubParseException`: Error during parsing
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during parsing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-### Validation and Utility Methods
-
-#### isValid()
-```java
-public boolean isValid()
-```
+### isValid()
 Checks if the EPUB file is valid.
 
-Returns:
-- `boolean`: true if valid, false otherwise
+**Returns:**
+- `boolean`: True if the file is valid, false otherwise
 
-#### getInfo()
-```java
-public EpubInfo getInfo() throws EpubParseException
-```
+### getInfo()
 Gets basic information about the EPUB file without full parsing.
 
-Returns:
-- `EpubInfo`: Object containing basic information
+**Returns:**
+- `EpubInfo`: Basic information about the EPUB file
 
-Throws:
-- `EpubParseException`: Error during information retrieval
+**Exceptions:**
+- `BaseEpubException`: Exceptions occurring during parsing
+- `IOException`: I/O operation failures
+- `EpubPathValidationException`: Path validation failures
 
-### Inner Class
+## Inner Classes
 
-#### EpubInfo
+### EpubInfo
+Basic information class for EPUB files.
+
+#### Constructor
 ```java
-public static class EpubInfo {
-    public String getTitle()     // Get title
-    public String getAuthor()    // Get author
-    public String getLanguage()  // Get language
-    public int getChapterCount() // Get chapter count
-    public long getFileSize()    // Get file size (bytes)
-}
+public EpubInfo(String title, String author, String language, int chapterCount, long fileSize)
 ```
 
-Represents basic information about an EPUB file.
+#### Methods
+- `getTitle()`: Gets the title
+- `getAuthor()`: Gets the author
+- `getLanguage()`: Gets the language
+- `getChapterCount()`: Gets the number of chapters
+- `getFileSize()`: Gets the file size
+- `toString()`: Returns a formatted string representation
 
-### Usage Examples
-
-#### Basic Usage
-
-```java
-// Simple parsing
-EpubBook book = EpubReader.fromFile(epubFile).parse();
-
-// Get metadata
-Metadata metadata = book.getMetadata();
-System.out.println("Title: " + metadata.getTitle());
-System.out.println("Author: " + metadata.getCreator());
-System.out.println("Language: " + metadata.getLanguage());
-```
-
-#### Advanced Configuration
+## Usage Examples
 
 ```java
-// Use custom configuration to optimize performance
+// Basic usage
+EpubBook book = EpubReader.fromFile(new File("book.epub")).parse();
+
+// Using custom configuration
 EpubReaderConfig config = new EpubReaderConfig()
-    .withCache(true)              // Enable caching
-    .withLazyLoading(true)        // Enable lazy loading
-    .withParallelProcessing(true); // Enable parallel processing
+    .withCache(true)
+    .withLazyLoading(false)
+    .withParallelProcessing(true);
+EpubBook book = EpubReader.fromFile(new File("book.epub"), config).parse();
 
-EpubBook book = EpubReader.fromFile(epubFile, config).parse();
-```
-
-#### Quick Information Retrieval
-
-```java
-// Get basic information without full parsing
-EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
-System.out.println("Title: " + info.getTitle());
-System.out.println("Author: " + info.getAuthor());
-System.out.println("Chapter Count: " + info.getChapterCount());
-System.out.println("File Size: " + info.getFileSize() + " bytes");
-```
-
-#### Selective Parsing
-
-```java
-// Parse only metadata
-Metadata metadata = EpubReader.fromFile(epubFile).parseMetadata();
-System.out.println("Only metadata - Title: " + metadata.getTitle());
-
-// Parse only table of contents
-List<EpubChapter> chapters = EpubReader.fromFile(epubFile).parseTableOfContents();
-System.out.println("Only TOC - Chapter count: " + chapters.size());
-
-// Validate file validity
-boolean isValid = EpubReader.fromFile(epubFile).isValid();
-System.out.println("EPUB file valid: " + isValid);
-```
-
-#### Streaming Large Files
-
-```java
-// Stream process all chapters (memory-friendly)
-EpubReader.fromFile(epubFile)
+// Streaming chapter processing
+EpubReader.fromFile(new File("book.epub"))
     .streamChapters((chapter, inputStream) -> {
-        System.out.println("Processing: " + chapter.getTitle());
-
-        // Process chapter by chapter to avoid loading entire file into memory
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream, "UTF-8"))) {
-
-            String line;
-            int lineCount = 0;
-            while ((line = reader.readLine()) != null) {
-                lineCount++;
-                // Process each line
-            }
-
-            System.out.println("Chapter lines: " + lineCount);
-
-        } catch (IOException e) {
-            System.err.println("Failed to process chapter: " + e.getMessage());
-        }
+        System.out.println("Processing chapter: " + chapter.getTitle());
+        // Process content stream
     });
-```
 
-#### Specific Chapter Processing
-
-```java
-// Stream process specific chapter
-EpubReader.fromFile(epubFile)
-    .streamChapter("chapter1", inputStream -> {
-        try {
-            // Read complete content
-            String content = new String(inputStream.readAllBytes(), "UTF-8");
-            System.out.println("Chapter 1 content length: " + content.length());
-
-            // Or parse HTML with Jsoup
-            Document doc = Jsoup.parse(content);
-            Elements paragraphs = doc.select("p");
-            System.out.println("Paragraph count: " + paragraphs.size());
-
-        } catch (IOException e) {
-            System.err.println("Failed to read chapter");
-        }
-    });
-```
-
-#### Resource Processing
-
-```java
-// Process all resources in parallel
-EpubReader.fromFile(epubFile)
-    .withParallelProcessing(true)
-    .processResources(resource -> {
-        System.out.println("Processing resource: " + resource.getId() +
-                          " (" + resource.getType() + ")");
-
-        // Save resource to filesystem
-        try {
-            byte[] data = resource.getData();
-            if (data != null) {
-                Path outputPath = Paths.get("extracted", resource.getHref());
-                Files.createDirectories(outputPath.getParent());
-                Files.write(outputPath, data);
-            }
-        } catch (IOException e) {
-            System.err.println("Failed to save resource: " + resource.getHref());
-        }
-
-        return null; // Function needs return value
-    });
-```
-
-#### Getting Specific Resources
-
-```java
-// Get cover image
-EpubResource cover = EpubReader.fromFile(epubFile).getCover();
-if (cover != null && cover.getData() != null) {
-    // Save cover
-    Files.write(Paths.get("cover.jpg"), cover.getData());
-    System.out.println("Cover saved, size: " + cover.getData().length + " bytes");
-}
-
-// Get specific resource
-EpubResource image = EpubReader.fromFile(epubFile).getResource("image1");
-if (image != null) {
-    System.out.println("Image type: " + image.getType());
-    System.out.println("Image size: " + image.getData().length);
-}
-```
-
-#### Error Handling
-
-```java
-try {
-    EpubBook book = EpubReader.fromFile(epubFile)
-        .withCache(true)
-        .parse();
-
-    // Process book content
-    System.out.println("Successfully parsed: " + book.getMetadata().getTitle());
-
-} catch (EpubParseException e) {
-    System.err.println("Parse error: " + e.getMessage());
-    System.err.println("File: " + e.getFileName());
-    System.err.println("Path: " + e.getPath());
-
-} catch (EpubFormatException e) {
-    System.err.println("Format error: EPUB format does not comply with specification");
-
-} catch (EpubPathValidationException e) {
-    System.err.println("Path validation error: " + e.getMessage());
-
-} catch (Exception e) {
-    System.err.println("Unknown error: " + e.getMessage());
-    e.printStackTrace();
-}
-```
-
-#### Performance Optimization Example
-
-```java
-// Optimize configuration for large files
-EpubReaderConfig optimizedConfig = new EpubReaderConfig()
-    .withCache(true)           // Avoid repeated I/O
-    .withLazyLoading(true)     // Load on demand
-    .withParallelProcessing(true); // Process in parallel
-
-long startTime = System.nanoTime();
-EpubBook book = EpubReader.fromFile(largeEpubFile, optimizedConfig).parse();
-long endTime = System.nanoTime();
-
-System.out.println("Parse time: " + (endTime - startTime) / 1_000_000 + "ms");
-System.out.println("Chapter count: " + book.getChapters().size());
-System.out.println("Resource count: " + book.getResources().size());
+// Getting basic information
+EpubReader.EpubInfo info = EpubReader.fromFile(new File("book.epub")).getInfo();
+System.out.println(info);
 ```

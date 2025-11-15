@@ -1,282 +1,222 @@
-# API 参考
+# EpubBookEnhanced
 
-## EpubBookEnhanced
+`EpubBookEnhanced` 是 EPUBime 库中的增强书籍对象，提供了更多便利方法和改进的可用性。该类是对基础 `EpubBook` 类的包装，提供了更丰富的功能和更简单的 API。
 
-`EpubBookEnhanced` 是增强的书籍对象类，提供了更多便利方法和高级功能。
-
-### 构造函数
+## 类定义
 
 ```java
-public EpubBookEnhanced(EpubBook book, File epubFile)
+public class EpubBookEnhanced
 ```
-创建增强的书籍对象。
 
-参数:
+## 构造方法
+
+### EpubBookEnhanced(EpubBook book, File epubFile)
+创建一个增强的书籍对象。
+
+**参数:**
 - `book`: 基础 EpubBook 对象
 - `epubFile`: EPUB 文件
 
-### 基础信息方法
+## 方法
 
-#### getTitle()
-```java
-public String getTitle()
-```
-获取书籍标题。
+### getMetadata()
+获取元数据，保证不为 null。
 
-返回:
+**返回值:**
+- `Metadata`: 元数据对象
+
+### getTitle()
+获取书籍标题，如果标题为空则返回空字符串。
+
+**返回值:**
 - `String`: 书籍标题
 
-#### getAuthor()
-```java
-public String getAuthor()
-```
-获取书籍作者。
+### getAuthor()
+获取书籍作者，如果作者为空则返回空字符串。
 
-返回:
+**返回值:**
 - `String`: 书籍作者
 
-#### getLanguage()
-```java
-public String getLanguage()
-```
-获取书籍语言。
+### getLanguage()
+获取书籍语言，如果语言为空则返回空字符串。
 
-返回:
-- `String`: 书籍语言代码
+**返回值:**
+- `String`: 书籍语言
 
-#### getBookInfo()
-```java
-public String getBookInfo()
-```
-获取书籍的完整信息字符串。
+### getAllChapters()
+获取所有章节的扁平列表（包括嵌套章节）。
 
-返回:
-- `String`: 格式化的书籍信息
+**返回值:**
+- `List<EpubChapter>`: 所有章节的列表
 
-### 章节相关方法
+### findChapterByTitle(String title)
+根据标题查找章节（不区分大小写）。
 
-#### getAllChapters()
-```java
-public List<EpubChapter> getAllChapters()
-```
-获取所有章节，包括嵌套章节（扁平化列表）。
+**参数:**
+- `title`: 要查找的章节标题
 
-返回:
-- `List<EpubChapter>`: 所有章节列表
+**返回值:**
+- `EpubChapter`: 找到的章节，如果未找到则返回 null
 
-#### getChapterCount()
-```java
-public int getChapterCount()
-```
-获取章节总数（包括嵌套章节）。
+### findChaptersByContentPattern(String pattern)
+根据内容路径模式查找章节。
 
-返回:
-- `int`: 章节总数
+**参数:**
+- `pattern`: 要匹配的内容路径模式
 
-#### getChapter()
-```java
-public EpubChapter getChapter(int index)
-```
-按索引获取章节。
-
-参数:
-- `index`: 章节索引
-
-返回:
-- `EpubChapter`: 章节对象，如果索引无效则返回 null
-
-#### findChapterByTitle()
-```java
-public EpubChapter findChapterByTitle(String title)
-```
-按标题查找章节。
-
-参数:
-- `title`: 章节标题
-
-返回:
-- `EpubChapter`: 找到的章节对象，如果未找到则返回 null
-
-#### findChaptersByContentPattern()
-```java
-public List<EpubChapter> findChaptersByContentPattern(String pattern)
-```
-按内容路径模式查找章节。
-
-参数:
-- `pattern`: 内容路径模式
-
-返回:
+**返回值:**
 - `List<EpubChapter>`: 匹配的章节列表
 
-### 资源相关方法
+### getChaptersByType(String type)
+根据导航类型获取章节。
 
-#### getImageResources()
-```java
-public List<EpubResource> getImageResources()
-```
-获取所有图片资源。
+**参数:**
+- `type`: 导航类型 ("ncx", "nav", "landmarks", "page-list")
 
-返回:
-- `List<EpubResource>`: 图片资源列表
+**返回值:**
+- `List<EpubChapter>`: 指定导航类型的章节列表
 
-#### getCssResources()
-```java
-public List<EpubResource> getCssResources()
-```
-获取所有 CSS 资源。
+### getFirstChapter()
+获取第一个章节。
 
-返回:
+**返回值:**
+- `EpubChapter`: 第一个章节，如果没有章节则返回 null
+
+### getLastChapter()
+获取最后一个章节。
+
+**返回值:**
+- `EpubChapter`: 最后一个章节，如果没有章节则返回 null
+
+### getChapter(int index)
+根据索引获取章节。
+
+**参数:**
+- `index`: 章节索引（从 0 开始）
+
+**返回值:**
+- `EpubChapter`: 指定索引的章节，如果索引无效则返回 null
+
+### getChapterCount()
+获取总章节数（包括嵌套章节）。
+
+**返回值:**
+- `int`: 总章节数
+
+### getResourcesByType(String mimeType)
+根据类型获取资源。
+
+**参数:**
+- `mimeType`: 要筛选的 MIME 类型
+
+**返回值:**
+- `List<EpubResource>`: 指定类型的资源列表
+
+### getImageResources()
+获取图像资源。
+
+**返回值:**
+- `List<EpubResource>`: 图像资源列表
+
+### getCssResources()
+获取 CSS 资源。
+
+**返回值:**
 - `List<EpubResource>`: CSS 资源列表
 
-#### getJsResources()
-```java
-public List<EpubResource> getJsResources()
-```
-获取所有 JavaScript 资源。
+### getJsResources()
+获取 JavaScript 资源。
 
-返回:
+**返回值:**
 - `List<EpubResource>`: JavaScript 资源列表
 
-#### getResourcesByType()
-```java
-public List<EpubResource> getResourcesByType(String mediaType)
-```
-按媒体类型获取资源。
+### getCover()
+获取封面资源（带回退机制）。
 
-参数:
-- `mediaType`: 媒体类型（如 "image/jpeg", "text/css"）
+**返回值:**
+- `EpubResource`: 封面资源，如果未找到则返回 null
 
-返回:
-- `List<EpubResource>`: 匹配的资源列表
-
-
-
-### 封面相关方法
-
-#### hasCover()
-```java
-public boolean hasCover()
-```
+### hasCover()
 检查书籍是否有封面。
 
-返回:
-- `boolean`: true 如果有封面，false 否则
+**返回值:**
+- `boolean`: 如果有封面返回 true
 
-#### processChapterContent()
-```java
-public void processChapterContent(EpubChapter chapter, Consumer<InputStream> processor) throws BaseEpubException
-```
-流式处理章节内容。
+### processChapterContent(EpubChapter chapter, Consumer<InputStream> processor)
+使用流处理处理章节内容。
 
-参数:
+**参数:**
 - `chapter`: 要处理的章节
 - `processor`: 内容处理器
 
-抛出:
+**异常:**
 - `BaseEpubException`: 处理失败时抛出
 
-#### getChapterContentAsString()
-```java
-public String getChapterContentAsString(EpubChapter chapter)
-```
-获取章节内容作为字符串。
+### getChapterContentAsString(EpubChapter chapter)
+获取章节内容为字符串。
 
-参数:
+**参数:**
 - `chapter`: 章节对象
 
-返回:
-- `String`: 章节内容字符串，失败时返回 null
+**返回值:**
+- `String`: 章节内容字符串，如果失败则返回 null
 
-#### getCover()
-```java
-public EpubResource getCover()
-```
-获取封面资源。
-
-返回:
-- `EpubResource`: 封面资源，如果未找到则返回 null
-
-### 导航相关方法
-
-#### getChaptersByType()
-```java
-public List<EpubChapter> getChaptersByType(String type)
-```
-按导航类型获取章节列表。
-
-参数:
-- `type`: 导航类型 ("ncx", "nav", "landmarks", "page-list")
-
-返回:
-- `List<EpubChapter>`: 指定类型的章节列表
-
-### 其他方法
-
-#### loadAllResources()
-```java
-public void loadAllResources() throws IOException
-```
+### loadAllResources()
 将所有资源数据加载到内存中。
 
-抛出:
+**异常:**
 - `IOException`: 加载失败时抛出
 
-#### getOriginalBook()
-```java
-public EpubBook getOriginalBook()
-```
+### getOriginalBook()
 获取底层的 EpubBook 实例。
 
-返回:
-- `EpubBook`: 原始 EpubBook 对象的副本
+**返回值:**
+- `EpubBook`: 原始 EpubBook 的副本
 
-#### getBookInfo()
-```java
-public String getBookInfo()
-```
-获取书籍的完整信息字符串。
+### getBookInfo()
+获取基本书籍信息。
 
-返回:
+**返回值:**
 - `String`: 格式化的书籍信息
 
-### 使用示例
+## 使用示例
 
 ```java
 // 创建增强书籍对象
-EpubBook book = EpubReader.fromFile(epubFile).parse();
-EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, epubFile);
+EpubBook book = EpubReader.fromFile(new File("book.epub")).parse();
+EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, new File("book.epub"));
 
 // 获取书籍信息
 System.out.println("标题: " + enhancedBook.getTitle());
 System.out.println("作者: " + enhancedBook.getAuthor());
-System.out.println("章节数: " + enhancedBook.getChapterCount());
+System.out.println("语言: " + enhancedBook.getLanguage());
 
-// 查找章节
-EpubChapter chapter = enhancedBook.findChapterByTitle("前言");
+// 获取所有章节
+List<EpubChapter> allChapters = enhancedBook.getAllChapters();
+System.out.println("总章节数: " + enhancedBook.getChapterCount());
+
+// 查找特定章节
+EpubChapter chapter = enhancedBook.findChapterByTitle("Introduction");
 if (chapter != null) {
     System.out.println("找到章节: " + chapter.getTitle());
 }
 
-// 获取特定类型资源
+// 获取特定类型的资源
 List<EpubResource> images = enhancedBook.getImageResources();
-System.out.println("图片资源数: " + images.size());
-
 List<EpubResource> cssFiles = enhancedBook.getCssResources();
-System.out.println("CSS 文件数: " + cssFiles.size());
 
-// 检查封面
+// 检查是否有封面
 if (enhancedBook.hasCover()) {
-    System.out.println("书籍有封面");
     EpubResource cover = enhancedBook.getCover();
-    if (cover != null) {
-        System.out.println("封面类型: " + cover.getType());
-    }
+    System.out.println("封面文件: " + cover.getHref());
 }
 
-// 获取所有章节
-List<EpubChapter> allChapters = enhancedBook.getAllChapters();
-for (EpubChapter ch : allChapters) {
-    System.out.println("章节: " + ch.getTitle());
-}
+// 获取书籍信息摘要
+System.out.println(enhancedBook.getBookInfo());
 ```
+
+## 注意事项
+
+- `EpubBookEnhanced` 是对 `EpubBook` 的包装，不会修改原始对象。
+- 提供了更丰富的查询和处理方法，简化了常见操作。
+- 对于可能返回 null 的方法，提供了合理的默认值（如空字符串）。

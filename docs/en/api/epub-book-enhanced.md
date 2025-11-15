@@ -1,279 +1,222 @@
-# API Reference
+# EpubBookEnhanced
 
-## EpubBookEnhanced
+`EpubBookEnhanced` is an enhanced book object in the EPUBime library that provides more convenience methods and improved usability. This class is a wrapper around the basic `EpubBook` class, offering richer functionality and a simpler API.
 
-`EpubBookEnhanced` is an enhanced book object class that provides more convenient methods and advanced features.
-
-### Constructor
+## Class Definition
 
 ```java
-public EpubBookEnhanced(EpubBook book, File epubFile)
+public class EpubBookEnhanced
 ```
+
+## Constructors
+
+### EpubBookEnhanced(EpubBook book, File epubFile)
 Creates an enhanced book object.
 
-Parameters:
-- `book`: Base EpubBook object
-- `epubFile`: EPUB file
+**Parameters:**
+- `book`: The basic EpubBook object
+- `epubFile`: The EPUB file
 
-### Basic Information Methods
+## Methods
 
-#### getTitle()
-```java
-public String getTitle()
-```
-Gets the book title.
+### getMetadata()
+Gets metadata, guaranteed to be non-null.
 
-Returns:
-- `String`: Book title
+**Returns:**
+- `Metadata`: The metadata object
 
-#### getAuthor()
-```java
-public String getAuthor()
-```
-Gets the book author.
+### getTitle()
+Gets the book title, returning an empty string if the title is null.
 
-Returns:
-- `String`: Book author
+**Returns:**
+- `String`: The book title
 
-#### getLanguage()
-```java
-public String getLanguage()
-```
-Gets the book language.
+### getAuthor()
+Gets the book author, returning an empty string if the author is null.
 
-Returns:
-- `String`: Book language code
+**Returns:**
+- `String`: The book author
 
-#### getBookInfo()
-```java
-public String getBookInfo()
-```
-Gets the complete book information string.
+### getLanguage()
+Gets the book language, returning an empty string if the language is null.
 
-Returns:
-- `String`: Formatted book information
+**Returns:**
+- `String`: The book language
 
-### Chapter Related Methods
+### getAllChapters()
+Gets a flat list of all chapters (including nested chapters).
 
-#### getAllChapters()
-```java
-public List<EpubChapter> getAllChapters()
-```
-Gets all chapters, including nested chapters (flattened list).
+**Returns:**
+- `List<EpubChapter>`: List of all chapters
 
-Returns:
-- `List<EpubChapter>`: All chapters list
+### findChapterByTitle(String title)
+Finds a chapter by title (case-insensitive).
 
-#### getChapterCount()
-```java
-public int getChapterCount()
-```
-Gets the total chapter count (including nested chapters).
+**Parameters:**
+- `title`: The chapter title to search for
 
-Returns:
-- `int`: Total chapter count
+**Returns:**
+- `EpubChapter`: The found chapter, or null if not found
 
-#### getChapter()
-```java
-public EpubChapter getChapter(int index)
-```
-Gets chapter by index.
-
-Parameters:
-- `index`: Chapter index (0-based)
-
-Returns:
-- `EpubChapter`: Chapter object, or null if index is invalid
-
-#### findChapterByTitle()
-```java
-public EpubChapter findChapterByTitle(String title)
-```
-Finds chapter by title.
-
-Parameters:
-- `title`: Chapter title
-
-Returns:
-- `EpubChapter`: Found chapter object, or null if not found
-
-#### findChaptersByContentPattern()
-```java
-public List<EpubChapter> findChaptersByContentPattern(String pattern)
-```
+### findChaptersByContentPattern(String pattern)
 Finds chapters by content path pattern.
 
-Parameters:
-- `pattern`: Content path pattern
+**Parameters:**
+- `pattern`: The content path pattern to match
 
-Returns:
-- `List<EpubChapter>`: Matching chapters list
+**Returns:**
+- `List<EpubChapter>`: List of matching chapters
 
-### Resource Related Methods
-
-#### getImageResources()
-```java
-public List<EpubResource> getImageResources()
-```
-Gets all image resources.
-
-Returns:
-- `List<EpubResource>`: Image resources list
-
-#### getCssResources()
-```java
-public List<EpubResource> getCssResources()
-```
-Gets all CSS resources.
-
-Returns:
-- `List<EpubResource>`: CSS resources list
-
-#### getJsResources()
-```java
-public List<EpubResource> getJsResources()
-```
-Gets all JavaScript resources.
-
-Returns:
-- `List<EpubResource>`: JavaScript resources list
-
-#### getResourcesByType()
-```java
-public List<EpubResource> getResourcesByType(String mimeType)
-```
-Gets resources by MIME type.
-
-Parameters:
-- `mediaType`: MIME type (e.g. "image/jpeg", "text/css")
-
-Returns:
-- `List<EpubResource>`: Matching resources list
-
-### Cover Related Methods
-
-#### hasCover()
-```java
-public boolean hasCover()
-```
-Checks if the book has a cover.
-
-Returns:
-- `boolean`: true if cover exists, false otherwise
-
-#### getCover()
-```java
-public EpubResource getCover()
-```
-Gets the cover resource.
-
-Returns:
-- `EpubResource`: Cover resource, or null if not found
-
-#### processChapterContent()
-```java
-public void processChapterContent(EpubChapter chapter, Consumer<InputStream> processor) throws BaseEpubException
-```
-Stream processes chapter content.
-
-Parameters:
-- `chapter`: Chapter to process
-- `processor`: Content processor
-
-Throws:
-- `BaseEpubException`: Thrown if processing fails
-
-#### getChapterContentAsString()
-```java
-public String getChapterContentAsString(EpubChapter chapter)
-```
-Gets chapter content as string.
-
-Parameters:
-- `chapter`: Chapter object
-
-Returns:
-- `String`: Chapter content string, or null if failed
-
-### Navigation Related Methods
-
-#### getChaptersByType()
-```java
-public List<EpubChapter> getChaptersByType(String type)
-```
+### getChaptersByType(String type)
 Gets chapters by navigation type.
 
-Parameters:
+**Parameters:**
 - `type`: Navigation type ("ncx", "nav", "landmarks", "page-list")
 
-Returns:
-- `List<EpubChapter>`: Chapters list for specified type
+**Returns:**
+- `List<EpubChapter>`: List of chapters for the specified navigation type
 
-### Other Methods
+### getFirstChapter()
+Gets the first chapter.
 
-#### loadAllResources()
-```java
-public void loadAllResources() throws IOException
-```
+**Returns:**
+- `EpubChapter`: The first chapter, or null if no chapters exist
+
+### getLastChapter()
+Gets the last chapter.
+
+**Returns:**
+- `EpubChapter`: The last chapter, or null if no chapters exist
+
+### getChapter(int index)
+Gets a chapter by index.
+
+**Parameters:**
+- `index`: Chapter index (0-based)
+
+**Returns:**
+- `EpubChapter`: The chapter at the specified index, or null if the index is invalid
+
+### getChapterCount()
+Gets the total chapter count (including nested chapters).
+
+**Returns:**
+- `int`: Total number of chapters
+
+### getResourcesByType(String mimeType)
+Gets resources by type.
+
+**Parameters:**
+- `mimeType`: The MIME type to filter by
+
+**Returns:**
+- `List<EpubResource>`: List of resources with the specified type
+
+### getImageResources()
+Gets image resources.
+
+**Returns:**
+- `List<EpubResource>`: List of image resources
+
+### getCssResources()
+Gets CSS resources.
+
+**Returns:**
+- `List<EpubResource>`: List of CSS resources
+
+### getJsResources()
+Gets JavaScript resources.
+
+**Returns:**
+- `List<EpubResource>`: List of JavaScript resources
+
+### getCover()
+Gets the cover resource (with fallback mechanism).
+
+**Returns:**
+- `EpubResource`: The cover resource, or null if not found
+
+### hasCover()
+Checks if the book has a cover.
+
+**Returns:**
+- `boolean`: True if the book has a cover
+
+### processChapterContent(EpubChapter chapter, Consumer<InputStream> processor)
+Processes chapter content using stream processing.
+
+**Parameters:**
+- `chapter`: The chapter to process
+- `processor`: Content processor
+
+**Exceptions:**
+- `BaseEpubException`: Thrown when processing fails
+
+### getChapterContentAsString(EpubChapter chapter)
+Gets chapter content as a string.
+
+**Parameters:**
+- `chapter`: The chapter object
+
+**Returns:**
+- `String`: Chapter content as string, or null if failed
+
+### loadAllResources()
 Loads all resource data into memory.
 
-Throws:
-- `IOException`: Thrown if loading fails
+**Exceptions:**
+- `IOException`: Thrown when loading fails
 
-#### getOriginalBook()
-```java
-public EpubBook getOriginalBook()
-```
+### getOriginalBook()
 Gets the underlying EpubBook instance.
 
-Returns:
-- `EpubBook`: Copy of original EpubBook
+**Returns:**
+- `EpubBook`: A copy of the original EpubBook
 
-#### getBookInfo()
-```java
-public String getBookInfo()
-```
-Gets formatted book information.
+### getBookInfo()
+Gets basic book information.
 
-Returns:
+**Returns:**
 - `String`: Formatted book information
 
-### Usage Examples
+## Usage Examples
 
 ```java
 // Create enhanced book object
-EpubBook book = EpubReader.fromFile(epubFile).parse();
-EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, epubFile);
+EpubBook book = EpubReader.fromFile(new File("book.epub")).parse();
+EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, new File("book.epub"));
 
-// Get enhanced information
-System.out.println("Book information:");
-System.out.println(enhancedBook.getBookInfo());
+// Get book information
+System.out.println("Title: " + enhancedBook.getTitle());
+System.out.println("Author: " + enhancedBook.getAuthor());
+System.out.println("Language: " + enhancedBook.getLanguage());
 
-// Find chapter
-EpubChapter chapter = enhancedBook.findChapterByTitle("Preface");
+// Get all chapters
+List<EpubChapter> allChapters = enhancedBook.getAllChapters();
+System.out.println("Total chapters: " + enhancedBook.getChapterCount());
+
+// Find specific chapter
+EpubChapter chapter = enhancedBook.findChapterByTitle("Introduction");
 if (chapter != null) {
     System.out.println("Found chapter: " + chapter.getTitle());
 }
 
-// Get all chapters (including nested)
-List<EpubChapter> allChapters = enhancedBook.getAllChapters();
-System.out.println("Total chapters: " + allChapters.size());
-
-// Get specific type resources
+// Get resources of specific types
 List<EpubResource> images = enhancedBook.getImageResources();
 List<EpubResource> cssFiles = enhancedBook.getCssResources();
-List<EpubResource> jsFiles = enhancedBook.getJsResources();
 
-System.out.println("Image resources: " + images.size());
-System.out.println("CSS files: " + cssFiles.size());
-System.out.println("JavaScript files: " + jsFiles.size());
-
-// Check cover
+// Check if book has a cover
 if (enhancedBook.hasCover()) {
-    System.out.println("Book has cover");
     EpubResource cover = enhancedBook.getCover();
-    if (cover != null) {
-        System.out.println("Cover type: " + cover.getType());
-    }
+    System.out.println("Cover file: " + cover.getHref());
 }
+
+// Get book information summary
+System.out.println(enhancedBook.getBookInfo());
 ```
+
+## Notes
+
+- `EpubBookEnhanced` is a wrapper around `EpubBook` and does not modify the original object.
+- Provides richer query and processing methods, simplifying common operations.
+- Provides reasonable default values (such as empty strings) for methods that might return null.

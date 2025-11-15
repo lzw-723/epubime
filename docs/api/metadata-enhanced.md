@@ -1,402 +1,333 @@
-# API 参考
+# MetadataEnhanced
 
-## MetadataEnhanced
+`MetadataEnhanced` 是 EPUBime 库中的增强元数据对象，提供了更多便利方法和类型安全的访问方式。该类是对基础 `Metadata` 类的包装，提供了更丰富的功能和更简单的 API。
 
-`MetadataEnhanced` 是增强的元数据对象类，提供了更多便利方法和高级元数据操作功能。
-
-### 构造函数
+## 类定义
 
 ```java
-public MetadataEnhanced(Metadata metadata)
+public class MetadataEnhanced
 ```
-创建增强的元数据对象。
 
-参数:
+## 构造方法
+
+### MetadataEnhanced(Metadata metadata)
+创建一个增强的元数据对象。
+
+**参数:**
 - `metadata`: 基础 Metadata 对象
 
-### 基础信息方法
+## 方法
 
-#### getTitle()
-```java
-public String getTitle()
-```
-获取书籍标题。
+### getTitle()
+获取主要标题。
 
-返回:
-- `String`: 书籍标题
+**返回值:**
+- `String`: 主要标题，如果没有则返回空字符串
 
-#### getAuthor()
-```java
-public String getAuthor()
-```
-获取书籍作者。
+### getTitles()
+获取所有标题。
 
-返回:
-- `String`: 书籍作者
+**返回值:**
+- `List<String>`: 所有标题的列表
 
-#### getLanguage()
-```java
-public String getLanguage()
-```
-获取书籍语言。
+### getAuthor()
+获取主要作者/创建者。
 
-返回:
-- `String`: 语言代码
+**返回值:**
+- `String`: 主要作者，如果没有则返回空字符串
 
-#### getPublisher()
-```java
-public String getPublisher()
-```
-获取出版商信息。
+### getAuthors()
+获取所有作者/创建者。
 
-返回:
-- `String`: 出版商名称
+**返回值:**
+- `List<String>`: 所有作者的列表
 
-#### getDescription()
-```java
-public String getDescription()
-```
-获取书籍描述。
+### getLanguage()
+获取主要语言。
 
-返回:
-- `String`: 书籍描述
+**返回值:**
+- `String`: 主要语言，如果没有则返回空字符串
 
-#### getRights()
-```java
-public String getRights()
-```
-获取版权信息。
+### getLanguages()
+获取所有语言。
 
-返回:
-- `String`: 版权信息
+**返回值:**
+- `List<String>`: 所有语言的列表
 
-### 高级日期处理
+### getPublisher()
+获取主要出版商。
 
-#### getParsedDate()
-```java
-public LocalDate getParsedDate()
-```
-获取解析后的日期对象。
+**返回值:**
+- `String`: 主要出版商，如果没有则返回空字符串
 
-返回:
-- `LocalDate`: 解析后的日期，如果解析失败则返回 null
+### getPublishers()
+获取所有出版商。
 
-#### getParsedPublicationDate()
-```java
-public LocalDate getParsedPublicationDate()
-```
-获取解析后的出版日期。
+**返回值:**
+- `List<String>`: 所有出版商的列表
 
-返回:
-- `LocalDate`: 解析后的出版日期，如果解析失败则返回 null
-
-#### getParsedModificationDate()
-```java
-public LocalDate getParsedModificationDate()
-```
-获取解析后的修改日期。
-
-返回:
-- `LocalDate`: 解析后的修改日期，如果解析失败则返回 null
-
-### 标识符处理
-
-#### getPrimaryIdentifier()
-```java
-public String getPrimaryIdentifier()
-```
+### getIdentifier()
 获取主要标识符。
 
-返回:
-- `String`: 主要标识符值
+**返回值:**
+- `String`: 主要标识符，如果没有则返回空字符串
 
-#### getISBN()
-```java
-public String getISBN()
-```
-获取 ISBN 标识符。
+### getIdentifiers()
+获取所有标识符。
 
-返回:
-- `String`: ISBN 值，如果未找到则返回 null
+**返回值:**
+- `List<String>`: 所有标识符的列表
 
-#### getUUID()
-```java
-public String getUUID()
-```
-获取 UUID 标识符。
+### getDescription()
+获取主要描述。
 
-返回:
-- `String`: UUID 值，如果未找到则返回 null
+**返回值:**
+- `String`: 主要描述，如果没有则返回空字符串
 
-### 主题和分类
+### getDescriptions()
+获取所有描述。
 
-#### getSubjects()
-```java
-public List<String> getSubjects()
-```
-获取主题列表。
+**返回值:**
+- `List<String>`: 所有描述的列表
 
-返回:
-- `List<String>`: 主题列表
+### getDate()
+获取主要日期。
 
-#### getSubjectList()
-```java
-public List<String> getSubjectList()
-```
-获取分类主题列表（别名方法）。
+**返回值:**
+- `String`: 主要日期，如果没有则返回空字符串
 
-返回:
-- `List<String>`: 主题列表
+### getDates()
+获取所有日期。
 
-#### getKeywords()
-```java
-public List<String> getKeywords()
-```
-获取关键词列表。
+**返回值:**
+- `List<String>`: 所有日期的列表
 
-返回:
-- `List<String>`: 关键词列表
+### getParsedDate()
+获取解析后的日期为 LocalDate 对象。
 
-### 贡献者信息
+**返回值:**
+- `LocalDate`: 解析后的日期，如果解析失败则返回 null
 
-#### getContributors()
-```java
-public List<String> getContributors()
-```
-获取贡献者列表。
+### getRights()
+获取权利信息。
 
-返回:
-- `List<String>`: 贡献者列表
+**返回值:**
+- `String`: 权利信息，如果没有则返回空字符串
 
-#### getIllustrators()
-```java
-public List<String> getIllustrators()
-```
-获取插图作者列表。
+### getRightsList()
+获取所有权利信息。
 
-返回:
-- `List<String>`: 插图作者列表
+**返回值:**
+- `List<String>`: 所有权利信息的列表
 
-#### getTranslators()
-```java
-public List<String> getTranslators()
-```
-获取翻译者列表。
+### getSource()
+获取来源。
 
-返回:
-- `List<String>`: 翻译者列表
+**返回值:**
+- `String`: 来源，如果没有则返回空字符串
 
-#### getEditors()
-```java
-public List<String> getEditors()
-```
-获取编辑者列表。
+### getSources()
+获取所有来源。
 
-返回:
-- `List<String>`: 编辑者列表
+**返回值:**
+- `List<String>`: 所有来源的列表
 
-### 可访问性特性
+### getSubject()
+获取主要主题/类型。
 
-#### hasAccessibilityFeatures()
-```java
-public boolean hasAccessibilityFeatures()
-```
-检查是否有可访问性特性。
+**返回值:**
+- `String`: 主要主题，如果没有则返回空字符串
 
-返回:
-- `boolean`: true 如果有可访问性特性，false 否则
+### getSubjects()
+获取所有主题/类型。
 
-#### getAccessibilityFeatures()
-```java
-public List<String> getAccessibilityFeatures()
-```
-获取可访问性特性列表。
+**返回值:**
+- `List<String>`: 所有主题的列表
 
-返回:
-- `List<String>`: 可访问性特性列表
+### getType()
+获取主要类型。
 
-#### getAccessibilitySummary()
-```java
-public String getAccessibilitySummary()
-```
+**返回值:**
+- `String`: 主要类型，如果没有则返回空字符串
+
+### getTypes()
+获取所有类型。
+
+**返回值:**
+- `List<String>`: 所有类型的列表
+
+### getFormat()
+获取主要格式。
+
+**返回值:**
+- `String`: 主要格式，如果没有则返回空字符串
+
+### getFormats()
+获取所有格式。
+
+**返回值:**
+- `List<String>`: 所有格式的列表
+
+### getCoverId()
+获取封面 ID。
+
+**返回值:**
+- `String`: 封面 ID，如果没有则返回空字符串
+
+### getModified()
+获取修改日期。
+
+**返回值:**
+- `String`: 修改日期，如果没有则返回空字符串
+
+### getUniqueIdentifier()
+获取唯一标识符。
+
+**返回值:**
+- `String`: 唯一标识符，如果没有则返回空字符串
+
+### getAccessibilityFeatures()
+获取可访问性特性。
+
+**返回值:**
+- `List<String>`: 可访问性特性的列表
+
+### getAccessibilityHazards()
+获取可访问性危害。
+
+**返回值:**
+- `List<String>`: 可访问性危害的列表
+
+### getAccessibilitySummary()
 获取可访问性摘要。
 
-返回:
-- `String`: 可访问性摘要
+**返回值:**
+- `String`: 可访问性摘要，如果没有则返回空字符串
 
-### 媒体覆盖和同步
+### getLayout()
+获取布局属性。
 
-#### hasMediaOverlay()
-```java
-public boolean hasMediaOverlay()
-```
-检查是否有媒体覆盖。
+**返回值:**
+- `String`: 布局属性，如果没有则返回空字符串
 
-返回:
-- `boolean`: true 如果有媒体覆盖，false 否则
+### getOrientation()
+获取方向属性。
 
-#### getMediaOverlay()
-```java
-public String getMediaOverlay()
-```
-获取媒体覆盖信息。
+**返回值:**
+- `String`: 方向属性，如果没有则返回空字符串
 
-返回:
-- `String`: 媒体覆盖信息
+### getSpread()
+获取展开属性。
 
-### 版本和格式
+**返回值:**
+- `String`: 展开属性，如果没有则返回空字符串
 
-#### getEpubVersion()
-```java
-public String getEpubVersion()
-```
-获取 EPUB 版本。
+### getViewport()
+获取视口属性。
 
-返回:
-- `String`: EPUB 版本号
+**返回值:**
+- `String`: 视口属性，如果没有则返回空字符串
 
-#### getFormat()
-```java
-public String getFormat()
-```
-获取格式信息。
+### getMedia()
+获取媒体属性。
 
-返回:
-- `String`: 格式信息
+**返回值:**
+- `String`: 媒体属性，如果没有则返回空字符串
 
-### 系列信息
+### getFlow()
+获取流属性。
 
-#### getSeries()
-```java
-public String getSeries()
-```
-获取系列信息。
+**返回值:**
+- `String`: 流属性，如果没有则返回空字符串
 
-返回:
-- `String`: 系列名称，如果未找到则返回 null
+### isAlignXCenter()
+检查是否启用了 align-x-center。
 
-#### getSeriesIndex()
-```java
-public String getSeriesIndex()
-```
-获取系列中的索引。
+**返回值:**
+- `boolean`: 如果启用了 align-x-center 返回 true
 
-返回:
-- `String`: 系列索引，如果未找到则返回 null
+### hasCover()
+检查书籍是否有指定的封面。
 
-### 检查和判断方法
+**返回值:**
+- `boolean`: 如果指定了封面返回 true
 
-#### hasCover()
-```java
-public boolean hasCover()
-```
-检查是否有封面。
+### hasAccessibilityFeatures()
+检查书籍是否有可访问性特性。
 
-返回:
-- `boolean`: true 如果有封面，false 否则
+**返回值:**
+- `boolean`: 如果有可访问性特性返回 true
 
-#### hasDescription()
-```java
-public boolean hasDescription()
-```
-检查是否有描述。
+### hasAccessibilityHazards()
+检查书籍是否有可访问性危害。
 
-返回:
-- `boolean`: true 如果有描述，false 否则
+**返回值:**
+- `boolean`: 如果指定了可访问性危害返回 true
 
-#### hasSubjects()
-```java
-public boolean hasSubjects()
-```
-检查是否有主题。
+### hasDescription()
+检查书籍是否有描述。
 
-返回:
-- `boolean`: true 如果有主题，false 否则
+**返回值:**
+- `boolean`: 如果有描述返回 true
 
-#### hasRights()
-```java
-public boolean hasRights()
-```
-检查是否有版权信息。
+### hasSubjects()
+检查书籍是否有主题/类型。
 
-返回:
-- `boolean`: true 如果有版权信息，false 否则
+**返回值:**
+- `boolean`: 如果有主题返回 true
 
-#### hasPublisher()
-```java
-public boolean hasPublisher()
-```
-检查是否有出版商信息。
+### getSummary()
+获取元数据的格式化摘要。
 
-返回:
-- `boolean`: true 如果有出版商，false 否则
-
-### 摘要和统计
-
-#### getSummary()
-```java
-public String getSummary()
-```
-获取元数据摘要信息。
-
-返回:
+**返回值:**
 - `String`: 格式化的元数据摘要
 
-#### getDetailedSummary()
-```java
-public String getDetailedSummary()
-```
-获取详细的元数据摘要信息。
+### getOriginalMetadata()
+获取底层的 Metadata 实例。
 
-返回:
-- `String`: 详细的元数据摘要
+**返回值:**
+- `Metadata`: 原始 Metadata 的副本
 
-### 使用示例
+## 使用示例
 
 ```java
-// 创建增强元数据对象
-Metadata metadata = EpubReader.fromFile(epubFile).parseMetadata();
-MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
+// 解析 EPUB 并获取增强元数据
+EpubBook book = EpubReader.fromFile(new File("book.epub")).parse();
+MetadataEnhanced metadata = new MetadataEnhanced(book.getMetadata());
 
-// 获取基础信息
-System.out.println("标题: " + enhancedMetadata.getTitle());
-System.out.println("作者: " + enhancedMetadata.getAuthor());
-System.out.println("语言: " + enhancedMetadata.getLanguage());
+// 获取基本元数据信息
+System.out.println("标题: " + metadata.getTitle());
+System.out.println("作者: " + metadata.getAuthor());
+System.out.println("语言: " + metadata.getLanguage());
+System.out.println("出版商: " + metadata.getPublisher());
+System.out.println("日期: " + metadata.getDate());
+
+// 获取所有元数据项
+List<String> allTitles = metadata.getTitles();
+List<String> allAuthors = metadata.getAuthors();
+List<String> allSubjects = metadata.getSubjects();
+
+// 获取可访问性信息
+if (metadata.hasAccessibilityFeatures()) {
+    List<String> features = metadata.getAccessibilityFeatures();
+    System.out.println("可访问性特性: " + String.join(", ", features));
+}
 
 // 获取解析后的日期
-LocalDate date = enhancedMetadata.getParsedDate();
-if (date != null) {
-    System.out.println("出版日期: " + date);
+LocalDate parsedDate = metadata.getParsedDate();
+if (parsedDate != null) {
+    System.out.println("解析后的日期: " + parsedDate);
 }
 
-// 获取标识符
-String isbn = enhancedMetadata.getISBN();
-if (isbn != null) {
-    System.out.println("ISBN: " + isbn);
-}
-
-String uuid = enhancedMetadata.getUUID();
-if (uuid != null) {
-    System.out.println("UUID: " + uuid);
-}
-
-// 获取主题
-List<String> subjects = enhancedMetadata.getSubjects();
-if (!subjects.isEmpty()) {
-    System.out.println("主题: " + subjects);
-}
-
-// 检查可访问性
-if (enhancedMetadata.hasAccessibilityFeatures()) {
-    System.out.println("可访问性特性: " + enhancedMetadata.getAccessibilityFeatures());
-}
-
-// 获取摘要
-String summary = enhancedMetadata.getSummary();
-System.out.println("元数据摘要: " + summary);
-
-// 检查各种属性
-System.out.println("有封面: " + enhancedMetadata.hasCover());
-System.out.println("有描述: " + enhancedMetadata.hasDescription());
-System.out.println("有主题: " + enhancedMetadata.hasSubjects());
+// 获取元数据摘要
+System.out.println("元数据摘要:");
+System.out.println(metadata.getSummary());
 ```
+
+## 注意事项
+
+- `MetadataEnhanced` 是对 `Metadata` 的包装，不会修改原始对象。
+- 提供了更丰富的查询方法，简化了常见操作。
+- 对于可能返回 null 的方法，提供了合理的默认值（如空字符串）。
+- 提供了日期解析功能，支持多种常见的日期格式。
+- 包含了 EPUB 3.3 规范中的可访问性元数据支持。

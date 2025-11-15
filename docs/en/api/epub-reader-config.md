@@ -1,78 +1,100 @@
-# API Reference
+# EpubReaderConfig
 
-## EpubReaderConfig
+`EpubReaderConfig` is a configuration class in the EPUBime library used to configure the behavior of `EpubReader`. This class allows users to customize parsing options such as caching, lazy loading, and parallel processing.
 
-`EpubReaderConfig` is the configuration class for EpubReader, following the Single Responsibility Principle, dedicated to managing EpubReader configuration options.
-
-### Creating Instances
+## Class Definition
 
 ```java
-// Use default configuration
-public EpubReaderConfig()
-
-// Copy existing configuration
-public EpubReaderConfig(EpubReaderConfig other)
+public class EpubReaderConfig
 ```
 
-### Configuration Methods
+## Constructors
 
-#### withCache()
+### EpubReaderConfig()
+Default constructor that uses default configuration options.
+
+### EpubReaderConfig(EpubReaderConfig other)
+Copy constructor that creates a new configuration object from another configuration object.
+
+**Parameters:**
+- `other`: The configuration object to copy
+
+## Methods
+
+### withCache(boolean useCache)
+Sets whether to use caching.
+
+**Parameters:**
+- `useCache`: Whether to enable caching
+
+**Returns:**
+- `EpubReaderConfig`: Returns the current configuration object for method chaining
+
+### withLazyLoading(boolean lazyLoading)
+Sets whether to use lazy loading.
+
+**Parameters:**
+- `lazyLoading`: Whether to enable lazy loading
+
+**Returns:**
+- `EpubReaderConfig`: Returns the current configuration object for method chaining
+
+### withParallelProcessing(boolean parallelProcessing)
+Sets whether to use parallel processing.
+
+**Parameters:**
+- `parallelProcessing`: Whether to enable parallel processing
+
+**Returns:**
+- `EpubReaderConfig`: Returns the current configuration object for method chaining
+
+### isUseCache()
+Checks if caching is enabled.
+
+**Returns:**
+- `boolean`: True if caching is enabled, false otherwise
+
+### isLazyLoading()
+Checks if lazy loading is enabled.
+
+**Returns:**
+- `boolean`: True if lazy loading is enabled, false otherwise
+
+### isParallelProcessing()
+Checks if parallel processing is enabled.
+
+**Returns:**
+- `boolean`: True if parallel processing is enabled, false otherwise
+
+## Configuration Options Explanation
+
+- **Cache**: Enabling caching can avoid re-parsing the same content, improving performance. Enabled by default.
+- **Lazy Loading**: Enabling lazy loading can optimize memory usage by loading resources only when needed. Disabled by default.
+- **Parallel Processing**: Enabling parallel processing can process multiple resources simultaneously, improving efficiency. Disabled by default.
+
+## Usage Examples
+
 ```java
-public EpubReaderConfig withCache(boolean useCache)
-```
-Enable or disable caching mechanism.
+// Create default configuration
+EpubReaderConfig config = new EpubReaderConfig();
 
-Parameters:
-- `useCache`: Whether to use caching (default: true)
-
-Returns:
-- `EpubReaderConfig`: this, for method chaining
-
-#### withLazyLoading()
-```java
-public EpubReaderConfig withLazyLoading(boolean lazyLoading)
-```
-Enable or disable lazy loading.
-
-Parameters:
-- `lazyLoading`: Whether to use lazy loading (default: false)
-
-Returns:
-- `EpubReaderConfig`: this, for method chaining
-
-#### withParallelProcessing()
-```java
-public EpubReaderConfig withParallelProcessing(boolean parallelProcessing)
-```
-Enable or disable parallel processing.
-
-Parameters:
-- `parallelProcessing`: Whether to use parallel processing (default: false)
-
-Returns:
-- `EpubReaderConfig`: this, for method chaining
-
-### Getting Configuration Values
-
-```java
-public boolean isUseCache()
-public boolean isLazyLoading()
-public boolean isParallelProcessing()
-```
-
-### Usage Example
-
-```java
-// Create custom configuration
+// Configure multiple options using method chaining
 EpubReaderConfig config = new EpubReaderConfig()
-    .withCache(true)
-    .withLazyLoading(false)
-    .withParallelProcessing(true);
+    .withCache(true)              // Enable caching
+    .withLazyLoading(false)       // Disable lazy loading
+    .withParallelProcessing(true); // Enable parallel processing
 
-// Use configuration to create EpubReader
+// Use configuration object
 EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 
-// Copy and modify configuration
-EpubReaderConfig newConfig = new EpubReaderConfig(config)
-    .withCache(false);
+// Check configuration options
+System.out.println("Using cache: " + config.isUseCache());
+System.out.println("Using lazy loading: " + config.isLazyLoading());
+System.out.println("Using parallel processing: " + config.isParallelProcessing());
 ```
+
+## Performance Recommendations
+
+- For scenarios where the same EPUB file needs to be accessed multiple times, it is recommended to enable caching to improve performance.
+- For large files or memory-constrained environments, it is recommended to enable lazy loading to optimize memory usage.
+- For EPUB files containing a large number of resource files, it is recommended to enable parallel processing to improve processing efficiency.
