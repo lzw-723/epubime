@@ -79,10 +79,12 @@ public class EpubResource {
     }
 
     /**
-     * Get resource data
+     * Get resource data - DEPRECATED: Use getInputStream() for streaming to avoid loading entire file into memory
      * If data already exists, return directly, otherwise try to stream read from EPUB file
      * @return resource data byte array (cloned to prevent external modification)
+     * @deprecated Use streaming methods instead to avoid memory issues with large files
      */
+    @Deprecated
     public byte[] getData() {
         // If data already exists, return directly
         if (data != null) {
@@ -269,11 +271,11 @@ public class EpubResource {
 
             try {
 
-                ZipUtils.processHtmlContent(epubFile, href, processor);
+                ZipUtils.processZipFileContent(epubFile, href, processor);
 
             } catch (IOException e) {
 
-                throw new EpubResourceException("Failed to process resource content for " + href + " from EPUB file " + epubFile.getName(), 
+                throw new EpubResourceException("Failed to process resource content for " + href + " from EPUB file " + epubFile.getName(),
                     epubFile.getName(), href, e);
 
             }

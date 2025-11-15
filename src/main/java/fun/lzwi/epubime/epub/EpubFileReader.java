@@ -93,4 +93,25 @@ public class EpubFileReader {
             throw new EpubZipException("Failed to process multiple HTML chapters", epubFile, "multiple files", e);
         }
     }
+
+    /**
+     * 流式处理资源内容（图片、CSS等），避免将整个文件加载到内存中
+     * @param resourceFileName 资源文件名
+     * @param processor 处理资源内容的消费者函数
+     * @throws EpubZipException 处理异常
+     * @throws EpubPathValidationException 路径验证异常
+     */
+    public void processResourceContent(String resourceFileName, Consumer<InputStream> processor)
+            throws EpubZipException, EpubPathValidationException {
+        // 防止目录遍历攻击
+        if (!PathValidator.isPathSafe("", resourceFileName)) {
+            throw new EpubPathValidationException("Invalid file path: " + resourceFileName, resourceFileName);
+        }
+
+        try {
+            ZipUtils.processZipFileContent(epubFile, resourceFileName, processor);
+        } catch (IOException e) {
+            throw new EpubZipException("Failed to process resource content", epubFile, resourceFileName, e);
+        }
+    }
 }

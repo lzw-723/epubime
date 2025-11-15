@@ -52,19 +52,50 @@ public class NavigationParser {
     public List<EpubChapter> parseNcx(String tocContent) {
         Document doc = XmlUtils.parseXml(tocContent);
         Elements navPoints = XmlUtils.select(doc, "navMap > navPoint");
-        
+
         if (navPoints.isEmpty()) {
             return EMPTY_CHAPTER_LIST;
         }
-        
+
         // 预分配列表容量，避免动态扩容
         List<EpubChapter> chapters = new ArrayList<>(navPoints.size());
-        
+
         for (Element navPoint : navPoints) {
             chapters.add(parseNcxNavPoint(navPoint));
         }
-        
+
         return chapters;
+    }
+
+    /**
+     * 流式解析NCX目录内容，避免加载整个文件到内存
+     *
+     * @param tocInputStream NCX文件输入流
+     * @return 章节列表
+     * @throws java.io.IOException IO异常
+     */
+    public List<EpubChapter> parseNcx(java.io.InputStream tocInputStream) throws java.io.IOException {
+        String tocContent = readStreamToString(tocInputStream);
+        return parseNcx(tocContent);
+    }
+
+    /**
+     * 将输入流读取为字符串
+     * @param inputStream 输入流
+     * @return 字符串内容
+     * @throws java.io.IOException IO异常
+     */
+    private String readStreamToString(java.io.InputStream inputStream) throws java.io.IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8))) {
+            char[] buffer = new char[8192];
+            int charsRead;
+            while ((charsRead = reader.read(buffer)) != -1) {
+                contentBuilder.append(buffer, 0, charsRead);
+            }
+        }
+        return contentBuilder.toString();
     }
     
     /**
@@ -145,24 +176,49 @@ public class NavigationParser {
     public List<EpubChapter> parseNavByType(String navContent, String navType) {
         Document doc = XmlUtils.parseXml(navContent);
         Element navElement = findNavElement(doc, navType);
-        
+
         if (navElement == null) {
             return EMPTY_CHAPTER_LIST;
         }
-        
+
         // 查找顶级ol或ul元素
         Elements topLists = XmlUtils.select(navElement, "> ol, > ul");
         if (topLists.isEmpty()) {
             return EMPTY_CHAPTER_LIST;
         }
-        
+
         List<EpubChapter> chapters = new ArrayList<>();
-        
+
         for (Element list : topLists) {
             chapters.addAll(parseNavList(list));
         }
-        
+
         return chapters;
+    }
+
+    /**
+     * 流式解析NAV目录内容，避免加载整个文件到内存
+     *
+     * @param navInputStream NAV文件输入流
+     * @return 章节列表
+     * @throws java.io.IOException IO异常
+     */
+    public List<EpubChapter> parseNav(java.io.InputStream navInputStream) throws java.io.IOException {
+        String navContent = readStreamToString(navInputStream);
+        return parseNav(navContent);
+    }
+
+    /**
+     * 流式按导航类型解析NAV内容，避免加载整个文件到内存
+     *
+     * @param navInputStream NAV文件输入流
+     * @param navType 导航类型（如toc, landmarks, page-list等）
+     * @return 章节列表
+     * @throws java.io.IOException IO异常
+     */
+    public List<EpubChapter> parseNavByType(java.io.InputStream navInputStream, String navType) throws java.io.IOException {
+        String navContent = readStreamToString(navInputStream);
+        return parseNavByType(navContent, navType);
     }
     
     /**

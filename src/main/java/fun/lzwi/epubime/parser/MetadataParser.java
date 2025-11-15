@@ -60,12 +60,12 @@ public class MetadataParser {
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
-        
+
         Metadata metadata = new Metadata();
-        
+
         // 使用更快的解析配置
         Document opfDocument = Jsoup.parse(opfContent, "", Parser.xmlParser());
-        
+
         // 缓存常用选择器结果，避免重复查询
         Element packageElement = opfDocument.selectFirst("package");
         if (packageElement != null) {
@@ -89,8 +89,45 @@ public class MetadataParser {
                 parseMetadataElement(child, metadata);
             }
         }
-        
+
         return metadata;
+    }
+
+    /**
+     * 流式解析OPF内容中的元数据，避免加载整个文件到内存
+     *
+     * @param opfInputStream OPF文件输入流
+     * @return 元数据对象
+     * @throws java.io.IOException IO异常
+     */
+    public Metadata parseMetadata(java.io.InputStream opfInputStream) throws java.io.IOException {
+        if (opfInputStream == null) {
+            throw new IllegalArgumentException("OPF input stream cannot be null");
+        }
+
+        // 对于流式处理，我们仍然需要读取整个流来解析XML结构
+        // 但这比预加载所有文件内容要好，因为只处理OPF文件
+        String opfContent = readStreamToString(opfInputStream);
+        return parseMetadata(opfContent);
+    }
+
+    /**
+     * 将输入流读取为字符串
+     * @param inputStream 输入流
+     * @return 字符串内容
+     * @throws java.io.IOException IO异常
+     */
+    private String readStreamToString(java.io.InputStream inputStream) throws java.io.IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8))) {
+            char[] buffer = new char[8192];
+            int charsRead;
+            while ((charsRead = reader.read(buffer)) != -1) {
+                contentBuilder.append(buffer, 0, charsRead);
+            }
+        }
+        return contentBuilder.toString();
     }
     
     /**

@@ -85,11 +85,11 @@ public class EpubReader {
 
     
     /**
-     * Parse the EPUB file and return an EpubBook
-     * @return the parsed EpubBook
-     * @throws BaseEpubException if parsing fails
+     * 解析EPUB文件
+     * @return 解析后的EPUB书籍对象
+     * @throws BaseEpubException 解析异常
      */
-    public EpubBook parse() throws BaseEpubException {
+    public EpubBook parse() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubParser parser = new EpubParser(epubFile);
 
         EpubBook book;
@@ -112,11 +112,11 @@ public class EpubReader {
     }
     
     /**
-     * Parse only the metadata from the EPUB file
+     * Parse the metadata from the EPUB file
      * @return the metadata
      * @throws BaseEpubException if parsing fails
      */
-    public Metadata parseMetadata() throws BaseEpubException {
+    public Metadata parseMetadata() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         // For now, we'll parse the full book and return just the metadata
         // In a future optimization, this could parse only the metadata section
         return parse().getMetadata();
@@ -127,7 +127,7 @@ public class EpubReader {
      * @return the list of chapters
      * @throws BaseEpubException if parsing fails
      */
-    public List<EpubChapter> parseTableOfContents() throws BaseEpubException {
+    public List<EpubChapter> parseTableOfContents() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         return parse().getChapters();
     }
     
@@ -136,7 +136,7 @@ public class EpubReader {
      * @param processor a consumer that processes each chapter and its content stream
      * @throws BaseEpubException if processing fails
      */
-    public void streamChapters(BiConsumer<EpubChapter, InputStream> processor) throws BaseEpubException {
+    public void streamChapters(BiConsumer<EpubChapter, InputStream> processor) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubBook book = parse();
         EpubStreamProcessor streamProcessor = new EpubStreamProcessor(epubFile);
         streamProcessor.processBookChapters(book, processor);
@@ -149,7 +149,7 @@ public class EpubReader {
      * @throws BaseEpubException if processing fails
      * @throws EpubPathValidationException if path validation fails
      */
-    public void streamChapter(String chapterId, Consumer<InputStream> processor) throws BaseEpubException, EpubPathValidationException {
+    public void streamChapter(String chapterId, Consumer<InputStream> processor) throws BaseEpubException, EpubPathValidationException, java.io.IOException {
         EpubBook book = parse();
 
         // Find the chapter by ID
@@ -168,7 +168,7 @@ public class EpubReader {
      * @param processor a function that processes each resource
      * @throws BaseEpubException if processing fails
      */
-    public void processResources(Function<EpubResource, Void> processor) throws BaseEpubException {
+    public void processResources(Function<EpubResource, Void> processor) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubBook book = parse();
         List<EpubResource> resources = book.getResources();
 
@@ -185,7 +185,7 @@ public class EpubReader {
      * @return the resource, or null if not found
      * @throws BaseEpubException if parsing fails
      */
-    public EpubResource getResource(String resourceId) throws BaseEpubException {
+    public EpubResource getResource(String resourceId) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubBook book = parse();
         return EpubBookProcessor.getResource(book, resourceId);
     }
@@ -195,7 +195,7 @@ public class EpubReader {
      * @return the cover resource, or null if not found
      * @throws BaseEpubException if parsing fails
      */
-    public EpubResource getCover() throws BaseEpubException {
+    public EpubResource getCover() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubBook book = parse();
         return EpubBookProcessor.getCover(book);
     }
@@ -218,7 +218,7 @@ public class EpubReader {
      * @return basic information about the EPUB
      * @throws BaseEpubException if parsing fails
      */
-    public EpubInfo getInfo() throws BaseEpubException {
+    public EpubInfo getInfo() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         Metadata metadata = parseMetadata();
         List<EpubChapter> chapters = parseTableOfContents();
         

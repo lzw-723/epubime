@@ -4,6 +4,7 @@ import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.exception.EpubFormatException;
 import fun.lzwi.epubime.exception.EpubZipException;
 import fun.lzwi.epubime.exception.BaseEpubException;
+import fun.lzwi.epubime.exception.EpubPathValidationException;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
@@ -95,7 +96,7 @@ public class EpubParser {
      * @return 解析后的EpubBook对象
      * @throws BaseEpubException 解析异常
      */
-    public EpubBook parse() throws BaseEpubException {
+    public EpubBook parse() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubBook book = new EpubBook();
 
         // 获取当前EPUB文件的缓存
@@ -109,15 +110,8 @@ public class EpubParser {
         }
 
         try {
-            // 优化：批量读取关键文件，减少ZIP文件访问次数
-            List<String> firstBatchPaths = new ArrayList<>();
-            firstBatchPaths.add(CONTAINER_FILE_PATH);
-
             // 首先读取container.xml获取OPF文件路径
-            java.util.Map<String, String> firstBatchContents = ZipUtils.getMultipleZipFileContents(
-                    fileReader.epubFile, firstBatchPaths);
-            
-            String container = firstBatchContents.get(CONTAINER_FILE_PATH);
+            String container = fileReader.readContent(CONTAINER_FILE_PATH);
             if (container == null) {
                 throw new EpubFormatException("Container file not found", epubFile, CONTAINER_FILE_PATH);
             }
@@ -125,11 +119,8 @@ public class EpubParser {
             String opfPath = extractRootFilePath(container);
             String opfDir = extractRootFileDir(opfPath);
 
-            // 优化：一次性读取container.xml和OPF文件
-            firstBatchPaths.add(opfPath);
-            firstBatchContents = ZipUtils.getMultipleZipFileContents(fileReader.epubFile, firstBatchPaths);
-            
-            String opfContent = firstBatchContents.get(opfPath);
+            // 读取OPF内容用于提取路径信息（OPF文件通常很小）
+            String opfContent = fileReader.readContent(opfPath);
             if (opfContent == null) {
                 throw new EpubFormatException("OPF file not found", epubFile, opfPath);
             }
@@ -137,70 +128,71 @@ public class EpubParser {
             // 解析元数据
             book.setMetadata(metadataParser.parseMetadata(opfContent));
 
-            // 优化：一次性获取所有导航文件路径
+            // 解析资源文件 - 现在只设置引用，不加载数据
+            List<EpubResource> resources = resourceParser.parseResources(opfContent, opfDir);
+            book.setResources(resources);
+
             String ncxPath = null;
             String navPath = null;
-            
+
             try {
                 ncxPath = resourceParser.getNcxPath(opfContent, opfDir);
             } catch (Exception e) {
                 // NCX路径可选，不抛出异常
             }
-            
+
             try {
                 navPath = resourceParser.getNavPath(opfContent, opfDir);
             } catch (Exception e) {
                 // NAV路径可选，不抛出异常
             }
 
-            // 优化：批量读取导航文件，减少ZIP访问次数
-            List<String> secondBatchPaths = new ArrayList<>();
+            // 流式解析导航文件，避免加载整个文件到内存
+            // 解析NCX
             if (ncxPath != null) {
-                secondBatchPaths.add(ncxPath);
-            }
-            if (navPath != null) {
-                secondBatchPaths.add(navPath);
-            }
-
-            if (!secondBatchPaths.isEmpty()) {
-                java.util.Map<String, String> secondBatchContents =
-                        ZipUtils.getMultipleZipFileContents(fileReader.epubFile, secondBatchPaths);
-                
-                // 解析NCX
-                if (ncxPath != null) {
-                    String ncxContent = secondBatchContents.get(ncxPath);
-                    if (ncxContent != null) {
-                        List<EpubChapter> ncx = navigationParser.parseNcx(ncxContent);
+                try (java.io.InputStream ncxStream = ZipUtils.getZipFileInputStream(fileReader.epubFile, ncxPath)) {
+                    if (ncxStream != null) {
+                        List<EpubChapter> ncx = navigationParser.parseNcx(ncxStream);
                         book.setNcx(ncx);
                     }
-                }
-                
-                // 解析NAV
-                if (navPath != null) {
-                    String navContent = secondBatchContents.get(navPath);
-                    if (navContent != null) {
-                        List<EpubChapter> nav = navigationParser.parseNav(navContent);
-                        book.setNav(nav);
-                        
-                        // 解析其他类型的导航（landmarks、page-list等）
-                        List<EpubChapter> landmarks = navigationParser.parseNavByType(navContent, "landmarks");
-                        book.setLandmarks(landmarks);
-                        
-                        List<EpubChapter> pageList = navigationParser.parseNavByType(navContent, "page-list");
-                        book.setPageList(pageList);
-                    }
+                } catch (Exception e) {
+                    // NCX解析失败，记录但不抛出异常
                 }
             }
 
-            // 解析资源文件 - 现在只设置引用，不加载数据
-            List<EpubResource> resources = resourceParser.parseResources(opfContent, opfDir);
-            book.setResources(resources);
+            // 解析NAV
+            if (navPath != null) {
+                try (java.io.InputStream navStream = ZipUtils.getZipFileInputStream(fileReader.epubFile, navPath)) {
+                    if (navStream != null) {
+                        List<EpubChapter> nav = navigationParser.parseNav(navStream);
+                        book.setNav(nav);
+
+                        // 重新打开流来解析其他类型的导航（landmarks、page-list等）
+                        // 注意：这里需要重新打开流，因为InputStream不能重置
+                        try (java.io.InputStream navStream2 = ZipUtils.getZipFileInputStream(fileReader.epubFile, navPath)) {
+                            List<EpubChapter> landmarks = navigationParser.parseNavByType(navStream2, "landmarks");
+                            book.setLandmarks(landmarks);
+                        }
+
+                        try (java.io.InputStream navStream3 = ZipUtils.getZipFileInputStream(fileReader.epubFile, navPath)) {
+                            List<EpubChapter> pageList = navigationParser.parseNavByType(navStream3, "page-list");
+                            book.setPageList(pageList);
+                        }
+                    }
+                } catch (Exception e) {
+                    // NAV解析失败，记录但不抛出异常
+                }
+            }
 
             // 缓存完整解析结果
             cache.setParsedResult(cacheKey, new EpubBook(book));
-            
-        } catch (IOException e) {
-            throw new EpubZipException("Failed to read EPUB file during parsing", fileReader.epubFile, "multiple files", e);
+
+        } catch (Exception e) {
+            if (e instanceof IOException) {
+                throw new EpubZipException("Failed to read EPUB file during parsing", fileReader.epubFile, "multiple files", e);
+            } else {
+                throw new EpubZipException("Failed to parse EPUB file", fileReader.epubFile, "unknown", e);
+            }
         } finally {
             // 解析完成后清理ZIP文件句柄
             ZipFileManager.getInstance().closeCurrentZipFile();
@@ -215,7 +207,7 @@ public class EpubParser {
      * @return 解析后的EpubBook对象
      * @throws BaseEpubException 解析异常
      */
-    public EpubBook parseWithoutCache() throws BaseEpubException {
+    public EpubBook parseWithoutCache() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         // 清理当前线程的ZIP文件句柄
         ZipFileManager.getInstance().cleanup();
 

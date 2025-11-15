@@ -74,10 +74,12 @@ public class EpubBookProcessor {
     }
 
     /**
-     * 批量加载所有资源数据
+     * 批量加载所有资源数据 - DEPRECATED: Use streaming methods instead to avoid memory issues
      * @param book EPUB书籍
      * @throws java.io.IOException 文件读取异常
+     * @deprecated Use streaming processing to avoid loading all resources into memory
      */
+    @Deprecated
     public static void loadAllResourceData(EpubBook book) throws java.io.IOException {
         if (book == null || book.getResources().isEmpty()) {
             return;
