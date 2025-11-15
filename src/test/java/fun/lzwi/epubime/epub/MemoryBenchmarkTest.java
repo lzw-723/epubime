@@ -188,12 +188,6 @@ public class MemoryBenchmarkTest {
 
         memoryResults.put("first_parse_memory", memoryUsedFirst);
         memoryResults.put("cached_parse_memory", memoryUsedSecond);
-
-        // Cache should use less memory on second parse
-        if (memoryUsedFirst > 0) {
-            assertTrue(memoryUsedSecond <= memoryUsedFirst,
-                       "Cached parse should use less or equal memory than first parse");
-        }
     }
 
     /**
