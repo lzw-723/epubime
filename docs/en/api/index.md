@@ -2,7 +2,12 @@
 
 This section provides complete API reference documentation for the EPUBime library. EPUBime is a pure Java library for parsing EPUB file format, supporting both EPUB 2 and EPUB 3 formats.
 
-## Core Classes
+## Modern API (Recommended)
+
+- [EpubReader](/en/api/epub-reader) - Modern Fluent API with support for chained method calls and advanced features
+- [AsyncEpubProcessor](/en/api/async-processor) - Asynchronous processor supporting async parsing and processing
+
+## Traditional Core Classes
 
 - [EpubParser](/en/api/epub-parser) - EPUB file parser, responsible for parsing EPUB files and generating EpubBook objects
 - [EpubBook](/en/api/epub-book) - Represents a parsed EPUB book, containing metadata, chapters, and resources
@@ -10,18 +15,43 @@ This section provides complete API reference documentation for the EPUBime libra
 - [EpubChapter](/en/api/epub-chapter) - Represents a chapter in an EPUB book
 - [EpubResource](/en/api/epub-resource) - Represents a resource file in an EPUB book
 
+## Enhanced Feature Classes
+
+- [EpubBookEnhanced](/en/api/epub-book-enhanced) - Enhanced book object providing more convenient methods
+- [MetadataEnhanced](/en/api/metadata-enhanced) - Enhanced metadata object supporting more metadata operations
+
 ## Exception Handling
 
 - [Exception Classes](/en/api/exceptions) - EPUBime's exception class hierarchy, all exceptions inherit from EpubException
 
 ## Overview
 
-EPUBime's API design is simple and clear, with the main workflow as follows:
+EPUBime provides two sets of APIs:
 
-1. Use `EpubParser` to parse EPUB files
-2. Get `EpubBook` object, which contains metadata, chapters, and resources
-3. Access book metadata through `Metadata`
-4. Access chapter content through `EpubChapter`
-5. Access resource files through `EpubResource`
+### Modern Fluent API (Recommended)
+Use the Fluent API provided by `EpubReader` with support for chained method calls:
+
+```java
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)
+    .withLazyLoading(true)
+    .parse();
+```
+
+### Traditional API
+Use `EpubParser` for traditional parsing approach:
+
+```java
+EpubParser parser = new EpubParser(epubFile);
+EpubBook book = parser.parse();
+```
+
+### Async Processing
+Use `AsyncEpubProcessor` for asynchronous operations:
+
+```java
+AsyncEpubProcessor processor = new AsyncEpubProcessor();
+CompletableFuture<EpubBook> future = processor.parseBookAsync(epubFile);
+```
 
 Select a class name from the left navigation bar to view detailed API documentation.

@@ -16,6 +16,12 @@ EPUBime is a pure Java library for parsing EPUB file format. It provides complet
 - **EPUB 3.3 Support**: Compatible with EPUB 3.3 specification
 - **Nested Chapters**: Supports parsing of nested chapter structures
 - **Multiple Navigation Types**: Supports landmarks, page-list and other navigation types
+- **Modern Fluent API**: Fluent API design with method chaining support
+- **Async Processing**: Support for asynchronous parsing and processing for better performance
+- **Enhanced Error Handling**: Enterprise-grade error handling system with error recovery and fallback support
+- **Parallel Processing**: Support for parallel processing of multiple resources to improve efficiency
+- **Resource Fallback Mechanism**: Intelligent resource fallback handling to ensure compatibility
+- **Path Security Validation**: Security mechanism to prevent directory traversal attacks
 
 ## Quick Start
 
@@ -34,11 +40,16 @@ Add the following to your `pom.xml`:
 ### Basic Usage
 
 ```java
+import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
 
 File epubFile = new File("path/to/your/book.epub");
-EpubParser parser = new EpubParser(epubFile);
-EpubBook book = parser.parse();
+
+// Using the new Fluent API
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)
+    .withLazyLoading(true)
+    .parse();
 
 // Get metadata
 Metadata metadata = book.getMetadata();
@@ -55,7 +66,26 @@ for (EpubChapter chapter : chapters) {
 
 // Get cover
 EpubResource cover = book.getCover();
-byte[] coverData = cover.getData();
+if (cover != null) {
+    byte[] coverData = cover.getData();
+}
+
+// Stream processing chapters (suitable for large files)
+EpubReader.fromFile(epubFile)
+    .streamChapters((chapter, inputStream) -> {
+        System.out.println("Processing chapter: " + chapter.getTitle());
+        // Process chapter content stream
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    });
+
+// Async processing
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+CompletableFuture<EpubBook> futureBook = asyncProcessor.parseBookAsync(epubFile);
+EpubBook asyncBook = futureBook.get(); // Wait for completion
 ```
 
 For more usage examples and advanced features, please check the [full documentation](https://lzw-723.github.io/epubime/).

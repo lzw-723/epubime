@@ -1,5 +1,162 @@
 # Advanced Features
 
+## Fluent API Usage
+
+EPUBime provides a modern Fluent API that supports chained method calls:
+
+```java
+// Basic Fluent API usage
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)
+    .withLazyLoading(true)
+    .withParallelProcessing(true)
+    .parse();
+
+// Parse only metadata
+Metadata metadata = EpubReader.fromFile(epubFile)
+    .withCache(false)
+    .parseMetadata();
+
+// Parse only table of contents
+List<EpubChapter> chapters = EpubReader.fromFile(epubFile)
+    .parseTableOfContents();
+
+// Get book information
+EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
+System.out.println("Title: " + info.getTitle());
+System.out.println("Chapter count: " + info.getChapterCount());
+```
+
+## Async Processing
+
+EPUBime supports asynchronous processing to improve application responsiveness:
+
+```java
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+
+try {
+    // Parse book asynchronously
+    CompletableFuture<EpubBook> bookFuture = asyncProcessor.parseBookAsync(epubFile);
+    
+    // Parse metadata asynchronously
+    CompletableFuture<Metadata> metadataFuture = asyncProcessor.parseMetadataAsync(epubFile);
+    
+    // Get book info asynchronously
+    CompletableFuture<EpubReader.EpubInfo> infoFuture = asyncProcessor.getBookInfoAsync(epubFile);
+    
+    // Wait for all async operations to complete
+    CompletableFuture.allOf(bookFuture, metadataFuture, infoFuture).join();
+    
+    // Get results
+    EpubBook book = bookFuture.get();
+    Metadata metadata = metadataFuture.get();
+    EpubReader.EpubInfo info = infoFuture.get();
+    
+    System.out.println("Async parsing complete:");
+    System.out.println("Title: " + metadata.getTitle());
+    System.out.println("Chapters: " + book.getChapters().size());
+    System.out.println("File size: " + info.getFileSize());
+    
+} finally {
+    asyncProcessor.shutdown();
+}
+```
+
+## Streaming Processing
+
+For large EPUB files, streaming processing can be used to optimize memory usage:
+
+```java
+// Stream process all chapters without loading everything into memory
+EpubReader.fromFile(epubFile)
+    .streamChapters((chapter, inputStream) -> {
+        try {
+            System.out.println("Processing chapter: " + chapter.getTitle());
+            
+            // Read content stream (example: calculate size)
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            int totalBytes = 0;
+            
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                totalBytes += bytesRead;
+            }
+            
+            System.out.println("Chapter size: " + totalBytes + " bytes");
+            
+        } catch (IOException e) {
+            System.err.println("Failed to process chapter: " + e.getMessage());
+        }
+    });
+
+// Stream process specific chapter
+EpubReader.fromFile(epubFile)
+    .streamChapter("chapter1", inputStream -> {
+        try {
+            // Read complete content
+            String content = readStreamContent(inputStream);
+            System.out.println("Chapter 1 content length: " + content.length());
+            
+            // Or parse HTML with JSoup
+            Document doc = Jsoup.parse(content);
+            String text = doc.text();
+            System.out.println("Chapter 1 text length: " + text.length());
+            
+        } catch (IOException e) {
+            System.err.println("Failed to read chapter: " + e.getMessage());
+        }
+    });
+```
+
+## Enhanced API Features
+
+### Enhanced Book Object
+
+```java
+// Use enhanced book object
+EpubBook book = EpubReader.fromFile(epubFile).parse();
+EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, epubFile);
+
+// Get all chapters (including nested)
+List<EpubChapter> allChapters = enhancedBook.getAllChapters();
+
+// Find chapter by title
+EpubChapter chapter = enhancedBook.findChapterByTitle("Introduction");
+
+// Get specific type resources
+List<EpubResource> images = enhancedBook.getImageResources();
+List<EpubResource> cssFiles = enhancedBook.getCssResources();
+
+// Check for cover
+if (enhancedBook.hasCover()) {
+    System.out.println("Book has cover image");
+}
+```
+
+### Enhanced Metadata
+
+```java
+// Use enhanced metadata object
+Metadata metadata = EpubReader.fromFile(epubFile).parseMetadata();
+MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
+
+// Get parsed date
+LocalDate date = enhancedMetadata.getParsedDate();
+if (date != null) {
+    System.out.println("Publication date: " + date);
+}
+
+// Check accessibility features
+if (enhancedMetadata.hasAccessibilityFeatures()) {
+    System.out.println("Accessibility features: " + 
+            enhancedMetadata.getAccessibilityFeatures());
+}
+
+// Get summary
+System.out.println("\nMetadata Summary:");
+System.out.println(enhancedMetadata.getSummary());
+```
+
 ## Multiple Navigation Type Support
 
 EPUBime supports multiple navigation types, including NCX and NAV formats:
@@ -143,5 +300,50 @@ try {
 } catch (EpubZipException e) {
     // ZIP exception: Handle ZIP file operation errors
     System.err.println("ZIP error: " + e.getMessage());
+}
+```
+
+## Batch Processing
+
+EPUBime supports batch processing of multiple EPUB files:
+
+```java
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+
+try {
+    // Multiple EPUB files
+    List<File> epubFiles = Arrays.asList(
+        new File("book1.epub"),
+        new File("book2.epub"),
+        new File("book3.epub")
+    );
+    
+    // Process multiple books in parallel
+    asyncProcessor.processMultipleBooksAsync(epubFiles, book -> {
+        System.out.println("Processing book: " + book.getMetadata().getTitle());
+        System.out.println("  Chapters: " + book.getChapters().size());
+        System.out.println("  Resources: " + book.getResources().size());
+        return book;
+    }).thenAccept(books -> {
+        System.out.println("Completed processing " + books.size() + " books");
+    }).join();
+    
+    // Get chapter counts for all books
+    List<CompletableFuture<Integer>> chapterCountFutures = epubFiles.stream()
+        .map(asyncProcessor::getChapterCountAsync)
+        .collect(Collectors.toList());
+    
+    CompletableFuture.allOf(chapterCountFutures.toArray(new CompletableFuture[0]))
+        .thenRun(() -> {
+            List<Integer> chapterCounts = chapterCountFutures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+            
+            System.out.println("Chapter counts: " + chapterCounts);
+        })
+        .join();
+        
+} finally {
+    asyncProcessor.shutdown();
 }
 ```

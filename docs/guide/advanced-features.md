@@ -1,5 +1,151 @@
 # 高级功能
 
+## Fluent API 使用
+
+EPUBime 提供了现代化的 Fluent API，支持链式方法调用：
+
+```java
+// 基础 Fluent API 使用
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)
+    .withLazyLoading(true)
+    .withParallelProcessing(true)
+    .parse();
+
+// 只解析元数据
+Metadata metadata = EpubReader.fromFile(epubFile)
+    .withCache(false)
+    .parseMetadata();
+
+// 只解析目录
+List<EpubChapter> chapters = EpubReader.fromFile(epubFile)
+    .parseTableOfContents();
+
+// 获取书籍信息
+EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
+System.out.println("标题: " + info.getTitle());
+System.out.println("章节数: " + info.getChapterCount());
+```
+
+## 异步处理
+
+EPUBime 支持异步处理，提高应用响应性：
+
+```java
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+
+try {
+    // 异步解析书籍
+    CompletableFuture<EpubBook> bookFuture = asyncProcessor.parseBookAsync(epubFile);
+    
+    // 异步解析元数据
+    CompletableFuture<Metadata> metadataFuture = asyncProcessor.parseMetadataAsync(epubFile);
+    
+    // 异步获取书籍信息
+    CompletableFuture<EpubReader.EpubInfo> infoFuture = asyncProcessor.getBookInfoAsync(epubFile);
+    
+    // 等待所有异步操作完成
+    CompletableFuture.allOf(bookFuture, metadataFuture, infoFuture).join();
+    
+    // 获取结果
+    EpubBook book = bookFuture.get();
+    Metadata metadata = metadataFuture.get();
+    EpubReader.EpubInfo info = infoFuture.get();
+    
+} finally {
+    asyncProcessor.shutdown();
+}
+```
+
+## 流式处理
+
+对于大型 EPUB 文件，可以使用流式处理来优化内存使用：
+
+```java
+// 流式处理所有章节
+EpubReader.fromFile(epubFile)
+    .streamChapters((chapter, inputStream) -> {
+        try {
+            System.out.println("处理章节: " + chapter.getTitle());
+            
+            // 读取内容（示例：计算内容长度）
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            int totalBytes = 0;
+            
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                totalBytes += bytesRead;
+                // 处理内容块
+            }
+            
+            System.out.println("章节大小: " + totalBytes + " 字节");
+            
+        } catch (IOException e) {
+            System.err.println("处理章节失败: " + e.getMessage());
+        }
+    });
+
+// 流式处理特定章节
+EpubReader.fromFile(epubFile)
+    .streamChapter("chapter1", inputStream -> {
+        try {
+            // 处理特定章节的内容流
+            String content = readStreamContent(inputStream);
+            System.out.println("第一章内容长度: " + content.length());
+        } catch (IOException e) {
+            System.err.println("读取章节失败: " + e.getMessage());
+        }
+    });
+```
+
+## 增强的API功能
+
+### 增强的书籍对象
+
+```java
+// 使用增强的书籍对象
+EpubBook book = EpubReader.fromFile(epubFile).parse();
+EpubBookEnhanced enhancedBook = new EpubBookEnhanced(book, epubFile);
+
+// 获取所有章节（包括嵌套章节）
+List<EpubChapter> allChapters = enhancedBook.getAllChapters();
+
+// 按标题查找章节
+EpubChapter chapter = enhancedBook.findChapterByTitle("前言");
+
+// 获取特定类型的资源
+List<EpubResource> images = enhancedBook.getImageResources();
+List<EpubResource> cssFiles = enhancedBook.getCssResources();
+
+// 检查是否有封面
+if (enhancedBook.hasCover()) {
+    System.out.println("书籍有封面图片");
+}
+```
+
+### 增强的元数据
+
+```java
+// 使用增强的元数据对象
+Metadata metadata = EpubReader.fromFile(epubFile).parseMetadata();
+MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
+
+// 获取解析后的日期
+LocalDate date = enhancedMetadata.getParsedDate();
+if (date != null) {
+    System.out.println("出版日期: " + date);
+}
+
+// 检查可访问性特性
+if (enhancedMetadata.hasAccessibilityFeatures()) {
+    System.out.println("可访问性特性: " + enhancedMetadata.getAccessibilityFeatures());
+}
+
+// 获取元数据摘要
+String summary = enhancedMetadata.getSummary();
+System.out.println("元数据摘要: " + summary);
+```
+
 ## 多种导航类型支持
 
 EPUBime 支持多种导航类型，包括 NCX 和 NAV 格式：
@@ -143,5 +289,49 @@ try {
 } catch (EpubZipException e) {
     // ZIP 异常：处理 ZIP 文件操作错误
     System.err.println("ZIP 错误: " + e.getMessage());
+}
+```
+
+## 批量处理
+
+EPUBime 支持批量处理多个 EPUB 文件：
+
+```java
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+
+try {
+    // 多个 EPUB 文件
+    List<File> epubFiles = Arrays.asList(
+        new File("book1.epub"),
+        new File("book2.epub"),
+        new File("book3.epub")
+    );
+    
+    // 并行处理多个书籍
+    asyncProcessor.processMultipleBooksAsync(epubFiles, book -> {
+        System.out.println("处理书籍: " + book.getMetadata().getTitle());
+        System.out.println("章节数: " + book.getChapters().size());
+        return book;
+    }).thenAccept(books -> {
+        System.out.println("完成处理 " + books.size() + " 本书籍");
+    }).join();
+    
+    // 获取所有书籍的章节数
+    List<CompletableFuture<Integer>> chapterCountFutures = epubFiles.stream()
+        .map(asyncProcessor::getChapterCountAsync)
+        .collect(Collectors.toList());
+    
+    CompletableFuture.allOf(chapterCountFutures.toArray(new CompletableFuture[0]))
+        .thenRun(() -> {
+            List<Integer> chapterCounts = chapterCountFutures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+            
+            System.out.println("各书籍章节数: " + chapterCounts);
+        })
+        .join();
+        
+} finally {
+    asyncProcessor.shutdown();
 }
 ```

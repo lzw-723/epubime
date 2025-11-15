@@ -16,6 +16,12 @@ EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供
 - **EPUB 3.3 支持**: 兼容 EPUB 3.3 规范
 - **嵌套章节**: 支持解析嵌套的章节结构
 - **多种导航类型**: 支持 landmarks、page-list 等多种导航类型
+- **现代流式 API**: Fluent API 设计，支持方法链式调用
+- **异步处理**: 支持异步解析和处理，提高性能
+- **增强的错误处理**: 企业级错误处理系统，支持错误恢复和降级处理
+- **并行处理**: 支持多资源并行处理，提升处理效率
+- **资源回退机制**: 智能的资源回退处理，确保兼容性
+- **路径安全验证**: 防止目录遍历攻击的安全机制
 
 ## 快速开始
 
@@ -34,11 +40,16 @@ EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供
 ### 基本使用
 
 ```java
+import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
 
 File epubFile = new File("path/to/your/book.epub");
-EpubParser parser = new EpubParser(epubFile);
-EpubBook book = parser.parse();
+
+// 使用新的 Fluent API
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)
+    .withLazyLoading(true)
+    .parse();
 
 // 获取元数据
 Metadata metadata = book.getMetadata();
@@ -55,7 +66,26 @@ for (EpubChapter chapter : chapters) {
 
 // 获取封面
 EpubResource cover = book.getCover();
-byte[] coverData = cover.getData();
+if (cover != null) {
+    byte[] coverData = cover.getData();
+}
+
+// 流式处理章节内容（适合大文件）
+EpubReader.fromFile(epubFile)
+    .streamChapters((chapter, inputStream) -> {
+        System.out.println("处理章节: " + chapter.getTitle());
+        // 处理章节内容流
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    });
+
+// 异步处理
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+CompletableFuture<EpubBook> futureBook = asyncProcessor.parseBookAsync(epubFile);
+EpubBook asyncBook = futureBook.get(); // 等待完成
 ```
 
 更多使用示例和高级功能，请查看[完整文档](https://lzw-723.github.io/epubime/)。

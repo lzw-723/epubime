@@ -29,6 +29,8 @@ EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供
 
 以下是最基本的使用示例，演示如何解析一个 EPUB 文件并获取基本信息：
 
+### 传统API方式
+
 ```java
 import fun.lzwi.epubime.epub.*;
 
@@ -51,7 +53,48 @@ for (EpubChapter chapter : chapters) {
 
 // 获取封面
 EpubResource cover = book.getCover();
-byte[] coverData = cover.getData();
+if (cover != null) {
+    byte[] coverData = cover.getData();
+}
+```
+
+### 现代Fluent API（推荐）
+
+```java
+import fun.lzwi.epubime.api.*;
+import fun.lzwi.epubime.epub.*;
+
+File epubFile = new File("path/to/your/book.epub");
+
+// 使用Fluent API进行链式调用
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)              // 启用缓存
+    .withLazyLoading(true)        // 启用延迟加载
+    .withParallelProcessing(true) // 启用并行处理
+    .parse();
+
+// 获取元数据
+Metadata metadata = book.getMetadata();
+System.out.println("标题: " + metadata.getTitle());
+System.out.println("作者: " + metadata.getCreator());
+System.out.println("语言: " + metadata.getLanguage());
+
+// 获取章节列表
+List<EpubChapter> chapters = book.getChapters();
+for (EpubChapter chapter : chapters) {
+    System.out.println("章节: " + chapter.getTitle());
+    System.out.println("内容路径: " + chapter.getContent());
+}
+
+// 获取封面
+EpubResource cover = book.getCover();
+if (cover != null) {
+    byte[] coverData = cover.getData();
+}
+
+// 快速获取书籍信息（无需完整解析）
+EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
+System.out.println("书籍信息: " + info);
 ```
 
 ## 主要功能
@@ -67,6 +110,19 @@ byte[] coverData = cover.getData();
 
 ### 异常处理
 提供完善的异常处理机制，包括格式异常、解析异常、路径验证异常等。
+
+### 现代API特性
+- **Fluent API**: 支持链式方法调用，代码更简洁
+- **异步处理**: 支持异步解析，提高应用响应性
+- **流式处理**: 支持大文件的流式处理，优化内存使用
+- **并行处理**: 支持多资源并行处理，提升性能
+- **智能缓存**: 自动缓存解析结果，避免重复解析
+
+### 增强功能
+- **增强的书籍对象**: `EpubBookEnhanced` 提供更多便利方法
+- **增强的元数据**: `MetadataEnhanced` 支持更多元数据操作
+- **异步处理器**: `AsyncEpubProcessor` 支持异步操作
+- **资源回退机制**: 智能处理资源加载失败的情况
 
 ## 运行环境
 

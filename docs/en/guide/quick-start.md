@@ -29,6 +29,8 @@ Add the following to your `pom.xml`:
 
 Here's the most basic example demonstrating how to parse an EPUB file and get basic information:
 
+### Traditional API Approach
+
 ```java
 import fun.lzwi.epubime.epub.*;
 
@@ -51,7 +53,48 @@ for (EpubChapter chapter : chapters) {
 
 // Get cover
 EpubResource cover = book.getCover();
-byte[] coverData = cover.getData();
+if (cover != null) {
+    byte[] coverData = cover.getData();
+}
+```
+
+### Modern Fluent API (Recommended)
+
+```java
+import fun.lzwi.epubime.api.*;
+import fun.lzwi.epubime.epub.*;
+
+File epubFile = new File("path/to/your/book.epub");
+
+// Using Fluent API with method chaining
+EpubBook book = EpubReader.fromFile(epubFile)
+    .withCache(true)              // Enable caching
+    .withLazyLoading(true)        // Enable lazy loading
+    .withParallelProcessing(true) // Enable parallel processing
+    .parse();
+
+// Get metadata
+Metadata metadata = book.getMetadata();
+System.out.println("Title: " + metadata.getTitle());
+System.out.println("Author: " + metadata.getCreator());
+System.out.println("Language: " + metadata.getLanguage());
+
+// Get chapter list
+List<EpubChapter> chapters = book.getChapters();
+for (EpubChapter chapter : chapters) {
+    System.out.println("Chapter: " + chapter.getTitle());
+    System.out.println("Content path: " + chapter.getContent());
+}
+
+// Get cover
+EpubResource cover = book.getCover();
+if (cover != null) {
+    byte[] coverData = cover.getData();
+}
+
+// Quick book info without full parsing
+EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
+System.out.println("Book info: " + info);
 ```
 
 ## Key Features
@@ -67,6 +110,19 @@ Extract all resources (images, CSS, styles, etc.) from EPUB files with streaming
 
 ### Error Handling
 Comprehensive exception handling mechanism including format exceptions, parsing exceptions, path validation exceptions, etc.
+
+### Modern API Features
+- **Fluent API**: Support for chained method calls, cleaner code
+- **Async Processing**: Support for asynchronous parsing, improved application responsiveness
+- **Streaming Processing**: Support for streaming processing of large files, optimized memory usage
+- **Parallel Processing**: Support for parallel processing of multiple resources, enhanced performance
+- **Smart Caching**: Automatic caching of parsing results, avoids repeated parsing
+
+### Enhanced Features
+- **Enhanced Book Object**: `EpubBookEnhanced` provides more convenient methods
+- **Enhanced Metadata**: `MetadataEnhanced` supports more metadata operations
+- **Async Processor**: `AsyncEpubProcessor` supports asynchronous operations
+- **Resource Fallback Mechanism**: Intelligent handling of resource loading failures
 
 ## Runtime Environment
 
