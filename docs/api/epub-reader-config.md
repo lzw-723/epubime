@@ -75,5 +75,4 @@ EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 // 复制和修改配置
 EpubReaderConfig newConfig = new EpubReaderConfig(config)
     .withCache(false);
-```</content>
-<parameter name="filePath">docs/api/epub-reader-config.md
+```

@@ -14,6 +14,7 @@ export default defineConfig({
           { text: '快速开始', link: '/guide/quick-start' },
           { text: '使用指南', link: '/guide/' },
           { text: 'API 参考', link: '/api/' },
+          { text: '更新日志', link: '/CHANGELOG' },
         ],
         sidebar: {
           '/guide/': [
@@ -89,6 +90,7 @@ export default defineConfig({
           { text: 'Quick Start', link: '/en/guide/quick-start' },
           { text: 'Guide', link: '/en/guide/' },
           { text: 'API Reference', link: '/en/api/' },
+          { text: 'Changelog', link: '/en/CHANGELOG' },
         ],
         sidebar: {
           '/en/guide/': [

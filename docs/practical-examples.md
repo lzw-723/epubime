@@ -1090,5 +1090,4 @@ public class ConverterExample {
 }
 ```
 
-这些示例展示了如何使用 EPUBime 库构建实际的应用程序。通过这些例子，您可以了解如何组合使用库的各种功能来解决实际问题。</content>
-<parameter name="filePath">docs/practical-examples.md
+这些示例展示了如何使用 EPUBime 库构建实际的应用程序。通过这些例子，您可以了解如何组合使用库的各种功能来解决实际问题。

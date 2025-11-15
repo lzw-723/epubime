@@ -115,5 +115,4 @@ reader.processMultipleHtmlChapters(files, (fileName, inputStream) -> {
 - 所有路径都会经过安全验证
 - InputStream 在处理器执行完毕后自动关闭
 - 支持 ZIP 文件中的所有压缩格式
-- 提供详细的错误信息用于问题诊断</content>
-<parameter name="filePath">docs/api/epub-file-reader.md
+- 提供详细的错误信息用于问题诊断

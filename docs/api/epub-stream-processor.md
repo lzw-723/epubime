@@ -103,5 +103,4 @@ processor.processBookChapters(book, (chapter, inputStream) -> {
 - 流式处理可以有效减少内存使用，适合处理大型 EPUB 文件
 - InputStream 在处理器函数执行完毕后会自动关闭
 - 路径验证会防止目录遍历攻击
-- 异常处理应该包含 BaseEpubException 和 EpubPathValidationException</content>
-<parameter name="filePath">docs/api/epub-stream-processor.md
+- 异常处理应该包含 BaseEpubException 和 EpubPathValidationException

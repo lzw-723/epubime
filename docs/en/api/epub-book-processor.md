@@ -90,5 +90,4 @@ try {
 } catch (IOException e) {
     System.err.println("Failed to load resource data: " + e.getMessage());
 }
-```</content>
-<parameter name="filePath">docs/en/api/epub-book-processor.md
+```

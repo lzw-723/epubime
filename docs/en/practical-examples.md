@@ -1088,5 +1088,4 @@ public class ConverterExample {
 }
 ```
 
-These examples demonstrate how to use the EPUBime library to build real applications. Through these examples, you can understand how to combine various functions of the library to solve practical problems.</content>
-<parameter name="filePath">docs/en/practical-examples.md
+These examples demonstrate how to use the EPUBime library to build real applications. Through these examples, you can understand how to combine various functions of the library to solve practical problems.

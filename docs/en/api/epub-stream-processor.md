@@ -103,5 +103,4 @@ processor.processBookChapters(book, (chapter, inputStream) -> {
 - Streaming processing can effectively reduce memory usage, suitable for processing large EPUB files
 - InputStream is automatically closed after the processor function executes
 - Path validation prevents directory traversal attacks
-- Exception handling should include both BaseEpubException and EpubPathValidationException</content>
-<parameter name="filePath">docs/en/api/epub-stream-processor.md
+- Exception handling should include both BaseEpubException and EpubPathValidationException

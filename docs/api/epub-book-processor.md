@@ -90,5 +90,4 @@ try {
 } catch (IOException e) {
     System.err.println("加载资源数据失败: " + e.getMessage());
 }
-```</content>
-<parameter name="filePath">docs/api/epub-book-processor.md
+```
