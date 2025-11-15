@@ -2,8 +2,6 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.ResUtils;
 import fun.lzwi.epubime.cache.EpubCacheManager;
-import fun.lzwi.epubime.epub.EpubFileReader;
-import fun.lzwi.epubime.epub.Metadata;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import nl.siegmann.epublib.domain.Book;
@@ -75,7 +73,7 @@ public class MemoryBenchmarkTest {
      * Tests memory usage of parsing EPUB files
      */
     @Test
-    public void testParseMemoryUsage() throws Exception {
+    public void testParseMemoryUsage() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
         long memoryUsed = measureMemoryUsage(() -> {
@@ -98,7 +96,7 @@ public class MemoryBenchmarkTest {
      * Tests memory usage of reading EPUB content
      */
     @Test
-    public void testReadEpubContentMemoryUsage() throws Exception {
+    public void testReadEpubContentMemoryUsage() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
         // 清除EPUBime缓存，确保测试公平性
@@ -155,7 +153,7 @@ public class MemoryBenchmarkTest {
      * Tests memory usage of the cache mechanism
      */
     @Test
-    public void testCacheMemoryUsage() throws Exception {
+    public void testCacheMemoryUsage() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
         // 清除EPUBime缓存，确保测试公平性
@@ -194,7 +192,7 @@ public class MemoryBenchmarkTest {
      * Tests memory usage comparison between EPUBime and epublib
      */
     @Test
-    public void testMemoryUsageComparison() throws Exception {
+    public void testMemoryUsageComparison() {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
 
         // 清除EPUBime缓存，确保测试公平性
@@ -237,14 +235,4 @@ public class MemoryBenchmarkTest {
         System.out.println("Memory difference: " + Math.abs(epubimeMemoryUsed - epublibMemoryUsed) / 1024.0 / 1024.0 + " MB");
     }
 
-    /**
-     * Displays all memory benchmark results
-     */
-    public void printMemoryBenchmarkResults() {
-        System.out.println("\n=== Memory Benchmark Results ===");
-        for (Map.Entry<String, Long> entry : memoryResults.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue() / 1024.0 / 1024.0 + " MB");
-        }
-        System.out.println("========================\n");
-    }
 }
