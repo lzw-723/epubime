@@ -8,6 +8,7 @@ package fun.lzwi.epubime.exception;
  * - 使用标准化的错误码
  * - 提供详细的格式错误信息
  * - 支持异常构建器模式
+ * - 重构后消除重复代码
  */
 public class EpubFormatException extends EpubParseException {
     
@@ -18,12 +19,8 @@ public class EpubFormatException extends EpubParseException {
      * @param filePath 文件路径
      */
     public EpubFormatException(String message, String fileName, String filePath) {
-        super(new EpubParseException.Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("formatValidation")
-                .errorCode(ErrorCode.EPUB_INVALID_CONTAINER));
+        super(ExceptionBuilder.createBuilder(message, fileName, filePath, 
+                "formatValidation", ErrorCode.EPUB_INVALID_CONTAINER));
     }
 
     /**
@@ -34,12 +31,8 @@ public class EpubFormatException extends EpubParseException {
      * @param cause 异常原因
      */
     public EpubFormatException(String message, String fileName, String filePath, Throwable cause) {
-        super(new EpubParseException.Builder()
-                .message(message)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("formatValidation")
-                .errorCode(ErrorCode.EPUB_INVALID_CONTAINER)
+        super(ExceptionBuilder.createBuilder(message, fileName, filePath, 
+                "formatValidation", ErrorCode.EPUB_INVALID_CONTAINER)
                 .cause(cause));
     }
     
@@ -47,72 +40,71 @@ public class EpubFormatException extends EpubParseException {
      * 创建mimetype缺失异常
      */
     public static EpubFormatException missingMimetype(String fileName, String filePath) {
-        return new EpubFormatException(new EpubParseException.Builder()
-                .message("Missing required mimetype file")
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("mimetypeValidation")
-                .errorCode(ErrorCode.EPUB_MISSING_MIMETYPE)
-                .recoverySuggestion("请确保EPUB文件包含mimetype文件"));
+        return new EpubFormatException(
+            ExceptionBuilder.createBuilderWithSuggestion(
+                "Missing required mimetype file", fileName, filePath,
+                "mimetypeValidation", ErrorCode.EPUB_MISSING_MIMETYPE,
+                "请确保EPUB文件包含mimetype文件"
+            )
+        );
     }
     
     /**
      * 创建container.xml无效异常
      */
     public static EpubFormatException invalidContainer(String fileName, String filePath, String details) {
-        return new EpubFormatException(new EpubParseException.Builder()
-                .message("Invalid container.xml: " + details)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("containerValidation")
-                .errorCode(ErrorCode.EPUB_INVALID_CONTAINER)
-                .addContext("details", details)
-                .recoverySuggestion("请检查META-INF/container.xml文件格式"));
+        return new EpubFormatException(
+            ExceptionBuilder.createBuilderWithSuggestion(
+                "Invalid container.xml: " + details, fileName, filePath,
+                "containerValidation", ErrorCode.EPUB_INVALID_CONTAINER,
+                "请检查META-INF/container.xml文件格式"
+            ).addContext("details", details)
+        );
     }
     
     /**
      * 创建OPF文件无效异常
      */
     public static EpubFormatException invalidOpf(String fileName, String filePath, String opfPath, String details) {
-        return new EpubFormatException(new EpubParseException.Builder()
-                .message("Invalid OPF file: " + details)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("opfValidation")
-                .errorCode(ErrorCode.EPUB_INVALID_OPF)
-                .addContext("opfPath", opfPath)
-                .addContext("details", details)
-                .recoverySuggestion("请检查OPF文件的XML格式和结构"));
+        return new EpubFormatException(
+            ExceptionBuilder.createBuilderWithSuggestion(
+                "Invalid OPF file: " + details, fileName, filePath,
+                "opfValidation", ErrorCode.EPUB_INVALID_OPF,
+                "请检查OPF文件的XML格式和结构"
+            )
+            .addContext("opfPath", opfPath)
+            .addContext("details", details)
+        );
     }
     
     /**
      * 创建NCX文件无效异常
      */
     public static EpubFormatException invalidNcx(String fileName, String filePath, String ncxPath, String details) {
-        return new EpubFormatException(new EpubParseException.Builder()
-                .message("Invalid NCX file: " + details)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("ncxValidation")
-                .errorCode(ErrorCode.EPUB_INVALID_NCX)
-                .addContext("ncxPath", ncxPath)
-                .addContext("details", details)
-                .recoverySuggestion("请检查NCX文件的XML格式和结构"));
+        return new EpubFormatException(
+            ExceptionBuilder.createBuilderWithSuggestion(
+                "Invalid NCX file: " + details, fileName, filePath,
+                "ncxValidation", ErrorCode.EPUB_INVALID_NCX,
+                "请检查NCX文件的XML格式和结构"
+            )
+            .addContext("ncxPath", ncxPath)
+            .addContext("details", details)
+        );
     }
     
     /**
      * 创建NAV文件无效异常
      */
     public static EpubFormatException invalidNav(String fileName, String filePath, String navPath, String details) {
-        return new EpubFormatException(new EpubParseException.Builder()
-                .message("Invalid NAV file: " + details)
-                .fileName(fileName)
-                .filePath(filePath)
-                .operation("navValidation")
-                .errorCode(ErrorCode.EPUB_INVALID_NAV)
-                .addContext("navPath", navPath)
-                .addContext("details", details)
-                .recoverySuggestion("请检查NAV文件的XML格式和结构"));
+        return new EpubFormatException(
+            ExceptionBuilder.createBuilderWithSuggestion(
+                "Invalid NAV file: " + details, fileName, filePath,
+                "navValidation", ErrorCode.EPUB_INVALID_NAV,
+                "请检查NAV文件的XML格式和结构"
+            )
+            .addContext("navPath", navPath)
+            .addContext("details", details)
+        );
     }
     
     /**

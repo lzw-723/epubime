@@ -1,10 +1,8 @@
 package fun.lzwi.epubime.parser;
 
 import fun.lzwi.epubime.epub.EpubChapter;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
@@ -13,6 +11,8 @@ import java.util.List;
 /**
  * 导航解析器
  * 负责解析NCX和NAV文件中的导航信息
+ * 
+ * 重构后使用XmlUtils工具类消除重复代码
  */
 public class NavigationParser {
     
@@ -27,24 +27,20 @@ public class NavigationParser {
      * @return NCX文件路径
      */
     public String getNcxPath(String opfContent, String opfDir) {
-        if (opfContent == null) {
-            throw new IllegalArgumentException("OPF content cannot be null");
-        }
-        
-        Document document = Jsoup.parse(opfContent);
-        String id = document.select("spine").attr("toc");
+        Document document = XmlUtils.parseXml(opfContent);
+        String id = XmlUtils.getAttribute(XmlUtils.selectFirst(document, "spine"), "toc");
         
         if (id.isEmpty()) {
             throw new IllegalArgumentException("No NCX reference found in spine element");
         }
         
         // 优化：使用更高效的查询方式
-        Element ncxItem = document.selectFirst("manifest > item[id=\"" + id + "\"]");
+        Element ncxItem = XmlUtils.selectFirst(document, "manifest > item[id=\"" + id + "\"]");
         if (ncxItem == null) {
             throw new IllegalArgumentException("NCX item not found in OPF manifest with id: " + id);
         }
         
-        return opfDir + ncxItem.attr("href");
+        return opfDir + XmlUtils.getAttribute(ncxItem, "href");
     }
     
     /**
@@ -54,13 +50,8 @@ public class NavigationParser {
      * @return 章节列表
      */
     public List<EpubChapter> parseNcx(String tocContent) {
-        if (tocContent == null) {
-            throw new IllegalArgumentException("NCX content cannot be null");
-        }
-        
-        // 使用更快的解析配置
-        Document doc = Jsoup.parse(tocContent, "", Parser.xmlParser());
-        Elements navPoints = doc.select("navMap > navPoint");
+        Document doc = XmlUtils.parseXml(tocContent);
+        Elements navPoints = XmlUtils.select(doc, "navMap > navPoint");
         
         if (navPoints.isEmpty()) {
             return EMPTY_CHAPTER_LIST;
@@ -86,14 +77,14 @@ public class NavigationParser {
         EpubChapter chapter = new EpubChapter();
         
         // 优化：使用更高效的查询方式
-        Element navLabel = navPoint.selectFirst("navLabel > text");
+        Element navLabel = XmlUtils.selectFirst(navPoint, "navLabel > text");
         if (navLabel != null) {
-            chapter.setTitle(navLabel.text());
+            chapter.setTitle(XmlUtils.getText(navLabel));
         }
         
-        Element content = navPoint.selectFirst("content");
+        Element content = XmlUtils.selectFirst(navPoint, "content");
         if (content != null) {
-            chapter.setContent(content.attr("src"));
+            chapter.setContent(XmlUtils.getAttribute(content, "src"));
         }
         
         return chapter;
@@ -107,14 +98,10 @@ public class NavigationParser {
      * @return NAV文件路径，如果不存在则返回null
      */
     public String getNavPath(String opfContent, String opfDir) {
-        if (opfContent == null) {
-            throw new IllegalArgumentException("OPF content cannot be null");
-        }
-        
         // 使用更快的查询方式
-        Element navItem = Jsoup.parse(opfContent).selectFirst("manifest > item[properties=nav]");
+        Element navItem = XmlUtils.selectFirst(XmlUtils.parseXml(opfContent), "manifest > item[properties=nav]");
         if (navItem != null) {
-            return opfDir + navItem.attr("href");
+            return opfDir + XmlUtils.getAttribute(navItem, "href");
         }
         return null;
     }
@@ -126,11 +113,7 @@ public class NavigationParser {
      * @return 章节列表
      */
     public List<EpubChapter> parseNav(String navContent) {
-        if (navContent == null) {
-            throw new IllegalArgumentException("NAV content cannot be null");
-        }
-        
-        Document doc = Jsoup.parse(navContent, "", Parser.xmlParser());
+        Document doc = XmlUtils.parseXml(navContent);
         Element navElement = findNavElement(doc, "toc");
         
         if (navElement == null) {
@@ -138,7 +121,7 @@ public class NavigationParser {
         }
         
         // 查找顶级ol或ul元素
-        Elements topLists = navElement.select("> ol, > ul");
+        Elements topLists = XmlUtils.select(navElement, "> ol, > ul");
         if (topLists.isEmpty()) {
             return EMPTY_CHAPTER_LIST;
         }
@@ -160,14 +143,7 @@ public class NavigationParser {
      * @return 章节列表
      */
     public List<EpubChapter> parseNavByType(String navContent, String navType) {
-        if (navContent == null) {
-            throw new IllegalArgumentException("NAV content cannot be null");
-        }
-        if (navType == null) {
-            throw new IllegalArgumentException("Navigation type cannot be null");
-        }
-        
-        Document doc = Jsoup.parse(navContent, "", Parser.xmlParser());
+        Document doc = XmlUtils.parseXml(navContent);
         Element navElement = findNavElement(doc, navType);
         
         if (navElement == null) {
@@ -175,7 +151,7 @@ public class NavigationParser {
         }
         
         // 查找顶级ol或ul元素
-        Elements topLists = navElement.select("> ol, > ul");
+        Elements topLists = XmlUtils.select(navElement, "> ol, > ul");
         if (topLists.isEmpty()) {
             return EMPTY_CHAPTER_LIST;
         }
@@ -205,7 +181,7 @@ public class NavigationParser {
         };
         
         for (String selector : selectors) {
-            Element element = doc.selectFirst(selector);
+            Element element = XmlUtils.selectFirst(doc, selector);
             if (element != null) {
                 return element;
             }
@@ -213,7 +189,7 @@ public class NavigationParser {
         
         // 如果是toc类型且仍未找到，使用第一个nav元素
         if ("toc".equals(navType)) {
-            return doc.selectFirst("nav");
+            return XmlUtils.selectFirst(doc, "nav");
         }
         
         return null;
@@ -235,23 +211,23 @@ public class NavigationParser {
             }
             
             EpubChapter chapter = null;
-            Element link = li.selectFirst("a");
+            Element link = XmlUtils.selectFirst(li, "a");
             
             if (link != null) {
                 chapter = new EpubChapter();
                 
                 // 设置章节ID（如果存在）
-                String id = link.attr("id");
-                if (id != null && !id.isEmpty()) {
+                String id = XmlUtils.getAttribute(link, "id");
+                if (!id.isEmpty()) {
                     chapter.setId(id);
                 }
                 
-                chapter.setTitle(link.text());
-                chapter.setContent(link.attr("href"));
+                chapter.setTitle(XmlUtils.getText(link));
+                chapter.setContent(XmlUtils.getAttribute(link, "href"));
             }
             
             // 查找嵌套列表（子章节）
-            Elements nestedLists = li.select("> ol, > ul");
+            Elements nestedLists = XmlUtils.select(li, "> ol, > ul");
             
             for (Element nestedList : nestedLists) {
                 if (chapter != null) {
