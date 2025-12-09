@@ -2,7 +2,8 @@
 
 [English](README_en.md) | [中文](README.md)
 
-EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供了完整的 EPUB 文件解析功能，包括元数据提取、章节内容读取和资源文件处理。支持 EPUB 2 和 EPUB 3 格式。
+EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供了完整的 EPUB 文件解析功能，包括元数据提取、章节内容读取和资源文件处理。支持
+EPUB 2 和 EPUB 3 格式。
 
 ## 功能特性
 
@@ -29,18 +30,36 @@ EPUBime 是一个纯 Java 库，用于解析 EPUB 文件格式。该项目提供
 
 ### Maven 依赖
 
-在 `pom.xml` 中添加：
+Epubime 当前使用[jitpack.io](https://www.jitpack.io)作为maven仓库
+
+#### 步骤1 添加JitPack仓库
 
 ```xml
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://www.jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+#### 步骤2 添加EPUBime依赖
+
+```xml
+
 <dependency>
-    <groupId>fun.lzwi</groupId>
+    <groupId>com.github.lzw-723</groupId>
     <artifactId>epubime</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>Tag</version>
 </dependency>
 ```
 
+访问[JitPack](https://www.jitpack.io/#lzw-723/epubime/Tag) 查看最新版本号，替换代码中的Tag
+
 ### 基本使用
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
@@ -48,52 +67,49 @@ import fun.lzwi.epubime.epub.*;
 File epubFile = new File("path/to/your/book.epub");
 
 // 使用现代 Fluent API（推荐）
-EpubReaderConfig config = new EpubReaderConfig()
-    .withCache(true)
-    .withLazyLoading(false)
-    .withParallelProcessing(true);
+EpubReaderConfig config = new EpubReaderConfig().withCache(true).withLazyLoading(false).withParallelProcessing(true);
 EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 
 // 获取元数据
 Metadata metadata = book.getMetadata();
-System.out.println("标题: " + metadata.getTitle());
-System.out.println("作者: " + metadata.getCreator());
-System.out.println("语言: " + metadata.getLanguage());
+System.out.println("标题: "+metadata.getTitle());
+System.out.println("作者: "+metadata.getCreator());
+System.out.println("语言: "+metadata.getLanguage());
 
 // 获取章节列表
 List<EpubChapter> chapters = book.getChapters();
-for (EpubChapter chapter : chapters) {
-    System.out.println("章节: " + chapter.getTitle());
-    System.out.println("内容路径: " + chapter.getContent());
+for(EpubChapter chapter :chapters){
+    System.out.println("章节: "+chapter.getTitle());
+    System.out.println("内容路径: "+chapter.getContent());
 }
 
 // 获取封面（使用专用处理器）
 EpubResource cover = EpubBookProcessor.getCover(book);
-if (cover != null) {
+if(cover !=null){
     byte[] coverData = cover.getData();
 }
 
 // 快速获取书籍信息（无需完整解析）
 EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
-System.out.println("书籍信息: " + info);
+System.out.println("书籍信息: "+info);
 
 // 流式处理章节内容（适合大文件）
-EpubReader.fromFile(epubFile)
-    .streamChapters((chapter, inputStream) -> {
-        System.out.println("处理章节: " + chapter.getTitle());
-        // 处理章节内容流
-        try {
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    });
+EpubReader.fromFile(epubFile).streamChapters((chapter, inputStream) ->{
+    System.out.println("处理章节: "+chapter.getTitle());
+    // 处理章节内容流
+    try{
+        inputStream.close();
+    }catch(IOException e){
+        e.printStackTrace();
+    }
+});
 
 // 异步处理
 AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
 CompletableFuture<EpubBook> futureBook = asyncProcessor.parseBookAsync(epubFile);
 EpubBook asyncBook = futureBook.get(); // 等待完成
 ```
+<!-- @formatter:on -->
 
 更多使用示例和高级功能，请查看[完整文档](https://lzw-723.github.io/epubime/)和[实际应用示例](docs/practical-examples.md)。
 
@@ -119,19 +135,24 @@ mvn test -Dtest=EpubimeVsEpublibBenchmarkTest
 在标准测试环境中，EPUBime 相比 epublib 表现出色：
 
 #### 简单解析性能
+
 - **EPUBime**：4.37ms vs **epublib**：7.04ms（**37.9% 性能提升**）
 
 #### 实际使用场景（解析+访问）
+
 - **EPUBime**：3.72ms vs **epublib**：7.42ms（**49.8% 性能提升**）
 - 包含：解析 + 元数据访问 + 章节列表 + 资源列表
 
 #### 完整工作流性能
+
 - **EPUBime**：3.15ms（包含：解析 + 元数据 + 章节 + 资源 + 封面 + 第一章内容读取）
 
 #### 文件读取性能
+
 - mimetype：0.31ms，OPF：0.40ms，NCX：0.34ms
 
 #### 内存和缓存效率
+
 - 智能缓存和流式处理，内存使用降低 25-40%
 - 重复解析时性能提升 80% 以上
 

@@ -15,15 +15,30 @@ EPUBime is a pure Java library for parsing EPUB file format. It provides complet
 
 ## Installation
 
-Add the following to your `pom.xml`:
+Epubime currently uses [jitpack.io](https://www.jitpack.io) as the maven repository
+
+### Step 1: Add JitPack Repository
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://www.jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+### Step 2: Add EPUBime Dependency
 
 ```xml
 <dependency>
-    <groupId>fun.lzwi</groupId>
+    <groupId>com.github.lzw-723</groupId>
     <artifactId>epubime</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>Tag</version>
 </dependency>
 ```
+
+Visit [JitPack](https://www.jitpack.io/#lzw-723/epubime/Tag) to check the latest version and replace 'Tag' in the code
 
 ## Basic Usage
 
@@ -31,6 +46,7 @@ Here's the most basic example demonstrating how to parse an EPUB file and get ba
 
 ### Traditional API Approach
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.epub.*;
 
@@ -40,26 +56,28 @@ EpubBook book = parser.parse();
 
 // Get metadata
 Metadata metadata = book.getMetadata();
-System.out.println("Title: " + metadata.getTitle());
-System.out.println("Author: " + metadata.getCreator());
-System.out.println("Language: " + metadata.getLanguage());
+System.out.println("Title: "+metadata.getTitle());
+System.out.println("Author: "+metadata.getCreator());
+System.out.println("Language: "+metadata.getLanguage());
 
 // Get chapter list
 List<EpubChapter> chapters = book.getChapters();
-for (EpubChapter chapter : chapters) {
-    System.out.println("Chapter: " + chapter.getTitle());
-    System.out.println("Content path: " + chapter.getContent());
+for(EpubChapter chapter :chapters){
+    System.out.println("Chapter: "+chapter.getTitle());
+    System.out.println("Content path: "+chapter.getContent());
 }
 
 // Get cover
 EpubResource cover = book.getCover();
-if (cover != null) {
+if(cover !=null){
     byte[] coverData = cover.getData();
 }
 ```
+<!-- @formatter:on -->
 
 ### Modern Fluent API (Recommended)
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
@@ -67,35 +85,69 @@ import fun.lzwi.epubime.epub.*;
 File epubFile = new File("path/to/your/book.epub");
 
 // Using modern Fluent API (Recommended)
-EpubReaderConfig config = new EpubReaderConfig()
-    .withCache(true)              // Enable caching
-    .withLazyLoading(false)       // Disable lazy loading
-    .withParallelProcessing(true); // Enable parallel processing
+EpubReaderConfig config = new EpubReaderConfig().withCache(true).withLazyLoading(false).withParallelProcessing(true);
 EpubBook book = EpubReader.fromFile(epubFile, config).parse();
 
 // Get metadata
 Metadata metadata = book.getMetadata();
-System.out.println("Title: " + metadata.getTitle());
-System.out.println("Author: " + metadata.getCreator());
-System.out.println("Language: " + metadata.getLanguage());
+System.out.println("Title: "+metadata.getTitle());
+System.out.println("Author: "+metadata.getCreator());
+System.out.println("Language: "+metadata.getLanguage());
 
 // Get chapter list
 List<EpubChapter> chapters = book.getChapters();
-for (EpubChapter chapter : chapters) {
-    System.out.println("Chapter: " + chapter.getTitle());
-    System.out.println("Content path: " + chapter.getContent());
+for(EpubChapter chapter :chapters){
+    System.out.println("Chapter: "+chapter.getTitle());
+    System.out.println("Content path: "+chapter.getContent());
 }
 
 // Get cover (using dedicated processor)
 EpubResource cover = EpubBookProcessor.getCover(book);
-if (cover != null) {
+if(cover !=null){
     byte[] coverData = cover.getData();
 }
 
 // Quick book info without full parsing
 EpubReader.EpubInfo info = EpubReader.fromFile(epubFile).getInfo();
-System.out.println("Book info: " + info);
+System.out.println("Book info: "+info);
 ```
+<!-- @formatter:on -->
+
+### Advanced Features Examples
+
+#### Stream Processing Chapter Content (Suitable for Large Files)
+
+<!-- @formatter:off -->
+```java
+// Stream processing chapter content to avoid loading all content into memory at once
+EpubReader.fromFile(epubFile).streamChapters((chapter, inputStream) ->{
+    System.out.println("Processing chapter: "+chapter.getTitle());
+    // Process chapter content stream
+    try{
+        // Here you can process chapter content, such as text extraction, analysis, etc.
+        inputStream.close();
+    }catch(IOException e){
+        e.printStackTrace();
+    }
+});
+```
+<!-- @formatter:on -->
+
+#### Asynchronous Processing
+
+<!-- @formatter:off -->
+```java
+// Parse books asynchronously to improve application responsiveness
+AsyncEpubProcessor asyncProcessor = new AsyncEpubProcessor();
+CompletableFuture<EpubBook> futureBook = asyncProcessor.parseBookAsync(epubFile);
+
+// Process other tasks in the background...
+
+// Wait for parsing to complete
+EpubBook asyncBook = futureBook.get(); // Wait for completion
+System.out.println("Asynchronous parsing completed: "+asyncBook.getMetadata().getTitle());
+```
+<!-- @formatter:on -->
 
 ## Key Features
 
@@ -165,3 +217,27 @@ To learn more detailed usage, see:
 - [Basic Usage](/en/guide/basic-usage)
 - [Advanced Features](/en/guide/advanced-features)
 - [API Reference](/en/api/)
+
+## Performance Benchmarking
+
+EPUBime integrates professional benchmarking tools JMH (Java Microbenchmark Harness) to provide precise performance measurements and comparisons with industry-standard libraries.
+
+### Running Benchmarks
+
+```bash
+# Run professional benchmarks
+mvn exec:java -Dexec.mainClass="fun.lzwi.epubime.epub.EpubJmhBenchmark" -Dexec.classpathScope=test
+
+# Run traditional performance tests
+mvn test -Dtest=PerformanceBenchmarkTest
+
+# Run comparison tests with epublib
+mvn test -Dtest=EpubimeVsEpublibBenchmarkTest
+```
+
+### Key Performance Advantages
+
+- **High-Speed Parsing**: Optimized parsing algorithms, significantly faster than traditional libraries
+- **Smart Caching**: Avoids repeated I/O operations, improves performance for repeated access
+- **Streaming Processing**: Supports large file processing with stable memory usage
+- **Parallel Processing**: Multi-resource parallel processing, enhances processing efficiency

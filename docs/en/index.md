@@ -23,11 +23,13 @@ features:
   - title: High Performance
     details: Smart caching mechanism and streaming processing for optimized memory usage
   - title: Comprehensive Error Handling
-    details: Detailed exception classification and error information for debugging
+    details: Detailed exception classification and error information for debugging and error location
   - title: Rich Features
     details: Metadata extraction, chapter parsing, resource handling, TOC parsing, and more
-  - title: Simple API
-    details: Easy-to-use and integrate API design
+  - title: Modern Streaming API
+    details: Fluent API design supporting asynchronous processing and streaming parsing
+  - title: Enhanced Error Handling
+    details: Enterprise-grade error handling system with error recovery and fallback support
   - title: High Quality Code
     details: Strict test coverage and static code analysis
 ---

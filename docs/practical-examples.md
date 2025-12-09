@@ -10,6 +10,7 @@ outline: deep
 
 ### 1. 简单的图书目录管理器
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
@@ -129,9 +130,12 @@ public class LibraryExample {
     }
 }
 ```
+<!-- @formatter:on -->
+<!-- @formatter:on -->
 
 ### 2. 高级图书分析器
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
@@ -368,11 +372,13 @@ public class AnalyzerExample {
     }
 }
 ```
+<!-- @formatter:on -->
 
 ## 内容提取器
 
 ### 3. 智能文本提取器
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;
@@ -754,11 +760,13 @@ public class ExtractorExample {
     }
 }
 ```
+<!-- @formatter:on -->
 
 ## 格式转换器
 
 ### 4. EPUB 到其他格式的转换器
 
+<!-- @formatter:off -->
 ```java
 import fun.lzwi.epubime.api.*;
 import fun.lzwi.epubime.epub.*;

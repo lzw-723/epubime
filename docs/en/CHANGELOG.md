@@ -29,5 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed memory benchmark test exception
 - Fixed jacoco
 - Fixed SpotBugs
+- Fixed excessive debug output
+- Fixed tests and maintained Java 8 compatibility
+- Fixed SpotBugs
 - Fixed excessive debug output issue
 - Fixed tests and maintained Java 8 compatibility
