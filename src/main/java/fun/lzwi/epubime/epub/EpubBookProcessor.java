@@ -23,9 +23,10 @@ public class EpubBookProcessor {
             .orElse(null);
 
         // 如果没有找到带有 properties="cover-image" 的资源，尝试旧的 meta 标签方法
-        if (coverResource == null && book.getMetadata().getCover() != null) {
+        if (coverResource == null && book.getMetadata() != null && book.getMetadata().getCover() != null) {
+            String coverId = book.getMetadata().getCover();
             coverResource = book.getResources().stream()
-                .filter(r -> r.getId().equals(book.getMetadata().getCover()))
+                .filter(r -> r.getId() != null && r.getId().equals(coverId))
                 .findFirst()
                 .orElse(null);
         }

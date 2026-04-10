@@ -4,6 +4,7 @@ import fun.lzwi.epubime.ResUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
@@ -15,21 +16,21 @@ public class EpubResourceTest {
     public void testEpubResourceStreamProcessing() throws Exception {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubBook book = new EpubParser(epubFile).parse();
-        
+
         // 验证资源现在只存储引用而不立即加载数据
         assertFalse(book.getResources().isEmpty());
-        
+
         // 验证第一个资源可以通过流访问
         EpubResource resource = book.getResources().get(0);
         assertNotNull(resource.getHref());
         assertNotNull(resource.getId());
-        
+
         // 验证可以通过流访问资源
         try (InputStream inputStream = resource.getInputStream()) {
             assertNotNull(inputStream, "InputStream should not be null for valid resource");
             assertTrue(inputStream.read() != -1, "InputStream should be able to read data");
         }
-        
+
         // 验证getData()仍然可以按需加载数据
         byte[] data = resource.getData();
         assertNotNull(data, "Data should be available when requested");
@@ -42,11 +43,10 @@ public class EpubResourceTest {
         EpubResource resource = new EpubResource();
         resource.setHref("test/path");
         resource.setEpubFile(null);
-        
-        // 当epubFile为null时，getInputStream应该返回null
-        try (InputStream inputStream = resource.getInputStream()) {
-            assertNull(inputStream, "InputStream should be null when epubFile is null");
-        }
+
+        // 当epubFile为null时，getInputStream应该抛出IOException
+        assertThrows(IOException.class, () -> resource.getInputStream(),
+            "Should throw IOException when epubFile is null");
 
         // 当epubFile为null时，getData也应该返回null
         byte[] data = resource.getData();
@@ -60,27 +60,26 @@ public class EpubResourceTest {
         EpubResource resource = new EpubResource();
         resource.setEpubFile(epubFile);
         resource.setHref(null);
-        
-        // 当href为null时，getInputStream应该返回null
-        try (InputStream inputStream = resource.getInputStream()) {
-            assertNull(inputStream, "InputStream should be null when href is null");
-        }
+
+        // 当href为null时，getInputStream应该抛出IOException
+        assertThrows(IOException.class, () -> resource.getInputStream(),
+            "Should throw IOException when href is null");
     }
 
     @Test
     public void testLoadResourceData() throws Exception {
         // 测试批量加载资源数据的功能
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        
+
         // 为测试创建新资源，以确保数据未加载
         EpubResource testResource = new EpubResource();
         testResource.setEpubFile(epubFile);
         testResource.setHref("mimetype"); // 使用一个简单的文件进行测试
-        
+
         // 不要调用getData()方法，因为这会触发数据加载
         // 直接设置一个初始数据为null的资源
         testResource.setData(null); // 确保数据是null
-        
+
         // 创建只包含测试资源的列表
         java.util.List<EpubResource> testResources = java.util.Arrays.asList(testResource);
 
@@ -105,56 +104,111 @@ public class EpubResourceTest {
         // 验证空列表仍为空
         assertTrue(emptyResources.isEmpty(), "Resource list should remain empty");
     }
-    
-    @Test
-    public void testProcessContent() throws Exception {
-        // 测试流式处理资源内容的功能
-        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        EpubResource resource = new EpubResource();
-        resource.setEpubFile(epubFile);
-        resource.setHref("mimetype");
-        
-        StringBuilder content = new StringBuilder();
-        boolean[] processed = {false};
-        
-        resource.processContent(new Consumer<java.io.InputStream>() {
-            @Override
-            public void accept(java.io.InputStream inputStream) {
-                try {
-                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream, "UTF-8"));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        content.append(line);
-                    }
-                    processed[0] = true;
-                } catch (java.io.IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        
-        assertTrue(processed[0], "Resource content should be processed");
-        assertEquals("application/epub+zip", content.toString());
-    }
-    
-    @Test
-    public void testPropertiesAttribute() throws Exception {
-        // 测试properties属性的解析功能
-        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
-        EpubBook book = new EpubParser(epubFile).parse();
-        
-        // 验证资源列表不为空
-        assertFalse(book.getResources().isEmpty());
-        
-        // 检查是否正确解析了properties属性
-        for (EpubResource resource : book.getResources()) {
-            // 属性可能为null，这是正常的
-            // 验证可以获取和设置properties属性
-            String originalProperties = resource.getProperties();
-            String testProperties = "test-property";
-            resource.setProperties(testProperties);
-            assertEquals(testProperties, resource.getProperties());
-            resource.setProperties(originalProperties); // 恢复原始值
-        }
+
+    @Test
+    public void testProcessContent() throws Exception {
+        // 测试流式处理资源内容的功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        EpubResource resource = new EpubResource();
+        resource.setEpubFile(epubFile);
+        resource.setHref("mimetype");
+
+        StringBuilder content = new StringBuilder();
+        boolean[] processed = {false};
+
+        resource.processContent(new Consumer<java.io.InputStream>() {
+            @Override
+            public void accept(java.io.InputStream inputStream) {
+                try {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    processed[0] = true;
+                } catch (java.io.IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        assertTrue(processed[0], "Resource content should be processed");
+        assertEquals("application/epub+zip", content.toString());
+    }
+
+    @Test
+    public void testPropertiesAttribute() throws Exception {
+        // 测试properties属性的解析功能
+        File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
+        EpubBook book = new EpubParser(epubFile).parse();
+
+        // 验证资源列表不为空
+        assertFalse(book.getResources().isEmpty());
+
+        // 检查是否正确解析了properties属性
+        for (EpubResource resource : book.getResources()) {
+            // 属性可能为null，这是正常的
+            // 验证可以获取和设置properties属性
+            String originalProperties = resource.getProperties();
+            String testProperties = "test-property";
+            resource.setProperties(testProperties);
+            assertEquals(testProperties, resource.getProperties());
+            resource.setProperties(originalProperties); // 恢复原始值
+        }
+    }
+
+    @Test
+    public void testFallbackResourceCycleDetection() throws Exception {
+        // 测试fallback循环引用的检测
+        EpubResource resourceA = new EpubResource();
+        resourceA.setId("resourceA");
+        resourceA.setFallback("resourceB");
+
+        EpubResource resourceB = new EpubResource();
+        resourceB.setId("resourceB");
+        resourceB.setFallback("resourceA");
+
+        java.util.List<EpubResource> resources = java.util.Arrays.asList(resourceA, resourceB);
+
+        // 不应该抛出StackOverflowError
+        EpubResource result = resourceA.getFallbackResource(resources);
+        assertNotNull(result, "Should return a resource even with circular fallback");
+    }
+
+    @Test
+    public void testFallbackResourceSelfReference() throws Exception {
+        // 测试fallback自我引用
+        EpubResource resource = new EpubResource();
+        resource.setId("self");
+        resource.setFallback("self");
+
+        java.util.List<EpubResource> resources = java.util.Arrays.asList(resource);
+
+        // 不应该抛出StackOverflowError
+        EpubResource result = resource.getFallbackResource(resources);
+        assertNotNull(result, "Should return a resource even with self-referencing fallback");
+        assertEquals("self", result.getId());
+    }
+
+    @Test
+    public void testFallbackResourceNormalChain() throws Exception {
+        // 测试正常fallback链
+        EpubResource resourceA = new EpubResource();
+        resourceA.setId("resourceA");
+        resourceA.setFallback("resourceB");
+
+        EpubResource resourceB = new EpubResource();
+        resourceB.setId("resourceB");
+        resourceB.setFallback("resourceC");
+
+        EpubResource resourceC = new EpubResource();
+        resourceC.setId("resourceC");
+        // No fallback - end of chain
+
+        java.util.List<EpubResource> resources = java.util.Arrays.asList(resourceA, resourceB, resourceC);
+
+        EpubResource result = resourceA.getFallbackResource(resources);
+        assertEquals("resourceC", result.getId(), "Should follow fallback chain to the end");
     }
 }

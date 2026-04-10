@@ -6,8 +6,10 @@ import fun.lzwi.epubime.zip.ZipUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +31,7 @@ public class EpubResource {
     public EpubResource() {
         // Default constructor
     }
-    
+
     /**
      * Copy constructor
      * @param other EpubResource object to copy
@@ -82,31 +84,20 @@ public class EpubResource {
      * Get resource data - DEPRECATED: Use getInputStream() for streaming to avoid loading entire file into memory
      * If data already exists, return directly, otherwise try to stream read from EPUB file
      * @return resource data byte array (cloned to prevent external modification)
+     * @throws IOException if reading from EPUB file fails
      * @deprecated Use streaming methods instead to avoid memory issues with large files
      */
     @Deprecated
-    public byte[] getData() {
+    public byte[] getData() throws IOException {
         // If data already exists, return directly
         if (data != null) {
             return data.clone(); // Clone to prevent external modification
         }
 
         // If there is an EPUB file reference, try to stream read data
-
         if (epubFile != null && href != null) {
-
-            try {
-
-                data = ZipUtils.getZipFileBytes(epubFile, href);
-
-                return data.clone(); // Clone to prevent external modification
-
-            } catch (IOException e) {
-                // Silently return null for failed resource reads to avoid excessive debug output
-                return null;
-
-            }
-
+            data = ZipUtils.getZipFileBytes(epubFile, href);
+            return data.clone(); // Clone to prevent external modification
         }
 
         return null;
@@ -171,26 +162,47 @@ public class EpubResource {
     }
 
     /**
-     * Get the final available resource based on the fallback chain
+     * Get the final available resource based on the fallback chain.
+     * Uses cycle detection to prevent infinite recursion when resources
+     * reference each other as fallbacks.
      * @param allResources all resource list
-     * @return final available resource, return itself if no fallback
+     * @return final available resource, return itself if no fallback or cycle detected
      */
     public EpubResource getFallbackResource(List<EpubResource> allResources) {
+        return getFallbackResource(allResources, new HashSet<String>());
+    }
+
+    /**
+     * Internal recursive method with cycle detection.
+     * @param allResources all resource list
+     * @param visited set of already visited resource IDs to detect cycles
+     * @return final available resource
+     */
+    private EpubResource getFallbackResource(List<EpubResource> allResources, Set<String> visited) {
         if (fallback == null || fallback.isEmpty()) {
             return this;
         }
-        
+
+        // Cycle detection: if we've already visited this fallback ID, break the cycle
+        if (visited.contains(fallback)) {
+            return this;
+        }
+        visited.add(fallback);
+
         // Find fallback resource
-        EpubResource fallbackResource = allResources.stream()
-                .filter(r -> fallback.equals(r.getId()))
-                .findFirst()
-                .orElse(null);
-        
+        EpubResource fallbackResource = null;
+        for (EpubResource r : allResources) {
+            if (r.getId() != null && fallback.equals(r.getId())) {
+                fallbackResource = r;
+                break;
+            }
+        }
+
         // If fallback resource is found, recursively find its fallback resource
         if (fallbackResource != null) {
-            return fallbackResource.getFallbackResource(allResources);
+            return fallbackResource.getFallbackResource(allResources, visited);
         }
-        
+
         // If fallback resource is not found, return itself
         return this;
     }
@@ -212,18 +224,18 @@ public class EpubResource {
     }
 
     /**
-     * Get resource input stream for streaming processing of large files
+     * Get resource input stream for streaming processing of large files.
      * @return input stream
-     * @throws IOException IO exception
+     * @throws IOException if EPUB file reference is not set or reading fails
      */
     public InputStream getInputStream() throws IOException {
         if (epubFile != null && href != null) {
             // Use ZipFileManager to optimize ZIP access
             return ZipUtils.getZipFileInputStream(epubFile, href);
         }
-        return null;
+        throw new IOException("Cannot get input stream: epubFile or href is not set (id=" + id + ")");
     }
-    
+
     /**
      * Load resource data in batch
      * @param resources resource list
@@ -238,10 +250,10 @@ public class EpubResource {
                 hrefs.add(resource.href);
             }
         }
-        
+
         // Use ZIP file stream reuse mechanism to read all resource data at once
         Map<String, byte[]> resourceData = ZipUtils.getMultipleZipFileBytes(epubFile, hrefs);
-        
+
         // Set data to corresponding resource objects
         for (EpubResource resource : resources) {
             if (resource.href != null) {
@@ -252,31 +264,19 @@ public class EpubResource {
             }
         }
     }
-    
+
     /**
-
      * Stream process resource content to avoid loading entire file into memory
-
      * @param processor consumer function for processing resource content
-
      */
-
     public void processContent(Consumer<InputStream> processor) throws EpubResourceException {
-
         if (epubFile != null && href != null) {
-
             try {
-
                 ZipUtils.processZipFileContent(epubFile, href, processor);
-
             } catch (IOException e) {
-
                 throw new EpubResourceException("Failed to process resource content for " + href + " from EPUB file " + epubFile.getName(),
                     epubFile.getName(), href, e);
-
             }
-
         }
-
     }
 }
