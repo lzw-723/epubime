@@ -269,4 +269,22 @@ public class XmlUtils {
         }
         return !element.children().isEmpty();
     }
+    /**
+     * 将输入流读取为字符串
+     * @param inputStream 输入流
+     * @return 字符串内容
+     * @throws java.io.IOException IO异常
+     */
+    public static String readStreamToString(java.io.InputStream inputStream) throws java.io.IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8))) {
+            char[] buffer = new char[8192];
+            int charsRead;
+            while ((charsRead = reader.read(buffer)) != -1) {
+                contentBuilder.append(buffer, 0, charsRead);
+            }
+        }
+        return contentBuilder.toString();
+    }
 }

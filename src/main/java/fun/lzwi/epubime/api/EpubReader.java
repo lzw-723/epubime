@@ -208,7 +208,7 @@ public class EpubReader {
         try {
             parseMetadata();
             return true;
-        } catch (Exception e) {
+        } catch (BaseEpubException | java.io.IOException | EpubPathValidationException e) {
             return false;
         }
     }

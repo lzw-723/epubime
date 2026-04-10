@@ -125,7 +125,7 @@ public class MetadataParser {
 
         // 对于流式处理，我们仍然需要读取整个流来解析XML结构
         // 但这比预加载所有文件内容要好，因为只处理OPF文件
-        String opfContent = readStreamToString(opfInputStream);
+        String opfContent = XmlUtils.readStreamToString(opfInputStream);
         return parseMetadata(opfContent, epubVersion);
     }
 
@@ -135,19 +135,6 @@ public class MetadataParser {
      * @return 字符串内容
      * @throws java.io.IOException IO异常
      */
-    private String readStreamToString(java.io.InputStream inputStream) throws java.io.IOException {
-        StringBuilder contentBuilder = new StringBuilder();
-        try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                new java.io.InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8))) {
-            char[] buffer = new char[8192];
-            int charsRead;
-            while ((charsRead = reader.read(buffer)) != -1) {
-                contentBuilder.append(buffer, 0, charsRead);
-            }
-        }
-        return contentBuilder.toString();
-    }
-    
     /**
      * 解析单个元数据元素
      *
