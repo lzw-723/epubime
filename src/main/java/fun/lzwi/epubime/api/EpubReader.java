@@ -12,6 +12,7 @@ import fun.lzwi.epubime.epub.EpubParser;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -41,6 +42,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class EpubReader {
     private final File epubFile;
     private final EpubReaderConfig config;
+    
+    // 缓存解析结果，避免重复解析
+    private volatile EpubBook cachedFullBook;
+    private volatile Metadata cachedMetadata;
+    private volatile List<EpubChapter> cachedToc;
+    private volatile List<EpubResource> cachedResources;
 
     /**
      * 私有构造函数
@@ -121,22 +128,48 @@ public class EpubReader {
     
     /**
      * Read the metadata from the EPUB file
+     * 性能优化：只解析元数据，不解析整个EPUB
      * @return the metadata
      * @throws BaseEpubException if reading fails
      */
     public Metadata readMetadata() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        // For now, we'll parse the full book and return just the metadata
-        // In a future optimization, this could read only the metadata section
-        return parse().getMetadata();
+        // 使用缓存
+        if (cachedMetadata != null) {
+            return new Metadata(cachedMetadata);
+        }
+        
+        EpubParser parser = new EpubParser(epubFile);
+        Metadata metadata;
+        
+        if (config.isUseCache()) {
+            metadata = parser.parseMetadataOnly();
+        } else {
+            metadata = parser.parseMetadataOnly();
+        }
+        
+        // 缓存结果
+        cachedMetadata = metadata;
+        return new Metadata(metadata);
     }
 
     /**
      * Read only the table of contents from the EPUB file
+     * 性能优化：只解析目录，不解析整个EPUB
      * @return the list of chapters
      * @throws BaseEpubException if reading fails
      */
     public List<EpubChapter> readTableOfContents() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        return parse().getChapters();
+        // 使用缓存
+        if (cachedToc != null) {
+            return new ArrayList<>(cachedToc);
+        }
+        
+        EpubParser parser = new EpubParser(epubFile);
+        List<EpubChapter> toc = parser.parseTableOfContentsOnly();
+        
+        // 缓存结果
+        cachedToc = toc;
+        return new ArrayList<>(toc);
     }
     
     /**
@@ -173,39 +206,68 @@ public class EpubReader {
     
     /**
      * Process all resources with a custom function
+     * 性能优化：只解析资源列表，不解析整个EPUB
      * @param processor a function that processes each resource
      * @throws BaseEpubException if processing fails
      */
     public void processResources(Function<EpubResource, Void> processor) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        EpubBook book = parse();
-        List<EpubResource> resources = book.getResources();
-
+        // 使用缓存
+        if (cachedResources == null) {
+            EpubParser parser = new EpubParser(epubFile);
+            cachedResources = parser.parseResourcesOnly();
+        }
+        
         if (config.isParallelProcessing()) {
-            resources.parallelStream().forEach(processor::apply);
+            cachedResources.parallelStream().forEach(processor::apply);
         } else {
-            resources.forEach(processor::apply);
+            cachedResources.forEach(processor::apply);
         }
     }
     
     /**
      * Get a specific resource by ID
+     * 性能优化：只解析资源列表，不解析整个EPUB
      * @param resourceId the resource ID
      * @return the resource, or null if not found
      * @throws BaseEpubException if parsing fails
      */
     public EpubResource getResource(String resourceId) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        EpubBook book = parse();
-        return EpubBookProcessor.getResource(book, resourceId);
+        // 使用缓存
+        if (cachedResources == null) {
+            EpubParser parser = new EpubParser(epubFile);
+            cachedResources = parser.parseResourcesOnly();
+        }
+        
+        // 从缓存的资源列表中查找
+        for (EpubResource resource : cachedResources) {
+            if (resourceId.equals(resource.getId())) {
+                return new EpubResource(resource);
+            }
+        }
+        return null;
     }
-    
+
     /**
      * Get the cover image resource
+     * 性能优化：只解析资源列表，不解析整个EPUB
      * @return the cover resource, or null if not found
      * @throws BaseEpubException if parsing fails
      */
     public EpubResource getCover() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        EpubBook book = parse();
-        return EpubBookProcessor.getCover(book);
+        // 使用缓存
+        if (cachedResources == null) {
+            EpubParser parser = new EpubParser(epubFile);
+            cachedResources = parser.parseResourcesOnly();
+        }
+        
+        // 从缓存的资源列表中查找封面
+        for (EpubResource resource : cachedResources) {
+            if (resource.getProperties() != null && 
+                resource.getProperties().contains("cover-image")) {
+                return new EpubResource(resource);
+            }
+        }
+        return null;
     }
     
     /**
