@@ -20,29 +20,79 @@ public class NavigationParser {
 
     // 预分配的空列表，避免重复创建
     private static final List<EpubChapter> EMPTY_CHAPTER_LIST = new ArrayList<>();
+    
+    // 缓存已解析的OPF Document，避免重复解析
+    private org.jsoup.nodes.Document cachedOpfDocument;
+    private String cachedOpfContentHash;
+    
+    // 缓存已解析的NAV Document，避免重复解析
+    private org.jsoup.nodes.Document cachedNavDocument;
+    private String cachedNavContentHash;
+
+    /**
+     * 获取或解析OPF Document（带缓存）
+     * @param opfContent OPF文件内容
+     * @return 已解析的Document对象
+     */
+    private org.jsoup.nodes.Document getOpfDocument(String opfContent) {
+        String contentHash = String.valueOf(opfContent.hashCode());
+        if (cachedOpfDocument == null || !contentHash.equals(cachedOpfContentHash)) {
+            cachedOpfDocument = XmlUtils.parseXml(opfContent);
+            cachedOpfContentHash = contentHash;
+        }
+        return cachedOpfDocument;
+    }
+    
+    /**
+     * 获取或解析NAV Document（带缓存）
+     * @param navContent NAV文件内容
+     * @return 已解析的Document对象
+     */
+    private org.jsoup.nodes.Document getNavDocument(String navContent) {
+        String contentHash = String.valueOf(navContent.hashCode());
+        if (cachedNavDocument == null || !contentHash.equals(cachedNavContentHash)) {
+            cachedNavDocument = XmlUtils.parseXml(navContent);
+            cachedNavContentHash = contentHash;
+        }
+        return cachedNavDocument;
+    }
 
     /**
      * 从OPF内容中获取NCX文件路径
      *
-     * @param opfContent OPF文件内容
+     * @param opfDocument 已解析的OPF Document对象
+     * @param opfContent OPF文件内容（用于缓存键）
      * @param opfDir OPF文件目录
      * @return NCX文件路径
      */
-    public String getNcxPath(String opfContent, String opfDir) {
-        Document document = XmlUtils.parseXml(opfContent);
-        String id = XmlUtils.getAttribute(XmlUtils.selectFirst(document, "spine"), "toc");
+    public String getNcxPath(org.jsoup.nodes.Document opfDocument, String opfContent, String opfDir) {
+        // 使用传入的Document，避免重复解析
+        String id = XmlUtils.getAttribute(XmlUtils.selectFirst(opfDocument, "spine"), "toc");
 
         if (id.isEmpty()) {
             throw new IllegalArgumentException("No NCX reference found in spine element");
         }
 
         // 优化：使用更高效的查询方式
-        Element ncxItem = XmlUtils.selectFirst(document, "manifest > item[id=\"" + id + "\"]");
+        org.jsoup.nodes.Element ncxItem = XmlUtils.selectFirst(opfDocument, "manifest > item[id=\"" + id + "\"]");
         if (ncxItem == null) {
             throw new IllegalArgumentException("NCX item not found in OPF manifest with id: " + id);
         }
 
         return opfDir + XmlUtils.getAttribute(ncxItem, "href");
+    }
+    
+    /**
+     * 从OPF内容中获取NCX文件路径（向后兼容的重载方法）
+     *
+     * @param opfContent OPF文件内容
+     * @param opfDir OPF文件目录
+     * @return NCX文件路径
+     */
+    public String getNcxPath(String opfContent, String opfDir) {
+        // 解析Document并调用新方法
+        org.jsoup.nodes.Document opfDocument = XmlUtils.parseXml(opfContent);
+        return getNcxPath(opfDocument, opfContent, opfDir);
     }
 
     /**
@@ -115,17 +165,31 @@ public class NavigationParser {
     /**
      * 从OPF内容中获取NAV文件路径
      *
+     * @param opfDocument 已解析的OPF Document对象
+     * @param opfContent OPF文件内容（用于缓存键）
+     * @param opfDir OPF文件目录
+     * @return NAV文件路径，如果不存在则返回null
+     */
+    public String getNavPath(org.jsoup.nodes.Document opfDocument, String opfContent, String opfDir) {
+        // 使用传入的Document，避免重复解析
+        org.jsoup.nodes.Element navItem = XmlUtils.selectFirst(opfDocument, "manifest > item[properties=nav]");
+        if (navItem != null) {
+            return opfDir + XmlUtils.getAttribute(navItem, "href");
+        }
+        return null;
+    }
+    
+    /**
+     * 从OPF内容中获取NAV文件路径（向后兼容的重载方法）
+     *
      * @param opfContent OPF文件内容
      * @param opfDir OPF文件目录
      * @return NAV文件路径，如果不存在则返回null
      */
     public String getNavPath(String opfContent, String opfDir) {
-        // 使用更快的查询方式
-        Element navItem = XmlUtils.selectFirst(XmlUtils.parseXml(opfContent), "manifest > item[properties=nav]");
-        if (navItem != null) {
-            return opfDir + XmlUtils.getAttribute(navItem, "href");
-        }
-        return null;
+        // 解析Document并调用新方法
+        org.jsoup.nodes.Document opfDocument = XmlUtils.parseXml(opfContent);
+        return getNavPath(opfDocument, opfContent, opfDir);
     }
 
     /**
@@ -135,8 +199,9 @@ public class NavigationParser {
      * @return 章节列表
      */
     public List<EpubChapter> parseNav(String navContent) {
-        Document doc = XmlUtils.parseXml(navContent);
-        Element navElement = findNavElement(doc, "toc");
+        // 使用缓存的Document，避免重复解析
+        org.jsoup.nodes.Document doc = getNavDocument(navContent);
+        org.jsoup.nodes.Element navElement = findNavElement(doc, "toc");
 
         if (navElement == null) {
             return EMPTY_CHAPTER_LIST;
@@ -165,8 +230,9 @@ public class NavigationParser {
      * @return 章节列表
      */
     public List<EpubChapter> parseNavByType(String navContent, String navType) {
-        Document doc = XmlUtils.parseXml(navContent);
-        Element navElement = findNavElement(doc, navType);
+        // 使用缓存的Document，避免重复解析
+        org.jsoup.nodes.Document doc = getNavDocument(navContent);
+        org.jsoup.nodes.Element navElement = findNavElement(doc, navType);
 
         if (navElement == null) {
             return EMPTY_CHAPTER_LIST;

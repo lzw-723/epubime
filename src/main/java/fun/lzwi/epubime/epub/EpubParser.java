@@ -100,12 +100,11 @@ public class EpubParser {
     /**
      * 检测EPUB版本
      *
-     * @param opfContent OPF文件内容
+     * @param opfDocument 已解析的OPF Document对象
      * @return EPUB版本字符串
      */
-    private String detectEpubVersion(String opfContent) {
-        // 使用更快的解析配置
-        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+    private String detectEpubVersion(org.jsoup.nodes.Document opfDocument) {
+        // 使用已解析的Document，避免重复解析
         org.jsoup.nodes.Element packageElement = opfDocument.selectFirst("package");
         if (packageElement != null) {
             String version = packageElement.attr("version");
@@ -156,27 +155,30 @@ public class EpubParser {
             throw new EpubFormatException("OPF file not found", epubFile, opfPath);
         }
 
+        // 只解析一次OPF Document，后续所有解析器共享
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+
         // 检测EPUB版本
-        String epubVersion = detectEpubVersion(opfContent);
+        String epubVersion = detectEpubVersion(opfDocument);
         book.setVersion(epubVersion);
 
-        // 解析元数据
-        book.setMetadata(metadataParser.parseMetadata(opfContent, epubVersion));
+        // 解析元数据 - 传递已解析的Document
+        book.setMetadata(metadataParser.parseMetadata(opfDocument, opfContent, epubVersion));
 
-        // 解析资源文件 - 现在只设置引用，不加载数据
-        List<EpubResource> resources = resourceParser.parseResources(opfContent, opfDir);
+        // 解析资源文件 - 传递已解析的Document，避免重复解析
+        List<EpubResource> resources = resourceParser.parseResources(opfDocument, opfContent, opfDir);
         book.setResources(resources);
 
         String ncxPath = null;
         String navPath = null;
 
         try {
-            ncxPath = resourceParser.getNcxPath(opfContent, opfDir);
+            ncxPath = resourceParser.getNcxPath(opfDocument, opfContent, opfDir);
         } catch (IllegalArgumentException e) {
             // NCX路径可选，不抛出异常
         }
 
-        navPath = resourceParser.getNavPath(opfContent, opfDir);
+        navPath = resourceParser.getNavPath(opfDocument, opfContent, opfDir);
 
         // 流式解析导航文件，避免重复打开同一文件
         // 解析NCX
@@ -201,7 +203,7 @@ public class EpubParser {
 
             // 使用已读取的内容解析不同类型的导航，无需重复打开文件
             if (navContent != null) {
-                // 解析TOC导航
+                // 解析TOC导航 - 传递已解析的Document
                 List<EpubChapter> nav = navigationParser.parseNav(navContent);
                 book.setNav(nav);
 

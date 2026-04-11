@@ -17,9 +17,12 @@ import java.util.List;
  * 负责解析OPF文件中的资源信息
  */
 public class ResourceParser {
-    
+
     private final File epubFile;
-    
+    // 缓存已解析的OPF Document，避免重复解析
+    private org.jsoup.nodes.Document cachedOpfDocument;
+    private String cachedOpfContentHash;
+
     /**
      * 构造函数
      *
@@ -28,9 +31,80 @@ public class ResourceParser {
     public ResourceParser(File epubFile) {
         this.epubFile = epubFile;
     }
+
+    /**
+     * 获取或解析OPF Document（带缓存）
+     * @param opfContent OPF文件内容
+     * @return 已解析的Document对象
+     */
+    private org.jsoup.nodes.Document getOpfDocument(String opfContent) {
+        String contentHash = String.valueOf(opfContent.hashCode());
+        if (cachedOpfDocument == null || !contentHash.equals(cachedOpfContentHash)) {
+            cachedOpfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+            cachedOpfContentHash = contentHash;
+        }
+        return cachedOpfDocument;
+    }
     
     /**
      * 解析OPF内容中的资源文件列表
+     *
+     * @param opfDocument 已解析的OPF Document对象
+     * @param opfContent OPF文件内容（用于缓存键）
+     * @param opfDir OPF文件目录
+     * @return 资源文件列表
+     */
+    public List<EpubResource> parseResources(org.jsoup.nodes.Document opfDocument, String opfContent, String opfDir) {
+        if (opfDocument == null) {
+            throw new IllegalArgumentException("OPF document cannot be null");
+        }
+        if (opfContent == null) {
+            throw new IllegalArgumentException("OPF content cannot be null");
+        }
+        if (opfDir == null) {
+            throw new IllegalArgumentException("OPF directory cannot be null");
+        }
+
+        // 如果epubFile为null，跳过缓存
+        if (epubFile != null) {
+            EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+            String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+
+            @SuppressWarnings("unchecked")
+            List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
+
+            if (cachedResult != null) {
+                return new ArrayList<>(cachedResult);
+            }
+        }
+
+        // 使用传入的Document，避免重复解析
+        org.jsoup.nodes.Document document = opfDocument;
+        org.jsoup.select.Elements items = document.select("manifest > item");
+        
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 预分配列表容量，避免动态扩容
+        List<EpubResource> resources = new ArrayList<>(items.size());
+
+        for (Element item : items) {
+            resources.add(createResource(item, opfDir));
+        }
+
+        // 如果epubFile不为null，缓存结果
+        if (epubFile != null) {
+            EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+            String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
+            cache.setParsedResult(cacheKey, new ArrayList<>(resources));
+        }
+
+        return resources;
+    }
+    
+    /**
+     * 解析OPF内容中的资源文件列表（向后兼容的重载方法）
      *
      * @param opfContent OPF文件内容
      * @param opfDir OPF文件目录
@@ -40,46 +114,9 @@ public class ResourceParser {
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
-        if (opfDir == null) {
-            throw new IllegalArgumentException("OPF directory cannot be null");
-        }
-        
-        // 如果epubFile为null，跳过缓存
-        if (epubFile != null) {
-            EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-            String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-            
-            @SuppressWarnings("unchecked")
-            List<EpubResource> cachedResult = (List<EpubResource>) cache.getParsedResult(cacheKey);
-            
-            if (cachedResult != null) {
-                return new ArrayList<>(cachedResult);
-            }
-        }
-        
-        // 使用更快的解析配置
-        Document document = Jsoup.parse(opfContent, "", Parser.xmlParser());
-        Elements items = document.select("manifest > item");
-        
-        if (items.isEmpty()) {
-            return new ArrayList<>();
-        }
-        
-        // 预分配列表容量，避免动态扩容
-        List<EpubResource> resources = new ArrayList<>(items.size());
-        
-        for (Element item : items) {
-            resources.add(createResource(item, opfDir));
-        }
-        
-        // 如果epubFile不为null，缓存结果
-        if (epubFile != null) {
-            EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-            String cacheKey = "resources:" + opfContent.hashCode() + ":" + opfDir;
-            cache.setParsedResult(cacheKey, new ArrayList<>(resources));
-        }
-        
-        return resources;
+        // 解析Document并调用新方法
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+        return parseResources(opfDocument, opfContent, opfDir);
     }
     
     /**
@@ -116,6 +153,35 @@ public class ResourceParser {
     /**
      * 从OPF内容中获取NCX文件路径
      *
+     * @param opfDocument 已解析的OPF Document对象
+     * @param opfContent OPF文件内容（用于缓存键）
+     * @param opfDir OPF文件目录
+     * @return NCX文件路径
+     */
+    public String getNcxPath(org.jsoup.nodes.Document opfDocument, String opfContent, String opfDir) {
+        if (opfDocument == null) {
+            throw new IllegalArgumentException("OPF document cannot be null");
+        }
+
+        // 使用传入的Document，避免重复解析
+        String id = opfDocument.select("spine").attr("toc");
+        
+        if (id.isEmpty()) {
+            throw new IllegalArgumentException("No NCX reference found in spine element");
+        }
+
+        // 优化：使用更高效的查询方式
+        org.jsoup.nodes.Element ncxItem = opfDocument.selectFirst("manifest > item[id=\"" + id + "\"]");
+        if (ncxItem == null) {
+            throw new IllegalArgumentException("NCX item not found in OPF manifest with id: " + id);
+        }
+
+        return opfDir + ncxItem.attr("href");
+    }
+    
+    /**
+     * 从OPF内容中获取NCX文件路径（向后兼容的重载方法）
+     *
      * @param opfContent OPF文件内容
      * @param opfDir OPF文件目录
      * @return NCX文件路径
@@ -124,26 +190,34 @@ public class ResourceParser {
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
-        
-        // 使用更快的解析配置
-        Document document = Jsoup.parse(opfContent, "", Parser.xmlParser());
-        String id = document.select("spine").attr("toc");
-        
-        if (id.isEmpty()) {
-            throw new IllegalArgumentException("No NCX reference found in spine element");
-        }
-        
-        // 优化：使用更高效的查询方式
-        Element ncxItem = document.selectFirst("manifest > item[id=\"" + id + "\"]");
-        if (ncxItem == null) {
-            throw new IllegalArgumentException("NCX item not found in OPF manifest with id: " + id);
-        }
-        
-        return opfDir + ncxItem.attr("href");
+        // 解析Document并调用新方法
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+        return getNcxPath(opfDocument, opfContent, opfDir);
     }
     
     /**
      * 从OPF内容中获取NAV文件路径
+     *
+     * @param opfDocument 已解析的OPF Document对象
+     * @param opfContent OPF文件内容（用于缓存键）
+     * @param opfDir OPF文件目录
+     * @return NAV文件路径，如果不存在则返回null
+     */
+    public String getNavPath(org.jsoup.nodes.Document opfDocument, String opfContent, String opfDir) {
+        if (opfDocument == null) {
+            throw new IllegalArgumentException("OPF document cannot be null");
+        }
+
+        // 使用传入的Document，避免重复解析
+        org.jsoup.nodes.Element navItem = opfDocument.selectFirst("manifest > item[properties=nav]");
+        if (navItem != null) {
+            return opfDir + navItem.attr("href");
+        }
+        return null;
+    }
+    
+    /**
+     * 从OPF内容中获取NAV文件路径（向后兼容的重载方法）
      *
      * @param opfContent OPF文件内容
      * @param opfDir OPF文件目录
@@ -153,13 +227,9 @@ public class ResourceParser {
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
-        
-        // 使用更快的查询方式
-        Element navItem = Jsoup.parse(opfContent, "", Parser.xmlParser()).selectFirst("manifest > item[properties=nav]");
-        if (navItem != null) {
-            return opfDir + navItem.attr("href");
-        }
-        return null;
+        // 解析Document并调用新方法
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+        return getNavPath(opfDocument, opfContent, opfDir);
     }
     
     /**
@@ -172,9 +242,9 @@ public class ResourceParser {
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
-        
-        // 使用更快的解析配置
-        Document document = Jsoup.parse(opfContent, "", Parser.xmlParser());
+
+        // 使用缓存的Document，避免重复解析
+        org.jsoup.nodes.Document document = getOpfDocument(opfContent);
         
         // 首先尝试查找properties="cover-image"的资源
         Element coverItem = document.selectFirst("manifest > item[properties=cover-image]");

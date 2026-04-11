@@ -14,11 +14,15 @@ import java.util.Map;
  * 负责解析OPF文件中的元数据信息
  */
 public class MetadataParser {
-    
+
     // 预编译的元数据映射表，提高性能
     private static final Map<String, String> DC_ELEMENT_MAP = new HashMap<>();
     private static final Map<String, String> META_PROPERTY_MAP = new HashMap<>();
     
+    // 缓存已解析的OPF Document，避免重复解析
+    private org.jsoup.nodes.Document cachedOpfDocument;
+    private String cachedOpfContentHash;
+
     static {
         // 初始化DC元素映射 - 支持EPUB2和EPUB3
         // EPUB3格式 (带命名空间前缀)
@@ -69,19 +73,22 @@ public class MetadataParser {
     /**
      * 解析OPF内容中的元数据
      *
-     * @param opfContent OPF文件内容
+     * @param opfDocument 已解析的OPF Document对象
+     * @param opfContent OPF文件内容(用于缓存键)
      * @param epubVersion EPUB版本
      * @return 元数据对象
      */
-    public Metadata parseMetadata(String opfContent, String epubVersion) {
+    public Metadata parseMetadata(org.jsoup.nodes.Document opfDocument, String opfContent, String epubVersion) {
+        if (opfDocument == null) {
+            throw new IllegalArgumentException("OPF document cannot be null");
+        }
         if (opfContent == null) {
             throw new IllegalArgumentException("OPF content cannot be null");
         }
 
         Metadata metadata = new Metadata();
 
-        // 使用更快的解析配置
-        Document opfDocument = Jsoup.parse(opfContent, "", Parser.xmlParser());
+        // 使用传入的已解析Document，避免重复解析
 
         // 缓存常用选择器结果，避免重复查询
         Element packageElement = opfDocument.selectFirst("package");
@@ -109,6 +116,36 @@ public class MetadataParser {
 
         return metadata;
     }
+    
+    /**
+     * 解析OPF内容中的元数据（向后兼容的重载方法）
+     *
+     * @param opfContent OPF文件内容
+     * @param epubVersion EPUB版本
+     * @return 元数据对象
+     */
+    public Metadata parseMetadata(String opfContent, String epubVersion) {
+        if (opfContent == null) {
+            throw new IllegalArgumentException("OPF content cannot be null");
+        }
+        // 解析Document并调用新方法
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+        return parseMetadata(opfDocument, opfContent, epubVersion);
+    }
+
+    /**
+     * 获取或解析OPF Document（带缓存）
+     * @param opfContent OPF文件内容
+     * @return 已解析的Document对象
+     */
+    private org.jsoup.nodes.Document getOpfDocument(String opfContent) {
+        String contentHash = String.valueOf(opfContent.hashCode());
+        if (cachedOpfDocument == null || !contentHash.equals(cachedOpfContentHash)) {
+            cachedOpfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+            cachedOpfContentHash = contentHash;
+        }
+        return cachedOpfDocument;
+    }
 
     /**
      * 流式解析OPF内容中的元数据，避免加载整个文件到内存
@@ -126,7 +163,9 @@ public class MetadataParser {
         // 对于流式处理，我们仍然需要读取整个流来解析XML结构
         // 但这比预加载所有文件内容要好，因为只处理OPF文件
         String opfContent = XmlUtils.readStreamToString(opfInputStream);
-        return parseMetadata(opfContent, epubVersion);
+        // 解析Document并传入
+        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
+        return parseMetadata(opfDocument, opfContent, epubVersion);
     }
 
     /**
