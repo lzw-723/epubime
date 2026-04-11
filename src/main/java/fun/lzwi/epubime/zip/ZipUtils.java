@@ -31,7 +31,7 @@ public class ZipUtils {
                      .collect(java.util.stream.Collectors.toList());
         } finally {
             // 释放ZIP文件句柄，减少引用计数
-            ZipOperations.releaseZipFile();
+            ZipOperations.releaseZipFile(zipFile);
         }
     }
 
@@ -57,7 +57,7 @@ public class ZipUtils {
         
         if (entry == null) {
             // 释放ZIP文件句柄，减少引用计数
-            ZipOperations.releaseZipFile();
+            ZipOperations.releaseZipFile(zipFile);
             return null;
         }
 
@@ -68,7 +68,7 @@ public class ZipUtils {
             return result;
         } finally {
             // 释放ZIP文件句柄，减少引用计数
-            ZipOperations.releaseZipFile();
+            ZipOperations.releaseZipFile(zipFile);
         }
     }
 
@@ -105,7 +105,7 @@ public class ZipUtils {
             }
         } finally {
             // 释放ZIP文件句柄，减少引用计数
-            ZipOperations.releaseZipFile();
+            ZipOperations.releaseZipFile(zipFile);
         }
     }
 
@@ -170,9 +170,9 @@ public class ZipUtils {
                 contents.put(fileName, null);
             }
         }
-        
+
         // 释放ZIP文件句柄，减少引用计数
-        ZipOperations.releaseZipFile();
+        ZipOperations.releaseZipFile(zipFile);
         return contents;
     }
 
@@ -212,9 +212,9 @@ public class ZipUtils {
             }
         } finally {
             // 释放ZIP文件句柄，减少引用计数
-            ZipOperations.releaseZipFile();
+            ZipOperations.releaseZipFile(zipFile);
         }
-        
+
         return contents;
     }
 
@@ -254,7 +254,7 @@ public class ZipUtils {
             }
         } finally {
             // 释放ZIP文件句柄，减少引用计数
-            ZipOperations.releaseZipFile();
+            ZipOperations.releaseZipFile(zipFile);
         }
     }
 

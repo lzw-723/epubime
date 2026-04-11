@@ -57,7 +57,17 @@ public class ZipOperations {
      * 释放ZIP文件句柄
      */
     public static void releaseZipFile() {
-        ZipFileManager.getInstance().releaseZipFile();
+        // 无参版本已废弃，请使用带参数的版本
+        // 为了向后兼容，暂时不执行任何操作
+    }
+    
+    /**
+     * 释放指定文件的ZIP句柄
+     * 
+     * @param zipFile ZIP文件
+     */
+    public static void releaseZipFile(File zipFile) {
+        ZipFileManager.getInstance().releaseZipFile(zipFile);
     }
     
     /**
@@ -165,34 +175,34 @@ public class ZipOperations {
     
     /**
      * 处理ZIP文件内容
-     * 
+     *
      * @param zipFile ZIP文件
      * @param fileName 文件名
      * @param processor 内容处理器
      * @throws IOException IO异常
      */
-    public static void processZipContent(File zipFile, String fileName, 
+    public static void processZipContent(File zipFile, String fileName,
                                        java.util.function.Consumer<InputStream> processor) throws IOException {
         validatePathSafety(fileName);
-        
+
         ZipFile zip = getZipFile(zipFile);
         ZipEntry entry = getZipEntry(zip, fileName);
-        
+
         if (entry == null) {
-            releaseZipFile();
+            releaseZipFile(zipFile);
             return;
         }
 
         try (InputStream in = zip.getInputStream(entry)) {
             processor.accept(in);
         } finally {
-            releaseZipFile();
+            releaseZipFile(zipFile);
         }
     }
-    
+
     /**
      * 获取ZIP文件输入流
-     * 
+     *
      * @param zipFile ZIP文件
      * @param fileName 文件名
      * @return 输入流，如果不存在返回null
@@ -200,10 +210,10 @@ public class ZipOperations {
      */
     public static InputStream getZipInputStream(File zipFile, String fileName) throws IOException {
         validatePathSafety(fileName);
-        
+
         ZipFile zip = getZipFile(zipFile);
         ZipEntry entry = getZipEntry(zip, fileName);
-        
+
         if (entry == null) {
             return null;
         }

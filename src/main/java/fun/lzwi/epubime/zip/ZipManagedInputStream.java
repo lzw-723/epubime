@@ -20,11 +20,12 @@ import java.util.zip.ZipFile;
 public class ZipManagedInputStream extends InputStream {
 
     private final InputStream delegate;
+    private final File zipFile;  // 存储ZIP文件引用用于释放
     private volatile boolean closed = false;
 
     /**
      * 创建由 ZipFileManager 管理的输入流
-     * 
+     *
      * @param zipFile ZIP 文件
      * @param fileName 文件名
      * @return 受管理的输入流
@@ -35,16 +36,18 @@ public class ZipManagedInputStream extends InputStream {
         if (is == null) {
             return null;
         }
-        return new ZipManagedInputStream(is);
+        return new ZipManagedInputStream(is, zipFile);
     }
 
     /**
      * 私有构造函数
-     * 
+     *
      * @param delegate 实际的输入流
+     * @param zipFile ZIP文件引用
      */
-    private ZipManagedInputStream(InputStream delegate) {
+    private ZipManagedInputStream(InputStream delegate, File zipFile) {
         this.delegate = delegate;
+        this.zipFile = zipFile;
     }
 
     @Override
@@ -94,7 +97,9 @@ public class ZipManagedInputStream extends InputStream {
                 delegate.close();
             } finally {
                 // 释放 ZipFile 句柄
-                ZipOperations.releaseZipFile();
+                if (zipFile != null) {
+                    ZipOperations.releaseZipFile(zipFile);
+                }
                 closed = true;
             }
         }
