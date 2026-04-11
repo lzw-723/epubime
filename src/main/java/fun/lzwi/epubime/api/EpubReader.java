@@ -112,22 +112,22 @@ public class EpubReader {
     }
     
     /**
-     * Parse the metadata from the EPUB file
+     * Read the metadata from the EPUB file
      * @return the metadata
-     * @throws BaseEpubException if parsing fails
+     * @throws BaseEpubException if reading fails
      */
-    public Metadata parseMetadata() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
+    public Metadata readMetadata() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         // For now, we'll parse the full book and return just the metadata
-        // In a future optimization, this could parse only the metadata section
+        // In a future optimization, this could read only the metadata section
         return parse().getMetadata();
     }
-    
+
     /**
-     * Parse only the table of contents from the EPUB file
+     * Read only the table of contents from the EPUB file
      * @return the list of chapters
-     * @throws BaseEpubException if parsing fails
+     * @throws BaseEpubException if reading fails
      */
-    public List<EpubChapter> parseTableOfContents() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
+    public List<EpubChapter> readTableOfContents() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         return parse().getChapters();
     }
     
@@ -206,21 +206,21 @@ public class EpubReader {
      */
     public boolean isValid() {
         try {
-            parseMetadata();
+            readMetadata();
             return true;
         } catch (BaseEpubException | java.io.IOException | EpubPathValidationException e) {
             return false;
         }
     }
-    
+
     /**
      * Get information about the EPUB file without full parsing
      * @return basic information about the EPUB
-     * @throws BaseEpubException if parsing fails
+     * @throws BaseEpubException if reading fails
      */
     public EpubInfo getInfo() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        Metadata metadata = parseMetadata();
-        List<EpubChapter> chapters = parseTableOfContents();
+        Metadata metadata = readMetadata();
+        List<EpubChapter> chapters = readTableOfContents();
         
         return new EpubInfo(
             metadata.getTitle(),

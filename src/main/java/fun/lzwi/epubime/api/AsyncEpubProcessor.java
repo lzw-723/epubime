@@ -103,31 +103,31 @@ public class AsyncEpubProcessor implements AutoCloseable {
     }
 
     /**
-     * Parse metadata asynchronously
-     * @param epubFile the EPUB file to parse
+     * Read metadata asynchronously
+     * @param epubFile the EPUB file to read
      * @return CompletableFuture containing the metadata
      */
-    public CompletableFuture<Metadata> parseMetadataAsync(File epubFile) {
+    public CompletableFuture<Metadata> readMetadataAsync(File epubFile) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return EpubReader.fromFile(epubFile).parseMetadata();
+                return EpubReader.fromFile(epubFile).readMetadata();
             } catch (BaseEpubException | java.io.IOException | EpubPathValidationException e) {
-                throw new RuntimeException("Failed to parse metadata", e);
+                throw new RuntimeException("Failed to read metadata", e);
             }
         }, executor);
     }
 
     /**
-     * Parse table of contents asynchronously
-     * @param epubFile the EPUB file to parse
+     * Read table of contents asynchronously
+     * @param epubFile the EPUB file to read
      * @return CompletableFuture containing the chapters
      */
-    public CompletableFuture<List<EpubChapter>> parseTableOfContentsAsync(File epubFile) {
+    public CompletableFuture<List<EpubChapter>> readTableOfContentsAsync(File epubFile) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return EpubReader.fromFile(epubFile).parseTableOfContents();
+                return EpubReader.fromFile(epubFile).readTableOfContents();
             } catch (BaseEpubException | java.io.IOException | EpubPathValidationException e) {
-                throw new RuntimeException("Failed to parse table of contents", e);
+                throw new RuntimeException("Failed to read table of contents", e);
             }
         }, executor);
     }
@@ -255,7 +255,7 @@ public class AsyncEpubProcessor implements AutoCloseable {
      * @return CompletableFuture containing the enhanced metadata
      */
     public CompletableFuture<MetadataEnhanced> loadEnhancedMetadataAsync(File epubFile) {
-        return parseMetadataAsync(epubFile)
+        return readMetadataAsync(epubFile)
                 .thenApply(MetadataEnhanced::new);
     }
 
@@ -286,7 +286,7 @@ public class AsyncEpubProcessor implements AutoCloseable {
      * @return CompletableFuture containing the chapter count
      */
     public CompletableFuture<Integer> getChapterCountAsync(File epubFile) {
-        return parseTableOfContentsAsync(epubFile)
+        return readTableOfContentsAsync(epubFile)
                 .thenApply(List::size);
     }
 

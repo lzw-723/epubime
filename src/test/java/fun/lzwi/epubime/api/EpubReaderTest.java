@@ -61,20 +61,20 @@ public class EpubReaderTest {
     }
     
     @Test
-    public void testParseMetadataOnly() throws Exception {
-        // Test parsing only metadata
-        Metadata metadata = EpubReader.fromFile(testEpubFile).parseMetadata();
-        
+    public void testReadMetadataOnly() throws Exception {
+        // Test reading only metadata
+        Metadata metadata = EpubReader.fromFile(testEpubFile).readMetadata();
+
         assertNotNull(metadata);
         assertNotNull(metadata.getTitle());
         assertNotNull(metadata.getCreator());
         assertNotNull(metadata.getLanguage());
     }
-    
+
     @Test
-    public void testParseTableOfContents() throws Exception {
-        // Test parsing only table of contents
-        List<EpubChapter> chapters = EpubReader.fromFile(testEpubFile).parseTableOfContents();
+    public void testReadTableOfContents() throws Exception {
+        // Test reading only table of contents
+        List<EpubChapter> chapters = EpubReader.fromFile(testEpubFile).readTableOfContents();
         
         assertNotNull(chapters);
         assertFalse(chapters.isEmpty());
@@ -304,7 +304,7 @@ public class EpubReaderTest {
     @Test
     public void testEnhancedMetadata() throws Exception {
         // Test enhanced metadata
-        Metadata metadata = EpubReader.fromFile(testEpubFile).parseMetadata();
+        Metadata metadata = EpubReader.fromFile(testEpubFile).readMetadata();
         MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
 
         assertNotNull(enhancedMetadata.getTitle());
@@ -331,7 +331,7 @@ public class EpubReaderTest {
     @Test
     public void testEnhancedMetadataComprehensive() throws Exception {
         // Test comprehensive MetadataEnhanced methods
-        Metadata metadata = EpubReader.fromFile(testEpubFile).parseMetadata();
+        Metadata metadata = EpubReader.fromFile(testEpubFile).readMetadata();
         MetadataEnhanced enhancedMetadata = new MetadataEnhanced(metadata);
 
         // Test list getters
@@ -403,7 +403,7 @@ public class EpubReaderTest {
     @Test
     public void testAsyncMetadataParsing() throws Exception {
         // Test async metadata parsing
-        CompletableFuture<Metadata> metadataFuture = asyncProcessor.parseMetadataAsync(testEpubFile);
+        CompletableFuture<Metadata> metadataFuture = asyncProcessor.readMetadataAsync(testEpubFile);
         Metadata metadata = metadataFuture.get();
         
         assertNotNull(metadata);
@@ -533,9 +533,9 @@ public class EpubReaderTest {
     }
 
     @Test
-    public void testAsyncParseTableOfContents() throws Exception {
-        // Test async table of contents parsing
-        CompletableFuture<List<EpubChapter>> tocFuture = asyncProcessor.parseTableOfContentsAsync(testEpubFile);
+    public void testAsyncReadTableOfContents() throws Exception {
+        // Test async table of contents reading
+        CompletableFuture<List<EpubChapter>> tocFuture = asyncProcessor.readTableOfContentsAsync(testEpubFile);
         List<EpubChapter> chapters = tocFuture.get();
 
         assertNotNull(chapters);
