@@ -132,6 +132,7 @@ public class EpubParser {
         // 尝试从缓存获取完整解析结果
         EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
         if (cachedBook != null) {
+            // 使用浅拷贝，共享不可变数据，减少内存占用
             return new EpubBook(cachedBook);
         }
 
@@ -217,7 +218,7 @@ public class EpubParser {
             }
         }
 
-        // 缓存完整解析结果
+        // 缓存完整解析结果（使用浅拷贝，减少内存占用）
         cache.setParsedResult(cacheKey, new EpubBook(book));
 
         // 解析完成后清理ZIP文件句柄

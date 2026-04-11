@@ -10,6 +10,11 @@ import java.util.function.BiConsumer;
 /**
  * EPUB书籍模型类
  * 表示一个完整的EPUB电子书，包含元数据、章节和资源文件
+ * 
+ * 内存优化:
+ * - 使用浅拷贝用于缓存场景，减少内存占用
+ * - 使用不可变视图保护内部数据，避免意外修改
+ * - 延迟克隆策略：只有在需要修改时才创建深拷贝
  */
 public class EpubBook {
 
@@ -20,6 +25,9 @@ public class EpubBook {
     private List<EpubChapter> landmarks = new ArrayList<>(); // 地标导航
     private List<EpubChapter> pageList = new ArrayList<>(); // 页面列表导航
     private List<EpubResource> resources = new ArrayList<>();
+    
+    // 标记是否为只读模式（用于缓存）
+    private transient boolean readOnly = false;
 
     /**
      * 默认构造函数
@@ -29,44 +37,84 @@ public class EpubBook {
     }
 
     /**
-     * 复制构造函数，用于缓存
+     * 浅拷贝构造函数（用于缓存场景）
+     * 共享不可变数据，大幅减少内存占用
      * @param other 要复制的EpubBook对象
      */
     public EpubBook(EpubBook other) {
         this.version = other.version;
-        if (other.metadata != null) {
-            this.metadata = new Metadata(other.metadata);
-        }
-        if (other.ncx != null) {
-            this.ncx = new ArrayList<>(other.ncx.size());
-            for (EpubChapter chapter : other.ncx) {
-                this.ncx.add(new EpubChapter(chapter));
+        // 共享不可变对象（Metadata已经是不可变设计）
+        this.metadata = other.metadata;
+        // 使用不可包装的列表视图，避免深拷贝
+        this.ncx = other.ncx.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.ncx);
+        this.nav = other.nav.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.nav);
+        this.landmarks = other.landmarks.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.landmarks);
+        this.pageList = other.pageList.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.pageList);
+        this.resources = other.resources.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.resources);
+        this.readOnly = true; // 标记为只读
+    }
+    
+    /**
+     * 深拷贝构造函数（仅在需要修改数据时使用）
+     * @param other 要复制的EpubBook对象
+     * @param deepCopy true=深拷贝，false=浅拷贝
+     */
+    private EpubBook(EpubBook other, boolean deepCopy) {
+        if (deepCopy) {
+            this.version = other.version;
+            if (other.metadata != null) {
+                this.metadata = new Metadata(other.metadata);
             }
-        }
-        if (other.nav != null) {
-            this.nav = new ArrayList<>(other.nav.size());
-            for (EpubChapter chapter : other.nav) {
-                this.nav.add(new EpubChapter(chapter));
+            if (other.ncx != null) {
+                this.ncx = new ArrayList<>(other.ncx.size());
+                for (EpubChapter chapter : other.ncx) {
+                    this.ncx.add(new EpubChapter(chapter));
+                }
             }
-        }
-        if (other.landmarks != null) {
-            this.landmarks = new ArrayList<>(other.landmarks.size());
-            for (EpubChapter chapter : other.landmarks) {
-                this.landmarks.add(new EpubChapter(chapter));
+            if (other.nav != null) {
+                this.nav = new ArrayList<>(other.nav.size());
+                for (EpubChapter chapter : other.nav) {
+                    this.nav.add(new EpubChapter(chapter));
+                }
             }
-        }
-        if (other.pageList != null) {
-            this.pageList = new ArrayList<>(other.pageList.size());
-            for (EpubChapter chapter : other.pageList) {
-                this.pageList.add(new EpubChapter(chapter));
+            if (other.landmarks != null) {
+                this.landmarks = new ArrayList<>(other.landmarks.size());
+                for (EpubChapter chapter : other.landmarks) {
+                    this.landmarks.add(new EpubChapter(chapter));
+                }
             }
-        }
-        if (other.resources != null) {
-            this.resources = new ArrayList<>(other.resources.size());
-            for (EpubResource resource : other.resources) {
-                this.resources.add(new EpubResource(resource));
+            if (other.pageList != null) {
+                this.pageList = new ArrayList<>(other.pageList.size());
+                for (EpubChapter chapter : other.pageList) {
+                    this.pageList.add(new EpubChapter(chapter));
+                }
             }
+            if (other.resources != null) {
+                this.resources = new ArrayList<>(other.resources.size());
+                for (EpubResource resource : other.resources) {
+                    this.resources.add(new EpubResource(resource));
+                }
+            }
+            this.readOnly = false;
+        } else {
+            // 调用浅拷贝逻辑
+            this.version = other.version;
+            this.metadata = other.metadata;
+            this.ncx = other.ncx.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.ncx);
+            this.nav = other.nav.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.nav);
+            this.landmarks = other.landmarks.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.landmarks);
+            this.pageList = other.pageList.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.pageList);
+            this.resources = other.resources.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.resources);
+            this.readOnly = true;
         }
+    }
+    
+    /**
+     * 创建深拷贝副本
+     * @return 完全独立的EpubBook副本
+     */
+    public EpubBook deepCopy() {
+        return new EpubBook(this, true);
     }
 
     /**
@@ -83,6 +131,7 @@ public class EpubBook {
      */
     public void setNcx(List<EpubChapter> ncx) {
         this.ncx = new ArrayList<>(ncx);
+        this.readOnly = false; // 设置为可写模式
     }
 
     /**
@@ -99,6 +148,7 @@ public class EpubBook {
      */
     public void setNav(List<EpubChapter> nav) {
         this.nav = new ArrayList<>(nav);
+        this.readOnly = false; // 设置为可写模式
     }
 
     /**
@@ -115,6 +165,7 @@ public class EpubBook {
      */
     public void setLandmarks(List<EpubChapter> landmarks) {
         this.landmarks = new ArrayList<>(landmarks);
+        this.readOnly = false; // 设置为可写模式
     }
 
     /**
@@ -131,6 +182,7 @@ public class EpubBook {
      */
     public void setPageList(List<EpubChapter> pageList) {
         this.pageList = new ArrayList<>(pageList);
+        this.readOnly = false; // 设置为可写模式
     }
 
     /**
@@ -158,6 +210,7 @@ public class EpubBook {
      */
     public void setMetadata(Metadata metadata) {
         this.metadata = metadata != null ? new Metadata(metadata) : null;
+        this.readOnly = false; // 设置为可写模式
     }
 
     /**
@@ -190,6 +243,7 @@ public class EpubBook {
      */
     public void setResources(List<EpubResource> resources) {
         this.resources = new ArrayList<>(resources);
+        this.readOnly = false; // 设置为可写模式
     }
 
     /**
