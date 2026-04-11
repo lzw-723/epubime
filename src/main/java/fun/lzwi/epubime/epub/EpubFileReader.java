@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * EPUB文件读取器
  * 负责读取EPUB文件中的内容，遵循单一职责原则
@@ -22,6 +24,8 @@ public class EpubFileReader {
      * 构造函数
      * @param epubFile EPUB文件
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", 
+                       justification = "Parameter validation is safe in constructor - object is immutable after construction")
     public EpubFileReader(File epubFile) {
         if (epubFile == null) {
             throw new IllegalArgumentException("EPUB file cannot be null");

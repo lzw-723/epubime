@@ -86,13 +86,12 @@ public class ErrorContext {
         public EpubParseException.ErrorCode getErrorCode() {
             return errorCode;
         }
-        
+
         @SuppressFBWarnings("EI_EXPOSE_REP")
         public Throwable getException() {
             return exception; // 返回原始异常引用，这是有意的设计
         }
-        
-        @SuppressFBWarnings("EI_EXPOSE_REP")
+
         public Map<String, Object> getContext() {
             return new ConcurrentHashMap<>(context); // 返回副本以防止外部修改
         }

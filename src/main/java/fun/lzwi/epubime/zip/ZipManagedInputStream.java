@@ -18,9 +18,9 @@ import java.util.zip.ZipFile;
  * </pre>
  */
 public class ZipManagedInputStream extends InputStream {
-    
+
     private final InputStream delegate;
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
     /**
      * 创建由 ZipFileManager 管理的输入流

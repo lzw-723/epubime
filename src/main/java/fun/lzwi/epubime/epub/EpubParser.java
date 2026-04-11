@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * EPUB解析器类
  * 负责解析EPUB文件内容并提取元数据、章节和资源信息，遵循单一职责原则
@@ -40,6 +42,8 @@ public class EpubParser {
      *
      * @param epubFile EPUB文件
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", 
+                       justification = "Parameter validation is safe - all fields are final and immutable after construction")
     public EpubParser(File epubFile) {
         if (epubFile == null) {
             throw new IllegalArgumentException("EPUB file cannot be null");

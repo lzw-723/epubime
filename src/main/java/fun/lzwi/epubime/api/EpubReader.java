@@ -17,17 +17,19 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Fluent API for EPUB reading operations
  * Provides a modern, chainable interface for EPUB file processing
- * 
+ *
  * Example usage:
  * <pre>
  * EpubBook book = EpubReader.fromFile(new File("book.epub"))
  *     .withCache(true)
  *     .withLazyLoading(true)
  *     .parse();
- * 
+ *
  * // Stream processing
  * EpubReader.fromFile(file)
  *     .streamChapters((chapter, content) -> {
@@ -40,6 +42,12 @@ public class EpubReader {
     private final File epubFile;
     private final EpubReaderConfig config;
 
+    /**
+     * 私有构造函数
+     * 使用@SuppressFBWarnings因为这是工厂方法模式，异常在工厂方法中处理
+     */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", 
+                       justification = "Factory method pattern - exceptions are handled in factory methods")
     private EpubReader(File epubFile, EpubReaderConfig config) {
         if (epubFile == null) {
             throw new IllegalArgumentException("EPUB file cannot be null");

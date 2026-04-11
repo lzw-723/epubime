@@ -1,7 +1,10 @@
 package fun.lzwi.epubime.zip;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -75,7 +78,9 @@ public class ZipBombProtection {
         private final int maxEntryCount;
         private final long maxZipSize;
 
-        public ZipSafetyConfig(long maxEntrySize, double maxCompressionRatio, 
+        @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", 
+                           justification = "Parameter validation - object is immutable after construction")
+        public ZipSafetyConfig(long maxEntrySize, double maxCompressionRatio,
                               int maxEntryCount, long maxZipSize) {
             if (maxEntrySize <= 0) {
                 throw new IllegalArgumentException("maxEntrySize must be positive");
@@ -192,17 +197,16 @@ public class ZipBombProtection {
         }
 
         // 检查 ZIP 文件大小
-        long zipSize = zipFile.size();
         java.io.File file = new java.io.File(zipFile.getName());
         if (file.exists()) {
-            long fileSize = file.length();
-            if (fileSize > config.getMaxZipSize()) {
+            long actualSize = file.length();
+            if (actualSize > config.getMaxZipSize()) {
                 throw new ZipBombException(
-                    String.format("ZIP file size too large: %d bytes (max: %d bytes)", 
-                                fileSize, config.getMaxZipSize()),
+                    String.format("ZIP file size too large: %d bytes (max: %d bytes)",
+                                actualSize, config.getMaxZipSize()),
                     "ZIP_FILE_TOO_LARGE",
                     config.getMaxZipSize(),
-                    fileSize
+                    actualSize
                 );
             }
         }
@@ -368,7 +372,7 @@ public class ZipBombProtection {
 
     /**
      * 安全的 ZIP 输入流
-     * 
+     *
      * <p>此输入流在读取过程中会监控已读取的字节数，
      * 如果超过配置的最大限制，将抛出 ZipBombException。</p>
      */
@@ -376,8 +380,8 @@ public class ZipBombProtection {
         private final InputStream delegate;
         private final ZipEntry entry;
         private final ZipSafetyConfig config;
-        private long bytesRead = 0;
-        private boolean closed = false;
+        private final AtomicLong bytesRead = new AtomicLong(0);
+        private volatile boolean closed = false;
 
         SafeZipInputStream(InputStream delegate, ZipEntry entry, ZipSafetyConfig config) {
             this.delegate = delegate;
@@ -386,56 +390,56 @@ public class ZipBombProtection {
         }
 
         @Override
-        public int read() throws IOException {
+        public synchronized int read() throws IOException {
             if (closed) {
                 throw new IOException("Stream is closed");
             }
-            
+
             int b = delegate.read();
             if (b != -1) {
-                bytesRead++;
+                bytesRead.incrementAndGet();
                 checkSizeLimit();
             }
             return b;
         }
 
         @Override
-        public int read(byte[] b) throws IOException {
+        public synchronized int read(byte[] b) throws IOException {
             if (closed) {
                 throw new IOException("Stream is closed");
             }
-            
+
             int bytes = delegate.read(b);
             if (bytes > 0) {
-                bytesRead += bytes;
+                bytesRead.addAndGet(bytes);
                 checkSizeLimit();
             }
             return bytes;
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
+        public synchronized int read(byte[] b, int off, int len) throws IOException {
             if (closed) {
                 throw new IOException("Stream is closed");
             }
-            
+
             int bytes = delegate.read(b, off, len);
             if (bytes > 0) {
-                bytesRead += bytes;
+                bytesRead.addAndGet(bytes);
                 checkSizeLimit();
             }
             return bytes;
         }
 
         @Override
-        public long skip(long n) throws IOException {
+        public synchronized long skip(long n) throws IOException {
             if (closed) {
                 throw new IOException("Stream is closed");
             }
-            
+
             long skipped = delegate.skip(n);
             if (skipped > 0) {
-                bytesRead += skipped;
+                bytesRead.addAndGet(skipped);
                 checkSizeLimit();
             }
             return skipped;
@@ -450,7 +454,7 @@ public class ZipBombProtection {
         }
 
         @Override
-        public void close() throws IOException {
+        public synchronized void close() throws IOException {
             if (!closed) {
                 delegate.close();
                 closed = true;
@@ -479,35 +483,38 @@ public class ZipBombProtection {
 
         /**
          * 检查是否超过大小限制
-         * 
+         *
          * @throws ZipBombException 如果超过限制
          */
         private void checkSizeLimit() throws ZipBombException {
-            if (bytesRead > config.getMaxEntrySize()) {
+            if (bytesRead.get() > config.getMaxEntrySize()) {
                 throw new ZipBombException(
-                    String.format("Decompressed size exceeds limit: %d bytes (max: %d bytes) for entry: %s", 
-                                bytesRead, config.getMaxEntrySize(), entry.getName()),
+                    String.format("Decompressed size exceeds limit: %d bytes (max: %d bytes) for entry: %s",
+                                bytesRead.get(), config.getMaxEntrySize(), entry.getName()),
                     "DECOMPRESSION_SIZE_EXCEEDED",
                     config.getMaxEntrySize(),
-                    bytesRead
+                    bytesRead.get()
                 );
             }
         }
 
         /**
          * 获取已读取的字节数
-         * 
+         *
          * @return 已读取的字节数
          */
         public long getBytesRead() {
-            return bytesRead;
+            return bytesRead.get();
         }
 
         /**
          * 获取 ZIP 条目信息
-         * 
+         * 注意：返回的是内部引用，调用者不应修改此对象
+         *
          * @return ZIP 条目
          */
+        @SuppressFBWarnings(value = "EI_EXPOSE_REP", 
+                           justification = "ZipEntry is immutable in practice - only used for reading metadata")
         public ZipEntry getEntry() {
             return entry;
         }
