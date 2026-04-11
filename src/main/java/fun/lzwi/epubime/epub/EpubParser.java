@@ -9,6 +9,7 @@ import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
 import fun.lzwi.epubime.parser.XmlUtils;
+import fun.lzwi.epubime.zip.ZipBombProtection;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import fun.lzwi.epubime.zip.ZipManagedInputStream;
 import fun.lzwi.epubime.zip.ZipUtils;
@@ -129,6 +130,11 @@ public class EpubParser {
         EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
         if (cachedBook != null) {
             return new EpubBook(cachedBook);
+        }
+
+        // ZIP Bomb 防护：验证 EPUB 文件安全性
+        try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(epubFile)) {
+            ZipBombProtection.validateZipFileSafety(zipFile);
         }
 
         // 首先读取container.xml获取OPF文件路径
