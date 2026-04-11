@@ -42,9 +42,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class EpubReader {
     private final File epubFile;
     private final EpubReaderConfig config;
-    
+
     // 缓存解析结果，避免重复解析
-    private volatile EpubBook cachedFullBook;
     private volatile Metadata cachedMetadata;
     private volatile List<EpubChapter> cachedToc;
     private volatile List<EpubResource> cachedResources;
@@ -137,16 +136,10 @@ public class EpubReader {
         if (cachedMetadata != null) {
             return new Metadata(cachedMetadata);
         }
-        
+
         EpubParser parser = new EpubParser(epubFile);
-        Metadata metadata;
-        
-        if (config.isUseCache()) {
-            metadata = parser.parseMetadataOnly();
-        } else {
-            metadata = parser.parseMetadataOnly();
-        }
-        
+        Metadata metadata = parser.parseMetadataOnly();
+
         // 缓存结果
         cachedMetadata = metadata;
         return new Metadata(metadata);

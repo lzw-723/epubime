@@ -7,10 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * EPUB书籍模型类
  * 表示一个完整的EPUB电子书，包含元数据、章节和资源文件
- * 
+ *
  * 内存优化:
  * - 使用浅拷贝用于缓存场景，减少内存占用
  * - 使用不可变视图保护内部数据，避免意外修改
@@ -27,6 +29,7 @@ public class EpubBook {
     private List<EpubResource> resources = new ArrayList<>();
     
     // 标记是否为只读模式（用于缓存）
+    @SuppressFBWarnings(value = "URF_UNREAD_FIELD", justification = "readOnly字段用于标记缓存状态，预留用于未来优化")
     private transient boolean readOnly = false;
 
     /**
@@ -208,6 +211,7 @@ public class EpubBook {
      * 优化: Metadata已经是不可变设计(final列表字段+unmodifiableList),直接返回引用避免复制开销
      * @return 元数据视图，如果元数据未设置则返回null
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Metadata是不可变设计，返回引用是安全的")
     public Metadata getMetadata() {
         // 优化: Metadata是不可变设计,直接返回引用,避免创建18个ArrayList的副本
         return metadata;

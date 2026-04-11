@@ -1,5 +1,6 @@
 package fun.lzwi.epubime.epub;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.lzwi.epubime.exception.EpubResourceException;
 import fun.lzwi.epubime.zip.ZipManagedInputStream;
 import fun.lzwi.epubime.zip.ZipUtils;
@@ -90,6 +91,7 @@ public class EpubResource {
      * @deprecated Use streaming methods instead to avoid memory issues with large files
      */
     @Deprecated
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "返回byte[]引用是有意的设计，调用方需要访问资源数据")
     public byte[] getData() throws IOException {
         // If data already exists, return directly
         if (data != null) {
