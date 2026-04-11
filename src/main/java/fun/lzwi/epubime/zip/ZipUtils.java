@@ -83,24 +83,25 @@ public class ZipUtils {
     public static byte[] getZipFileBytes(File zipFile, String fileName) throws IOException {
         // 尝试从缓存获取
         byte[] cachedData = ZipOperations.getCachedBinaryContent(zipFile, fileName);
-        
+
         if (cachedData != null) {
-            return cachedData.clone(); // 返回克隆避免修改缓存数据
+            // 优化: 缓存返回的数据已经是防御性clone,直接返回无需再次clone
+            return cachedData;
         }
 
         // 缓存未命中，从ZIP文件读取
         ZipFile zip = ZipOperations.getZipFile(zipFile);
         try {
             ZipEntry entry = ZipOperations.getZipEntry(zip, fileName);
-            
+
             if (entry == null) {
                 return null;
             }
 
             try (InputStream in = zip.getInputStream(entry)) {
                 byte[] data = ZipOperations.readBinaryContent(in, entry.getSize());
-                // 缓存结果
-                ZipOperations.cacheBinaryContent(zipFile, fileName, data.clone());
+                // 优化: 移除data.clone(),直接传入data,缓存内部会做防御性clone
+                ZipOperations.cacheBinaryContent(zipFile, fileName, data);
                 return data;
             }
         } finally {

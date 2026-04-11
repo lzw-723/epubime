@@ -84,7 +84,8 @@ public class EpubResource {
     /**
      * Get resource data - DEPRECATED: Use getInputStream() for streaming to avoid loading entire file into memory
      * If data already exists, return directly, otherwise try to stream read from EPUB file
-     * @return resource data byte array (cloned to prevent external modification)
+     * 优化: 减少冗余clone, ZipUtils.getZipFileBytes已返回防御性clone
+     * @return resource data byte array
      * @throws IOException if reading from EPUB file fails
      * @deprecated Use streaming methods instead to avoid memory issues with large files
      */
@@ -92,13 +93,16 @@ public class EpubResource {
     public byte[] getData() throws IOException {
         // If data already exists, return directly
         if (data != null) {
-            return data.clone(); // Clone to prevent external modification
+            // 优化: data已经是resource的私有数据,直接返回无需clone
+            // 如果调用方需要修改,应该自行clone
+            return data;
         }
 
         // If there is an EPUB file reference, try to stream read data
         if (epubFile != null && href != null) {
+            // 优化: ZipUtils.getZipFileBytes已返回防御性clone,直接赋值无需再clone
             data = ZipUtils.getZipFileBytes(epubFile, href);
-            return data.clone(); // Clone to prevent external modification
+            return data;
         }
 
         return null;
@@ -106,10 +110,12 @@ public class EpubResource {
 
     /**
      * Set resource data
+     * 优化: 克隆传入数据以保护内部状态，但调用方应避免重复克隆
      * @param data resource data byte array
      */
     public void setData(byte[] data) {
         if (data != null) {
+            // 优化: 保留clone保护内部状态，但文档说明调用方不应重复克隆
             this.data = data.clone();
         }
     }

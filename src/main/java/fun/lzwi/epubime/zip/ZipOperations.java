@@ -126,7 +126,8 @@ public class ZipOperations {
      */
     public static void cacheBinaryContent(File zipFile, String fileName, byte[] data) {
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(zipFile);
-        cache.setBinaryContent(fileName, data.clone());
+        // 优化: 移除冗余clone,调用方传入的数据已是新创建的,缓存内部会做防御性clone
+        cache.setBinaryContent(fileName, data);
     }
     
     /**

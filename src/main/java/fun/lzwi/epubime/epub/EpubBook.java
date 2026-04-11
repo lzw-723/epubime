@@ -39,13 +39,20 @@ public class EpubBook {
     /**
      * 浅拷贝构造函数（用于缓存场景）
      * 共享不可变数据，大幅减少内存占用
+     * 
+     * 注意: 
+     * - Metadata已经是不可变设计，共享安全
+     * 列表使用unmodifiableList包装，但列表内的对象(EpubChapter, EpubResource)仍然是可变引用
+     * - 如果修改原始对象的内部资源，会影响所有浅拷贝副本
+     * - 仅适用于只读场景
+     * 
      * @param other 要复制的EpubBook对象
      */
     public EpubBook(EpubBook other) {
         this.version = other.version;
-        // 共享不可变对象（Metadata已经是不可变设计）
+        // 优化: Metadata是不可变设计，共享引用安全
         this.metadata = other.metadata;
-        // 使用不可包装的列表视图，避免深拷贝
+        // 使用不可变列表视图，避免深拷贝
         this.ncx = other.ncx.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.ncx);
         this.nav = other.nav.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.nav);
         this.landmarks = other.landmarks.isEmpty() ? new ArrayList<>() : Collections.unmodifiableList(other.landmarks);
@@ -197,11 +204,13 @@ public class EpubBook {
     }
 
     /**
-     * 获取元数据副本
-     * @return 元数据副本，如果元数据未设置则返回null
+     * 获取元数据视图
+     * 优化: Metadata已经是不可变设计(final列表字段+unmodifiableList),直接返回引用避免复制开销
+     * @return 元数据视图，如果元数据未设置则返回null
      */
     public Metadata getMetadata() {
-        return metadata != null ? new Metadata(metadata) : null;
+        // 优化: Metadata是不可变设计,直接返回引用,避免创建18个ArrayList的副本
+        return metadata;
     }
 
     /**

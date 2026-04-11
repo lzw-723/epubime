@@ -13,9 +13,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 提供对ZIP文件内容、解析结果等的缓存，避免重复解析相同内容
  *
  * 改进：
- * - 文件缓存使用 LRU 策略限制条目数，防止内存泄漏
+ * - 文件缓存使用 LRU 策略限制条目数和总大小，防止内存泄漏
  * - 提供自动清理不存在文件的机制
  * - 修复线程安全问题，使用 ConcurrentHashMap 和显式同步
+ * - 添加基于字节大小的缓存限制，避免大文件占用过多内存
  */
 public class EpubCacheManager {
     // Maximum number of cached EPUB files (LRU eviction)
@@ -26,12 +27,22 @@ public class EpubCacheManager {
     private static final int MAX_BINARY_ENTRIES = 50;
     // Maximum number of parsed result entries per file
     private static final int MAX_PARSED_ENTRIES = 10;
+    
+    // 新增: 单个二进制条目最大大小 (10MB)
+    private static final long MAX_BINARY_ENTRY_SIZE = 10 * 1024 * 1024;
+    // 新增: 单个文件缓存最大总大小 (100MB)
+    private static final long MAX_FILE_CACHE_SIZE = 100 * 1024 * 1024;
+    // 新增: 自动清理间隔 (5分钟)
+    private static final long CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+    
+    // 最后清理时间
+    private volatile long lastCleanupTime = System.currentTimeMillis();
 
     // 每个EPUB文件的缓存，使用 ConcurrentHashMap 确保线程安全
     // 配合显式同步处理 LRU  eviction
     private final ConcurrentHashMap<File, EpubFileCache> fileCaches =
             new ConcurrentHashMap<>(MAX_CACHED_FILES);
-    
+
     // 用于保护 fileCaches 的写操作（如清理）
     private final ReadWriteLock fileCachesLock = new ReentrantReadWriteLock();
 
@@ -58,10 +69,18 @@ public class EpubCacheManager {
     /**
      * 获取指定EPUB文件的缓存
      * 使用 ConcurrentHashMap 的 computeIfAbsent 保证原子性
+     * 定期检查并清理无效缓存，防止内存泄漏
      * @param epubFile EPUB文件
      * @return 文件缓存
      */
     public EpubFileCache getFileCache(File epubFile) {
+        // 优化: 定期检查并清理无效缓存
+        long now = System.currentTimeMillis();
+        if (now - lastCleanupTime > CLEANUP_INTERVAL_MS) {
+            cleanupInvalidCaches();
+            lastCleanupTime = now;
+        }
+        
         return fileCaches.computeIfAbsent(epubFile, k -> new EpubFileCache());
     }
 
@@ -188,12 +207,18 @@ public class EpubCacheManager {
 
         /**
          * 设置二进制内容缓存
+         * 优化: 添加大小限制，避免单个大文件占用过多内存
          * @param key 键
          * @param data 数据
          */
         public void setBinaryContent(String key, byte[] data) {
             if (key != null) {
                 if (data != null) {
+                    // 优化: 检查单个条目大小限制
+                    if (data.length > MAX_BINARY_ENTRY_SIZE) {
+                        // 超过大小限制，不缓存
+                        return;
+                    }
                     binaryContentCache.put(key, data.clone());
                 } else {
                     binaryContentCache.remove(key);
