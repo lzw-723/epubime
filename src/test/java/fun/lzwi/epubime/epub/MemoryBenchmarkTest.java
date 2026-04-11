@@ -6,14 +6,15 @@ import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.zip.ZipFileManager;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,51 +23,94 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Memory benchmark tests for EPUBime library
  * Measures memory usage in different scenarios
+ * 
+ * 改进：
+ * 1. 使用更准确的内存测量方法（Runtime.getRuntime().totalMemory() - freeMemory()）
+ * 2. 多次测量取中位数避免异常值
+ * 3. 强制GC并等待稳定
+ * 4. 添加@BeforeEach确保状态隔离
  */
 public class MemoryBenchmarkTest {
 
+    private static final int MEMORY_MEASUREMENT_RUNS = 5;
+    
     // Records memory usage for each operation
     private final Map<String, Long> memoryResults = new HashMap<>();
+
+    /**
+     * 在每次测试前清除EPUBime的缓存，确保测试公平性
+     */
+    @BeforeEach
+    public void setUp() {
+        clearEpubimeCaches();
+        memoryResults.clear();
+    }
 
     /**
      * 在测试前清除EPUBime的缓存，确保测试公平性
      */
     private void clearEpubimeCaches() {
-        // 清除EPUBime的缓存
         EpubCacheManager.getInstance().clearAllCaches();
-        // 清理ZIP文件管理器的句柄
         ZipFileManager.getInstance().cleanup();
+        System.runFinalization();
     }
 
     /**
-     * Measures memory usage before and after an operation
+     * 改进的内存测量方法
+     * 使用Runtime而非MemoryMXBean，更准确
      */
     private long measureMemoryUsage(Runnable operation) {
-        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-
-        // Force garbage collection to get more accurate measurements
-        System.gc();
-        try {
-            Thread.sleep(100); // Wait for GC to complete
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        List<Long> memoryMeasurements = new ArrayList<>();
+        
+        for (int i = 0; i < MEMORY_MEASUREMENT_RUNS; i++) {
+            forceGC();
+            long beforeMemory = getUsedMemory();
+            
+            operation.run();
+            
+            long afterMemory = getUsedMemory();
+            memoryMeasurements.add(Math.max(0, afterMemory - beforeMemory));
         }
-
-        long beforeMemory = memoryBean.getHeapMemoryUsage().getUsed();
-
-        operation.run();
-
-        // Force garbage collection again
-        System.gc();
-        try {
-            Thread.sleep(100); // Wait for GC to complete
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        
+        // 返回中位数避免异常值
+        return calculateMedian(memoryMeasurements);
+    }
+    
+    /**
+     * 获取当前使用的堆内存
+     */
+    private long getUsedMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.totalMemory() - runtime.freeMemory();
+    }
+    
+    /**
+     * 强制GC并等待稳定
+     */
+    private void forceGC() {
+        for (int i = 0; i < 3; i++) {
+            System.gc();
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
         }
-
-        long afterMemory = memoryBean.getHeapMemoryUsage().getUsed();
-
-        return Math.max(0, afterMemory - beforeMemory);
+    }
+    
+    /**
+     * 计算中位数
+     */
+    private long calculateMedian(List<Long> values) {
+        List<Long> sorted = new ArrayList<>(values);
+        sorted.sort(Long::compareTo);
+        int size = sorted.size();
+        if (size % 2 == 0) {
+            return (sorted.get(size / 2 - 1) + sorted.get(size / 2)) / 2;
+        } else {
+            return sorted.get(size / 2);
+        }
     }
 
     /**
