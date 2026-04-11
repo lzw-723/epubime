@@ -1,6 +1,7 @@
 package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.exception.EpubResourceException;
+import fun.lzwi.epubime.zip.ZipManagedInputStream;
 import fun.lzwi.epubime.zip.ZipUtils;
 
 import java.io.File;
@@ -224,14 +225,30 @@ public class EpubResource {
     }
 
     /**
-     * Get resource input stream for streaming processing of large files.
-     * @return input stream
-     * @throws IOException if EPUB file reference is not set or reading fails
+     * 获取资源输入流，用于流式处理大型文件。
+     * 
+     * <p><b>重要：</b>使用后必须关闭返回的输入流，以释放底层 ZIP 文件句柄。
+     * 推荐使用 try-with-resources 语句：</p>
+     * 
+     * <pre>
+     * try (InputStream is = resource.getInputStream()) {
+     *     // 处理输入流
+     *     byte[] data = is.readAllBytes();
+     * } // 自动关闭流并释放 ZIP 句柄
+     * </pre>
+     * 
+     * <p>或者使用更安全的方法 {@link #processContent(java.util.function.Consumer)}，
+     * 该方法会自动管理资源的生命周期。</p>
+     * 
+     * @return 输入流
+     * @throws IOException 如果未设置 EPUB 文件引用或读取失败
+     * @see #processContent(java.util.function.Consumer)
+     * @see fun.lzwi.epubime.zip.ZipManagedInputStream
      */
     public InputStream getInputStream() throws IOException {
         if (epubFile != null && href != null) {
-            // Use ZipFileManager to optimize ZIP access
-            return ZipUtils.getZipFileInputStream(epubFile, href);
+            // 使用 ZipManagedInputStream 自动管理 ZIP 句柄生命周期
+            return ZipManagedInputStream.open(epubFile, href);
         }
         throw new IOException("Cannot get input stream: epubFile or href is not set (id=" + id + ")");
     }

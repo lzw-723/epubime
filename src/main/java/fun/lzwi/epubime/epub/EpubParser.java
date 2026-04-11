@@ -8,7 +8,9 @@ import fun.lzwi.epubime.exception.EpubPathValidationException;
 import fun.lzwi.epubime.parser.MetadataParser;
 import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
+import fun.lzwi.epubime.parser.XmlUtils;
 import fun.lzwi.epubime.zip.ZipFileManager;
+import fun.lzwi.epubime.zip.ZipManagedInputStream;
 import fun.lzwi.epubime.zip.ZipUtils;
 
 import java.io.File;
@@ -166,10 +168,10 @@ public class EpubParser {
 
         navPath = resourceParser.getNavPath(opfContent, opfDir);
 
-        // 流式解析导航文件，避免加载整个文件到内存
+        // 流式解析导航文件，避免重复打开同一文件
         // 解析NCX
         if (ncxPath != null) {
-            try (java.io.InputStream ncxStream = ZipUtils.getZipFileInputStream(fileReader.epubFile, ncxPath)) {
+            try (ZipManagedInputStream ncxStream = ZipManagedInputStream.open(fileReader.epubFile, ncxPath)) {
                 if (ncxStream != null) {
                     List<EpubChapter> ncx = navigationParser.parseNcx(ncxStream);
                     book.setNcx(ncx);
@@ -177,25 +179,29 @@ public class EpubParser {
             }
         }
 
-        // 解析NAV
+        // 解析NAV - 优化：一次性读取NAV文件内容到内存，避免重复打开流
+        // 因为NAV文件通常很小（<100KB），内存开销可以忽略不计
         if (navPath != null) {
-            try (java.io.InputStream navStream = ZipUtils.getZipFileInputStream(fileReader.epubFile, navPath)) {
+            String navContent = null;
+            try (ZipManagedInputStream navStream = ZipManagedInputStream.open(fileReader.epubFile, navPath)) {
                 if (navStream != null) {
-                    List<EpubChapter> nav = navigationParser.parseNav(navStream);
-                    book.setNav(nav);
-
-                    // 重新打开流来解析其他类型的导航（landmarks、page-list等）
-                    // 注意：这里需要重新打开流，因为InputStream不能重置
-                    try (java.io.InputStream navStream2 = ZipUtils.getZipFileInputStream(fileReader.epubFile, navPath)) {
-                        List<EpubChapter> landmarks = navigationParser.parseNavByType(navStream2, "landmarks");
-                        book.setLandmarks(landmarks);
-                    }
-
-                    try (java.io.InputStream navStream3 = ZipUtils.getZipFileInputStream(fileReader.epubFile, navPath)) {
-                        List<EpubChapter> pageList = navigationParser.parseNavByType(navStream3, "page-list");
-                        book.setPageList(pageList);
-                    }
+                    navContent = XmlUtils.readStreamToString(navStream);
                 }
+            }
+
+            // 使用已读取的内容解析不同类型的导航，无需重复打开文件
+            if (navContent != null) {
+                // 解析TOC导航
+                List<EpubChapter> nav = navigationParser.parseNav(navContent);
+                book.setNav(nav);
+
+                // 解析地标导航
+                List<EpubChapter> landmarks = navigationParser.parseNavByType(navContent, "landmarks");
+                book.setLandmarks(landmarks);
+
+                // 解析页面列表导航
+                List<EpubChapter> pageList = navigationParser.parseNavByType(navContent, "page-list");
+                book.setPageList(pageList);
             }
         }
 
