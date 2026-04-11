@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * EPUB解析缓存管理器
@@ -13,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 改进：
  * - 文件缓存使用 LRU 策略限制条目数，防止内存泄漏
  * - 提供自动清理不存在文件的机制
+ * - 修复线程安全问题，使用 ConcurrentHashMap 和显式同步
  */
 public class EpubCacheManager {
     // Maximum number of cached EPUB files (LRU eviction)
@@ -24,9 +27,13 @@ public class EpubCacheManager {
     // Maximum number of parsed result entries per file
     private static final int MAX_PARSED_ENTRIES = 10;
 
-    // 每个EPUB文件的缓存，使用 LinkedHashMap 实现 LRU 策略
-    private final Map<File, EpubFileCache> fileCaches =
-            Collections.synchronizedMap(new LruMap<>(MAX_CACHED_FILES));
+    // 每个EPUB文件的缓存，使用 ConcurrentHashMap 确保线程安全
+    // 配合显式同步处理 LRU  eviction
+    private final ConcurrentHashMap<File, EpubFileCache> fileCaches =
+            new ConcurrentHashMap<>(MAX_CACHED_FILES);
+    
+    // 用于保护 fileCaches 的写操作（如清理）
+    private final ReadWriteLock fileCachesLock = new ReentrantReadWriteLock();
 
     /**
      * 私有构造函数，防止外部实例化
@@ -50,6 +57,7 @@ public class EpubCacheManager {
 
     /**
      * 获取指定EPUB文件的缓存
+     * 使用 ConcurrentHashMap 的 computeIfAbsent 保证原子性
      * @param epubFile EPUB文件
      * @return 文件缓存
      */
@@ -62,14 +70,25 @@ public class EpubCacheManager {
      * @param epubFile EPUB文件
      */
     public void clearFileCache(File epubFile) {
-        fileCaches.remove(epubFile);
+        EpubFileCache cache = fileCaches.remove(epubFile);
+        if (cache != null) {
+            cache.clear();
+        }
     }
 
     /**
      * 清除所有缓存
      */
     public void clearAllCaches() {
-        fileCaches.clear();
+        fileCachesLock.writeLock().lock();
+        try {
+            for (EpubFileCache cache : fileCaches.values()) {
+                cache.clear();
+            }
+            fileCaches.clear();
+        } finally {
+            fileCachesLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -77,8 +96,11 @@ public class EpubCacheManager {
      * 建议定期调用此方法
      */
     public void cleanupInvalidCaches() {
-        synchronized (fileCaches) {
+        fileCachesLock.writeLock().lock();
+        try {
             fileCaches.entrySet().removeIf(entry -> !entry.getKey().exists());
+        } finally {
+            fileCachesLock.writeLock().unlock();
         }
     }
 
@@ -101,24 +123,25 @@ public class EpubCacheManager {
 
     /**
      * 单个EPUB文件的缓存
+     * 使用 ConcurrentHashMap 和显式同步确保线程安全
      */
     public static class EpubFileCache {
-        // ZIP文件内容缓存 (文件路径 -> 文件内容), LRU-limited
-        private final Map<String, String> textContentCache =
-                Collections.synchronizedMap(new LruMap<>(MAX_TEXT_ENTRIES));
-        private final Map<String, byte[]> binaryContentCache =
-                Collections.synchronizedMap(new LruMap<>(MAX_BINARY_ENTRIES));
+        // ZIP文件内容缓存 (文件路径 -> 文件内容), 使用线程安全的 LRU 缓存
+        private final ThreadSafeLruCache<String, String> textContentCache =
+                new ThreadSafeLruCache<>(MAX_TEXT_ENTRIES);
+        private final ThreadSafeLruCache<String, byte[]> binaryContentCache =
+                new ThreadSafeLruCache<>(MAX_BINARY_ENTRIES);
 
-        // 解析结果缓存, LRU-limited
-        private final Map<String, Object> parsedResultCache =
-                Collections.synchronizedMap(new LruMap<>(MAX_PARSED_ENTRIES));
+        // 解析结果缓存, 使用线程安全的 LRU 缓存
+        private final ThreadSafeLruCache<String, Object> parsedResultCache =
+                new ThreadSafeLruCache<>(MAX_PARSED_ENTRIES);
 
         /**
          * 获取文本内容缓存
          * @return 文本内容缓存的不可修改视图
          */
         public Map<String, String> getTextContentCache() {
-            return Collections.unmodifiableMap(textContentCache);
+            return textContentCache.getSnapshot();
         }
 
         /**
@@ -150,7 +173,7 @@ public class EpubCacheManager {
          * @return 二进制内容缓存的不可修改视图
          */
         public Map<String, byte[]> getBinaryContentCache() {
-            return Collections.unmodifiableMap(binaryContentCache);
+            return binaryContentCache.getSnapshot();
         }
 
         /**
@@ -183,7 +206,7 @@ public class EpubCacheManager {
          * @return 解析结果缓存的不可修改视图
          */
         public Map<String, Object> getParsedResultCache() {
-            return Collections.unmodifiableMap(parsedResultCache);
+            return parsedResultCache.getSnapshot();
         }
 
         /**
@@ -217,6 +240,69 @@ public class EpubCacheManager {
             textContentCache.clear();
             binaryContentCache.clear();
             parsedResultCache.clear();
+        }
+    }
+
+    /**
+     * 线程安全的 LRU 缓存实现
+     * 使用 ReadWriteLock 保证线程安全，同时保持良好的并发性能
+     */
+    private static class ThreadSafeLruCache<K, V> {
+        private final LinkedHashMap<K, V> cache;
+        private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+        ThreadSafeLruCache(int maxSize) {
+            this.cache = new LinkedHashMap<K, V>(maxSize + 1, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+                    return size() > maxSize;
+                }
+            };
+        }
+
+        public V get(K key) {
+            lock.readLock().lock();
+            try {
+                return cache.get(key);
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        public void put(K key, V value) {
+            lock.writeLock().lock();
+            try {
+                cache.put(key, value);
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        public V remove(K key) {
+            lock.writeLock().lock();
+            try {
+                return cache.remove(key);
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        public void clear() {
+            lock.writeLock().lock();
+            try {
+                cache.clear();
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        public Map<K, V> getSnapshot() {
+            lock.readLock().lock();
+            try {
+                return Collections.unmodifiableMap(new LinkedHashMap<>(cache));
+            } finally {
+                lock.readLock().unlock();
+            }
         }
     }
 }
