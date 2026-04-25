@@ -2,7 +2,6 @@ package fun.lzwi.epubime.epub;
 
 import fun.lzwi.epubime.cache.EpubCacheManager;
 import fun.lzwi.epubime.exception.EpubFormatException;
-import fun.lzwi.epubime.exception.EpubZipException;
 import fun.lzwi.epubime.exception.BaseEpubException;
 import fun.lzwi.epubime.exception.EpubPathValidationException;
 import fun.lzwi.epubime.parser.MetadataParser;
@@ -10,9 +9,7 @@ import fun.lzwi.epubime.parser.NavigationParser;
 import fun.lzwi.epubime.parser.ResourceParser;
 import fun.lzwi.epubime.parser.XmlUtils;
 import fun.lzwi.epubime.zip.ZipBombProtection;
-import fun.lzwi.epubime.zip.ZipFileManager;
 import fun.lzwi.epubime.zip.ZipManagedInputStream;
-import fun.lzwi.epubime.zip.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,15 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jsoup.nodes.Document;
 
 /**
  * EPUB解析器类
  * 负责解析EPUB文件内容并提取元数据、章节和资源信息，遵循单一职责原则
  */
 public class EpubParser {
-    /**
-     * 容器文件路径
-     */
+    /** 容器文件路径 */
     public static final String CONTAINER_FILE_PATH = "META-INF/container.xml";
 
     private final File epubFile;
@@ -37,12 +33,21 @@ public class EpubParser {
     private final NavigationParser navigationParser;
     private final ResourceParser resourceParser;
 
-    /**
-     * 构造函数
-     *
-     * @param epubFile EPUB文件
-     */
-    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", 
+    private static class OpfContext {
+        final Document opfDocument;
+        final String opfContent;
+        final String opfDir;
+        final String epubVersion;
+
+        OpfContext(Document opfDocument, String opfContent, String opfDir, String epubVersion) {
+            this.opfDocument = opfDocument;
+            this.opfContent = opfContent;
+            this.opfDir = opfDir;
+            this.epubVersion = epubVersion;
+        }
+    }
+
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW",
                        justification = "Parameter validation is safe - all fields are final and immutable after construction")
     public EpubParser(File epubFile) {
         if (epubFile == null) {
@@ -55,56 +60,28 @@ public class EpubParser {
         this.resourceParser = new ResourceParser(epubFile);
     }
 
-    /**
-     * 获取文件读取器
-     * @return 文件读取器实例
-     */
     public EpubFileReader getFileReader() {
         return fileReader;
     }
 
-    /**
-     * 从容器文件内容中获取根文件路径
-     *
-     * @param containerContent 容器文件内容
-     * @return 根文件路径
-     */
     private String extractRootFilePath(String containerContent) {
         int start = containerContent.indexOf("full-path=\"");
         if (start == -1) {
             throw new IllegalArgumentException("No root file path found in container.xml");
         }
-        
         int end = containerContent.indexOf("\"", start + 11);
         if (end == -1) {
             throw new IllegalArgumentException("Invalid root file path format in container.xml");
         }
-        
         return containerContent.substring(start + 11, end);
     }
 
-    /**
-     * 获取根文件目录
-     *
-     * @param rootFilePath 根文件路径
-     * @return 根文件目录
-     */
     private String extractRootFileDir(String rootFilePath) {
         int lastSlashIndex = rootFilePath.lastIndexOf("/");
-        if (lastSlashIndex == -1) {
-            return "";
-        }
-        return rootFilePath.substring(0, lastSlashIndex + 1);
+        return lastSlashIndex == -1 ? "" : rootFilePath.substring(0, lastSlashIndex + 1);
     }
 
-    /**
-     * 检测EPUB版本
-     *
-     * @param opfDocument 已解析的OPF Document对象
-     * @return EPUB版本字符串
-     */
-    private String detectEpubVersion(org.jsoup.nodes.Document opfDocument) {
-        // 使用已解析的Document，避免重复解析
+    private String detectEpubVersion(Document opfDocument) {
         org.jsoup.nodes.Element packageElement = opfDocument.selectFirst("package");
         if (packageElement != null) {
             String version = packageElement.attr("version");
@@ -112,65 +89,14 @@ public class EpubParser {
                 return version;
             }
         }
-        // 默认返回3.0，如果无法检测
         return "3.0";
     }
 
-    /**
-     * 解析EPUB文件并返回EpubBook对象
-     *
-     * @return 解析后的EpubBook对象
-     * @throws BaseEpubException 解析异常
-     */
-    public EpubBook parse() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        return parseInternal(true);
-    }
-
-    /**
-     * 解析EPUB文件并返回EpubBook对象，但不使用缓存
-     * <p>
-     * 与原 {@link #parse()} 的区别：
-     * <ul>
-     *   <li>不检查缓存，每次都完整解析</li>
-     *   <li>不将解析结果存入缓存</li>
-     * </ul>
-     * 此方法不影响全局 ZipFile 句柄池，可由多个线程安全调用。
-     *
-     * @return 解析后的EpubBook对象
-     * @throws BaseEpubException 解析异常
-     */
-    public EpubBook parseWithoutCache() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        return parseInternal(false);
-    }
-
-    /**
-     * 内部解析方法，通过 useCache 参数控制是否使用缓存
-     *
-     * @param useCache 是否使用缓存
-     * @return 解析后的EpubBook对象
-     */
-    private EpubBook parseInternal(boolean useCache) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        EpubBook book = new EpubBook();
-
-        // 获取当前EPUB文件的缓存
-        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
-        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
-
-        // 检查缓存（仅在 useCache=true 时）
-        if (useCache) {
-            EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
-            if (cachedBook != null) {
-                // 使用浅拷贝，共享不可变数据，减少内存占用
-                return new EpubBook(cachedBook);
-            }
-        }
-
-        // ZIP Bomb 防护：验证 EPUB 文件安全性
+    private OpfContext prepareOpfContext() throws BaseEpubException, EpubPathValidationException, IOException {
         try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(epubFile)) {
             ZipBombProtection.validateZipFileSafety(zipFile);
         }
 
-        // 首先读取container.xml获取OPF文件路径
         String container = fileReader.readContent(CONTAINER_FILE_PATH);
         if (container == null) {
             throw new EpubFormatException("Container file not found", epubFile, CONTAINER_FILE_PATH);
@@ -179,50 +105,62 @@ public class EpubParser {
         String opfPath = extractRootFilePath(container);
         String opfDir = extractRootFileDir(opfPath);
 
-        // 读取OPF内容用于提取路径信息（OPF文件通常很小）
         String opfContent = fileReader.readContent(opfPath);
         if (opfContent == null) {
             throw new EpubFormatException("OPF file not found", epubFile, opfPath);
         }
 
-        // 只解析一次OPF Document，后续所有解析器共享
-        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
-
-        // 检测EPUB版本
+        Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
         String epubVersion = detectEpubVersion(opfDocument);
-        book.setVersion(epubVersion);
 
-        // 解析元数据 - 传递已解析的Document
-        book.setMetadata(metadataParser.parseMetadata(opfDocument, opfContent, epubVersion));
+        return new OpfContext(opfDocument, opfContent, opfDir, epubVersion);
+    }
 
-        // 解析资源文件 - 传递已解析的Document，避免重复解析
-        List<EpubResource> resources = resourceParser.parseResources(opfDocument, opfContent, opfDir);
+    public EpubBook parse() throws BaseEpubException, IOException, EpubPathValidationException {
+        return parseInternal(true);
+    }
+
+    public EpubBook parseWithoutCache() throws BaseEpubException, IOException, EpubPathValidationException {
+        return parseInternal(false);
+    }
+
+    private EpubBook parseInternal(boolean useCache) throws BaseEpubException, IOException, EpubPathValidationException {
+        EpubBook book = new EpubBook();
+
+        EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
+        String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
+
+        if (useCache) {
+            EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
+            if (cachedBook != null) {
+                return new EpubBook(cachedBook);
+            }
+        }
+
+        OpfContext ctx = prepareOpfContext();
+        book.setVersion(ctx.epubVersion);
+        book.setMetadata(metadataParser.parseMetadata(ctx.opfDocument, ctx.opfContent, ctx.epubVersion));
+
+        List<EpubResource> resources = resourceParser.parseResources(ctx.opfDocument, ctx.opfContent, ctx.opfDir);
         book.setResources(resources);
 
         String ncxPath = null;
         String navPath = null;
-
         try {
-            ncxPath = resourceParser.getNcxPath(opfDocument, opfContent, opfDir);
+            ncxPath = resourceParser.getNcxPath(ctx.opfDocument, ctx.opfContent, ctx.opfDir);
         } catch (IllegalArgumentException e) {
-            // NCX路径可选，不抛出异常
+            // NCX路径可选
         }
+        navPath = resourceParser.getNavPath(ctx.opfDocument, ctx.opfContent, ctx.opfDir);
 
-        navPath = resourceParser.getNavPath(opfDocument, opfContent, opfDir);
-
-        // 流式解析导航文件，避免重复打开同一文件
-        // 解析NCX
         if (ncxPath != null) {
             try (ZipManagedInputStream ncxStream = ZipManagedInputStream.open(fileReader.epubFile, ncxPath)) {
                 if (ncxStream != null) {
-                    List<EpubChapter> ncx = navigationParser.parseNcx(ncxStream);
-                    book.setNcx(ncx);
+                    book.setNcx(navigationParser.parseNcx(ncxStream));
                 }
             }
         }
 
-        // 解析NAV - 优化：一次性读取NAV文件内容到内存，避免重复打开流
-        // 因为NAV文件通常很小（<100KB），内存开销可以忽略不计
         if (navPath != null) {
             String navContent = null;
             try (ZipManagedInputStream navStream = ZipManagedInputStream.open(fileReader.epubFile, navPath)) {
@@ -230,24 +168,13 @@ public class EpubParser {
                     navContent = XmlUtils.readStreamToString(navStream);
                 }
             }
-
-            // 使用已读取的内容解析不同类型的导航，无需重复打开文件
             if (navContent != null) {
-                // 解析TOC导航 - 传递已解析的Document
-                List<EpubChapter> nav = navigationParser.parseNav(navContent);
-                book.setNav(nav);
-
-                // 解析地标导航
-                List<EpubChapter> landmarks = navigationParser.parseNavByType(navContent, "landmarks");
-                book.setLandmarks(landmarks);
-
-                // 解析页面列表导航
-                List<EpubChapter> pageList = navigationParser.parseNavByType(navContent, "page-list");
-                book.setPageList(pageList);
+                book.setNav(navigationParser.parseNav(navContent));
+                book.setLandmarks(navigationParser.parseNavByType(navContent, "landmarks"));
+                book.setPageList(navigationParser.parseNavByType(navContent, "page-list"));
             }
         }
 
-        // 缓存完整解析结果（仅在 useCache=true 时）
         if (useCache) {
             cache.setParsedResult(cacheKey, new EpubBook(book));
         }
@@ -255,115 +182,45 @@ public class EpubParser {
         return book;
     }
 
-    /**
-     * 只解析元数据（按需加载）
-     * 性能优化：避免解析整个EPUB文件，只读取元数据部分
-     * 
-     * @return 元数据对象
-     * @throws BaseEpubException 解析异常
-     */
-    public Metadata parseMetadataOnly() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        // 获取缓存
+    public Metadata parseMetadataOnly() throws BaseEpubException, IOException, EpubPathValidationException {
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "metadataOnly:" + epubFile.getAbsolutePath();
 
-        // 尝试从缓存获取
         Metadata cachedMetadata = (Metadata) cache.getParsedResult(cacheKey);
         if (cachedMetadata != null) {
             return new Metadata(cachedMetadata);
         }
 
-        // ZIP Bomb 防护
-        try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(epubFile)) {
-            ZipBombProtection.validateZipFileSafety(zipFile);
-        }
+        OpfContext ctx = prepareOpfContext();
+        Metadata metadata = metadataParser.parseMetadata(ctx.opfDocument, ctx.opfContent, ctx.epubVersion);
 
-        // 读取container.xml获取OPF文件路径
-        String container = fileReader.readContent(CONTAINER_FILE_PATH);
-        if (container == null) {
-            throw new EpubFormatException("Container file not found", epubFile, CONTAINER_FILE_PATH);
-        }
-
-        String opfPath = extractRootFilePath(container);
-
-        // 读取OPF内容
-        String opfContent = fileReader.readContent(opfPath);
-        if (opfContent == null) {
-            throw new EpubFormatException("OPF file not found", epubFile, opfPath);
-        }
-
-        // 只解析一次OPF Document
-        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
-
-        // 检测EPUB版本
-        String epubVersion = detectEpubVersion(opfDocument);
-
-        // 只解析元数据
-        Metadata metadata = metadataParser.parseMetadata(opfDocument, opfContent, epubVersion);
-
-        // 缓存结果
         cache.setParsedResult(cacheKey, new Metadata(metadata));
-
         return metadata;
     }
 
-    /**
-     * 只解析目录（按需加载）
-     * 性能优化：避免解析整个EPUB文件，只读取导航部分
-     * 
-     * @return 章节列表（优先NAV，其次NCX）
-     * @throws BaseEpubException 解析异常
-     */
-    public List<EpubChapter> parseTableOfContentsOnly() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        // 获取缓存
+    public List<EpubChapter> parseTableOfContentsOnly() throws BaseEpubException, IOException, EpubPathValidationException {
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "tocOnly:" + epubFile.getAbsolutePath();
 
-        // 尝试从缓存获取
         @SuppressWarnings("unchecked")
         List<EpubChapter> cachedToc = (List<EpubChapter>) cache.getParsedResult(cacheKey);
         if (cachedToc != null) {
             return new ArrayList<>(cachedToc);
         }
 
-        // ZIP Bomb 防护
-        try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(epubFile)) {
-            ZipBombProtection.validateZipFileSafety(zipFile);
-        }
+        OpfContext ctx = prepareOpfContext();
 
-        // 读取container.xml获取OPF文件路径
-        String container = fileReader.readContent(CONTAINER_FILE_PATH);
-        if (container == null) {
-            throw new EpubFormatException("Container file not found", epubFile, CONTAINER_FILE_PATH);
-        }
-
-        String opfPath = extractRootFilePath(container);
-        String opfDir = extractRootFileDir(opfPath);
-
-        // 读取OPF内容
-        String opfContent = fileReader.readContent(opfPath);
-        if (opfContent == null) {
-            throw new EpubFormatException("OPF file not found", epubFile, opfPath);
-        }
-
-        // 只解析一次OPF Document
-        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
-
-        // 查找NAV和NCX路径
         String ncxPath = null;
         String navPath = null;
-
         try {
-            ncxPath = resourceParser.getNcxPath(opfDocument, opfContent, opfDir);
+            ncxPath = resourceParser.getNcxPath(ctx.opfDocument, ctx.opfContent, ctx.opfDir);
         } catch (IllegalArgumentException e) {
             // NCX路径可选
         }
-
-        navPath = resourceParser.getNavPath(opfDocument, opfContent, opfDir);
+        navPath = resourceParser.getNavPath(ctx.opfDocument, ctx.opfContent, ctx.opfDir);
 
         List<EpubChapter> toc = null;
 
-        // 优先使用NAV（EPUB3标准）
         if (navPath != null) {
             try (ZipManagedInputStream navStream = ZipManagedInputStream.open(fileReader.epubFile, navPath)) {
                 if (navStream != null) {
@@ -373,7 +230,6 @@ public class EpubParser {
             }
         }
 
-        // 如果NAV不存在，使用NCX（向后兼容）
         if ((toc == null || toc.isEmpty()) && ncxPath != null) {
             try (ZipManagedInputStream ncxStream = ZipManagedInputStream.open(fileReader.epubFile, ncxPath)) {
                 if (ncxStream != null) {
@@ -386,25 +242,14 @@ public class EpubParser {
             toc = new ArrayList<>();
         }
 
-        // 缓存结果
         cache.setParsedResult(cacheKey, new ArrayList<>(toc));
-
         return toc;
     }
 
-    /**
-     * 只解析资源列表（按需加载）
-     * 性能优化：避免解析整个EPUB文件，只读取资源部分
-     * 
-     * @return 资源列表
-     * @throws BaseEpubException 解析异常
-     */
-    public List<EpubResource> parseResourcesOnly() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        // 获取缓存
+    public List<EpubResource> parseResourcesOnly() throws BaseEpubException, IOException, EpubPathValidationException {
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "resourcesOnly:" + epubFile.getAbsolutePath();
 
-        // 尝试从缓存获取
         @SuppressWarnings("unchecked")
         List<EpubResource> cachedResources = (List<EpubResource>) cache.getParsedResult(cacheKey);
         if (cachedResources != null) {
@@ -419,42 +264,17 @@ public class EpubParser {
             return result;
         }
 
-        // ZIP Bomb 防护
-        try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(epubFile)) {
-            ZipBombProtection.validateZipFileSafety(zipFile);
-        }
+        OpfContext ctx = prepareOpfContext();
 
-        // 读取container.xml获取OPF文件路径
-        String container = fileReader.readContent(CONTAINER_FILE_PATH);
-        if (container == null) {
-            throw new EpubFormatException("Container file not found", epubFile, CONTAINER_FILE_PATH);
-        }
+        List<EpubResource> resources = resourceParser.parseResources(ctx.opfDocument, ctx.opfContent, ctx.opfDir);
 
-        String opfPath = extractRootFilePath(container);
-        String opfDir = extractRootFileDir(opfPath);
-
-        // 读取OPF内容
-        String opfContent = fileReader.readContent(opfPath);
-        if (opfContent == null) {
-            throw new EpubFormatException("OPF file not found", epubFile, opfPath);
-        }
-
-        // 只解析一次OPF Document
-        org.jsoup.nodes.Document opfDocument = org.jsoup.Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser());
-
-        // 只解析资源列表
-        List<EpubResource> resources = resourceParser.parseResources(opfDocument, opfContent, opfDir);
-
-        // 设置EPUB文件引用
         for (EpubResource resource : resources) {
             if (resource.getEpubFile() == null) {
                 resource.setEpubFile(epubFile);
             }
         }
 
-        // 缓存结果
         cache.setParsedResult(cacheKey, new ArrayList<>(resources));
-
         return resources;
     }
 
