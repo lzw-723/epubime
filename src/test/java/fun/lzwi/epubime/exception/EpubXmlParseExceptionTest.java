@@ -65,7 +65,7 @@ public class EpubXmlParseExceptionTest {
         String expectedStructure = "<root> element";
 
         EpubXmlParseException exception = new EpubXmlParseException(
-            message, fileName, filePath, (Element) null, expectedStructure);
+            message, fileName, filePath, null, expectedStructure);
 
         assertTrue(exception.getMessage().contains(message),
                   "Message should contain the expected text");
@@ -145,7 +145,7 @@ public class EpubXmlParseExceptionTest {
         String missingElement = "package";
 
         EpubXmlParseException exception = new EpubXmlParseException(
-            fileName, filePath, missingElement, (Element) null);
+            fileName, filePath, missingElement, null);
 
         assertTrue(exception.getMessage().contains("Missing required XML element: package"),
                   "Message should contain missing element text");

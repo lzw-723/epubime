@@ -44,7 +44,7 @@ public class EpubPathValidationException extends EpubParseException {
      * 注意：这个构造函数与上面的构造函数有相同的参数类型，需要特殊处理
      */
     public static EpubPathValidationException createForCompatibility(String message, String fileName, String filePath) {
-        return new EpubPathValidationException(message, filePath, fileName, (Throwable)null);
+        return new EpubPathValidationException(message, filePath, fileName, null);
     }
     
     /**

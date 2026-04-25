@@ -60,20 +60,17 @@ public class ExceptionBuilderTest {
         // Test EpubZipException
         EpubZipException zipException = new EpubZipException(message, fileName, filePath);
         assertNotNull(zipException, "EpubZipException should not be null");
-        assertTrue(zipException instanceof EpubZipException,
-                  "Should be instance of EpubZipException");
+        assertInstanceOf(EpubZipException.class, zipException, "Should be instance of EpubZipException");
 
         // Test EpubResourceException
         EpubResourceException resourceException = new EpubResourceException(message, fileName, filePath);
         assertNotNull(resourceException, "EpubResourceException should not be null");
-        assertTrue(resourceException instanceof EpubResourceException,
-                  "Should be instance of EpubResourceException");
+        assertInstanceOf(EpubResourceException.class, resourceException, "Should be instance of EpubResourceException");
 
         // Test EpubPathValidationException
         EpubPathValidationException pathException = EpubPathValidationException.createForCompatibility(message, fileName, filePath);
         assertNotNull(pathException, "EpubPathValidationException should not be null");
-        assertTrue(pathException instanceof EpubPathValidationException,
-                  "Should be instance of EpubPathValidationException");
+        assertInstanceOf(EpubPathValidationException.class, pathException, "Should be instance of EpubPathValidationException");
     }
 
     @Test

@@ -87,10 +87,10 @@ public class EnhancedErrorHandlingTest {
         assertEquals("Invalid XML structure [File: test.opf] [Line: 15] [Column: 20]", exception.getMessage());
         assertEquals("test.opf", exception.getFileName());
         assertEquals("test.opf", exception.getFilePath());
-        assertEquals(null, exception.getXPath());
+        assertNull(exception.getXPath());
         assertEquals(15, exception.getLineNumber());
         assertEquals(20, exception.getColumnNumber());
-        assertEquals(null, exception.getErrorCode());
+        assertNull(exception.getErrorCode());
     }
     
     @Test

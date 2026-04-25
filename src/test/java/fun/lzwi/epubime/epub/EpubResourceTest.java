@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,7 +82,7 @@ public class EpubResourceTest {
         testResource.setData(null); // 确保数据是null
 
         // 创建只包含测试资源的列表
-        java.util.List<EpubResource> testResources = java.util.Arrays.asList(testResource);
+        java.util.List<EpubResource> testResources = Collections.singletonList(testResource);
 
         // 批量加载所有资源的数据
         EpubResource.loadResourceData(testResources, epubFile);
@@ -183,7 +184,7 @@ public class EpubResourceTest {
         resource.setId("self");
         resource.setFallback("self");
 
-        java.util.List<EpubResource> resources = java.util.Arrays.asList(resource);
+        java.util.List<EpubResource> resources = Collections.singletonList(resource);
 
         // 不应该抛出StackOverflowError
         EpubResource result = resource.getFallbackResource(resources);

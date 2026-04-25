@@ -21,9 +21,9 @@ import java.util.List;
  */
 public class EpubJmhBenchmark {
 
-    private File epubFile;
-    private EpubParser epubimeParser;
-    private EpubFileReader epubimeFileReader;
+    private final File epubFile;
+    private final EpubParser epubimeParser;
+    private final EpubFileReader epubimeFileReader;
 
     public EpubJmhBenchmark() throws Exception {
         epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");

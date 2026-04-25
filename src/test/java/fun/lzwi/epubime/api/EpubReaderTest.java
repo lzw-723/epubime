@@ -453,7 +453,7 @@ public class EpubReaderTest {
             // This is acceptable for some EPUB files
             System.out.println("Async streaming failed (acceptable): " + e.getMessage());
             // Don't fail the test, just ensure the exception was properly handled
-            assertTrue(e.getCause() instanceof RuntimeException, "Exception should be properly wrapped");
+            assertInstanceOf(RuntimeException.class, e.getCause(), "Exception should be properly wrapped");
         }
     }
     

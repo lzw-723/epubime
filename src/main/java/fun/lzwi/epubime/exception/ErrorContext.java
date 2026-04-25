@@ -281,7 +281,7 @@ public class ErrorContext {
         
         // 控制台输出（简单的日志实现）- 只打印警告和错误级别
         if (level == ErrorLevel.WARNING || level == ErrorLevel.ERROR || level == ErrorLevel.FATAL) {
-            System.out.println(record.toString());
+            System.out.println(record);
         }
     }
     

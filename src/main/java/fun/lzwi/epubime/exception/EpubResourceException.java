@@ -30,7 +30,7 @@ public class EpubResourceException extends BaseEpubException {
      * 为了向后兼容，提供接受String参数的构造函数
      */
     public EpubResourceException(String message, String fileName, String resourcePath) {
-        this(message, fileName, resourcePath, (Throwable)null);
+        this(message, fileName, resourcePath, null);
     }
     
     /**
@@ -99,7 +99,7 @@ public class EpubResourceException extends BaseEpubException {
     
     private static String formatMessageWithErrorCode(String message, String fileName, String resourcePath) {
         StringBuilder sb = new StringBuilder();
-        sb.append("[").append(EpubParseException.ErrorCode.RESOURCE_LOAD_FAILED.toString()).append("] ");
+        sb.append("[").append(EpubParseException.ErrorCode.RESOURCE_LOAD_FAILED).append("] ");
         sb.append(message);
         if (fileName != null) {
             sb.append(" [File: ").append(fileName).append("]");

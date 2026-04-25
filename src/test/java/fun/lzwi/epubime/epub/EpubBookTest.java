@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.function.BiConsumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -149,7 +150,7 @@ public class EpubBookTest {
         testResource.setData(null); // 确保数据是null
         
         // 创建只包含测试资源的列表
-        java.util.List<EpubResource> testResources = java.util.Arrays.asList(testResource);
+        java.util.List<EpubResource> testResources = Collections.singletonList(testResource);
 
         // 加载所有资源的数据
         EpubResource.loadResourceData(testResources, epubFile);

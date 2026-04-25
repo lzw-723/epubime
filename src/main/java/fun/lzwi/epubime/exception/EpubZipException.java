@@ -28,7 +28,7 @@ public class EpubZipException extends BaseEpubException {
      * 为了向后兼容，提供接受String参数的构造函数
      */
     public EpubZipException(String message, String fileName, String filePath) {
-        this(message, fileName, filePath, (Throwable)null);
+        this(message, fileName, filePath, null);
     }
     
     /**
@@ -89,7 +89,7 @@ public class EpubZipException extends BaseEpubException {
     
     private static String formatMessageWithErrorCode(String message, String fileName, String filePath) {
         StringBuilder sb = new StringBuilder();
-        sb.append("[").append(EpubParseException.ErrorCode.ZIP_INVALID.toString()).append("] ");
+        sb.append("[").append(EpubParseException.ErrorCode.ZIP_INVALID).append("] ");
         sb.append(message);
         if (fileName != null) {
             sb.append(" [File: ").append(fileName).append("]");

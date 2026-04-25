@@ -219,7 +219,7 @@ public class ZipFileManager {
      */
     private static class ZipFileHolder implements Closeable {
         private ZipFile zipFile;
-        private File file;
+        private final File file;
         private final AtomicInteger usageCount; // 使用原子计数器以确保线程安全
         private volatile boolean closed; // 使用volatile确保多线程可见性
 

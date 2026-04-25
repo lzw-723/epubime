@@ -37,7 +37,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void readEpubContent() throws BaseEpubException, EpubPathValidationException, EpubZipException {
+    public void readEpubContent() throws BaseEpubException, EpubPathValidationException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubFileReader fileReader = new EpubFileReader(epubFile);
         String content = fileReader.readContent("mimetype");
@@ -56,7 +56,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void parseMetadata() throws BaseEpubException, EpubPathValidationException, EpubZipException {
+    public void parseMetadata() throws BaseEpubException, EpubPathValidationException {
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubFileReader fileReader = new EpubFileReader(epubFile);
         String opfContent = fileReader.readContent("OEBPS/book.opf");
@@ -570,7 +570,7 @@ public class EpubParserTest {
     }
 
     @Test
-    public void testEpubVersionDetection() throws BaseEpubException, EpubPathValidationException, EpubZipException, java.io.IOException {
+    public void testEpubVersionDetection() throws BaseEpubException, EpubPathValidationException, java.io.IOException {
         // 测试EPUB版本检测功能
         File epubFile = ResUtils.getFileFromRes("fun/lzwi/epubime/epub/《坟》鲁迅.epub");
         EpubParser parser = new EpubParser(epubFile);

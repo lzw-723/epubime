@@ -85,11 +85,7 @@ public class PathValidator {
             // Step 7: Additional check - verify no ".." components remain after normalization
             // This catches edge cases in path resolution
             String resolvedPath = resolved.toString();
-            if (resolvedPath.contains("..")) {
-                return false;
-            }
-            
-            return true;
+            return !resolvedPath.contains("..");
         } catch (Exception e) {
             // If path normalization fails, reject the path
             return false;
@@ -152,9 +148,7 @@ public class PathValidator {
             }
             
             // UNC path
-            if (path.startsWith("\\\\") || path.startsWith("//")) {
-                return true;
-            }
+            return path.startsWith("\\\\") || path.startsWith("//");
         }
         
         return false;

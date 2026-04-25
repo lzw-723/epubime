@@ -38,7 +38,7 @@ public class EpubFormatException extends BaseEpubException {
      * 为了向后兼容，提供接受String参数的构造函数
      */
     public EpubFormatException(String message, String fileName, String filePath) {
-        this(message, fileName, filePath, (Throwable)null);
+        this(message, fileName, filePath, null);
     }
     
     /**
@@ -146,7 +146,7 @@ public class EpubFormatException extends BaseEpubException {
     private static String formatMessageWithErrorCode(String message, File file, String details, Object errorCode, String operation) {
         StringBuilder sb = new StringBuilder();
         if (errorCode != null) {
-            sb.append("[").append(errorCode.toString()).append("] ");
+            sb.append("[").append(errorCode).append("] ");
         }
         sb.append(message);
         if (file != null) {

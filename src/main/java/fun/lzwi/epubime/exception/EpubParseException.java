@@ -410,7 +410,7 @@ public class EpubParseException extends Exception {
         private String filePath;
         private String operation;
         private ErrorCode errorCode = ErrorCode.UNKNOWN_ERROR;
-        private Map<String, Object> context = new HashMap<>();
+        private final Map<String, Object> context = new HashMap<>();
         private String recoverySuggestion;
         private int lineNumber = -1;
         private int columnNumber = -1;

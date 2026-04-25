@@ -2,6 +2,7 @@ package fun.lzwi.epubime.epub;
 
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,7 +14,7 @@ public class EpubResourceFallbackTest {
         EpubResource resource = new EpubResource();
         resource.setId("test-resource");
         
-        List<EpubResource> allResources = Arrays.asList(resource);
+        List<EpubResource> allResources = Collections.singletonList(resource);
         
         // 应该返回自身
         EpubResource fallback = resource.getFallbackResource(allResources);

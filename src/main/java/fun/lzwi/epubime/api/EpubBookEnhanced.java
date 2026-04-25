@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -244,7 +245,7 @@ public class EpubBookEnhanced {
         try {
             StringBuilder content = new StringBuilder();
              processChapterContent(chapter, inputStream -> {
-                 try (InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8")) {
+                 try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
                      char[] buffer = new char[1024];
                      int charsRead;
                      while ((charsRead = reader.read(buffer)) != -1) {
