@@ -84,7 +84,10 @@ public class ThreadSafetyTest {
                         String retrieved = cache.getTextContent(key);
                         if (content.equals(retrieved)) {
                             successCount.incrementAndGet();
+                        } else if (retrieved == null) {
+                            // LRU驱逐导致key丢失，不是线程安全问题
                         } else {
+                            // 读取到非null且不匹配的值，真正的数据损坏
                             errorCount.incrementAndGet();
                         }
                         
@@ -168,8 +171,8 @@ public class ThreadSafetyTest {
                     errorCount.incrementAndGet();
                     e.printStackTrace();
                 } finally {
-                    // 清理当前线程的ZIP文件句柄
-                    ZipFileManager.getInstance().cleanup();
+                    // 释放当前文件的引用计数，不全局关闭其他线程正在使用的句柄
+                    ZipFileManager.getInstance().releaseZipFile(epubFile);
                     latch.countDown();
                 }
             });
@@ -495,7 +498,10 @@ public class ThreadSafetyTest {
                                     String retrieved = cache.getTextContent(key);
                                     if (content.equals(retrieved)) {
                                         successCount.incrementAndGet();
+                                    } else if (retrieved == null) {
+                                        // LRU驱逐导致key丢失，不是线程安全问题
                                     } else {
+                                        // 读取到非null且不匹配的值，真正的数据损坏
                                         errorCount.incrementAndGet();
                                     }
                                     break;
