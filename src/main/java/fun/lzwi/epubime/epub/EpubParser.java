@@ -221,9 +221,6 @@ public class EpubParser {
         // 缓存完整解析结果（使用浅拷贝，减少内存占用）
         cache.setParsedResult(cacheKey, new EpubBook(book));
 
-        // 解析完成后清理ZIP文件句柄
-        ZipFileManager.getInstance().closeCurrentZipFile();
-
         return book;
     }
 
@@ -293,9 +290,6 @@ public class EpubParser {
 
         // 缓存结果
         cache.setParsedResult(cacheKey, new Metadata(metadata));
-
-        // 清理ZIP文件句柄
-        ZipFileManager.getInstance().closeCurrentZipFile();
 
         return metadata;
     }
@@ -382,9 +376,6 @@ public class EpubParser {
         // 缓存结果
         cache.setParsedResult(cacheKey, new ArrayList<>(toc));
 
-        // 清理ZIP文件句柄
-        ZipFileManager.getInstance().closeCurrentZipFile();
-
         return toc;
     }
 
@@ -451,12 +442,8 @@ public class EpubParser {
         // 缓存结果
         cache.setParsedResult(cacheKey, new ArrayList<>(resources));
 
-        // 清理ZIP文件句柄
-        ZipFileManager.getInstance().closeCurrentZipFile();
-
         return resources;
     }
-
 
 
 

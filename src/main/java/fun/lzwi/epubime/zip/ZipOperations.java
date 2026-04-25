@@ -216,6 +216,8 @@ public class ZipOperations {
         ZipEntry entry = getZipEntry(zip, fileName);
 
         if (entry == null) {
+            // 释放已获取的句柄，防止资源泄漏
+            releaseZipFile(zipFile);
             return null;
         }
 

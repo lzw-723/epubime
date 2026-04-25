@@ -244,8 +244,7 @@ public class EpubBookEnhanced {
         try {
             StringBuilder content = new StringBuilder();
              processChapterContent(chapter, inputStream -> {
-                 try {
-                     InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
+                 try (InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8")) {
                      char[] buffer = new char[1024];
                      int charsRead;
                      while ((charsRead = reader.read(buffer)) != -1) {
