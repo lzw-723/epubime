@@ -1,5 +1,6 @@
 package fun.lzwi.epubime.api;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fun.lzwi.epubime.epub.EpubBook;
 import fun.lzwi.epubime.epub.EpubChapter;
 import fun.lzwi.epubime.epub.EpubResource;
@@ -25,8 +26,21 @@ import java.util.function.Function;
  * Asynchronous EPUB processor for non-blocking operations.
  * Implements AutoCloseable to ensure proper resource cleanup.
  * Provides async versions of common EPUB processing tasks.
+ *
+ * <p>默认使用有界任务队列（容量 100）和 CallerRunsPolicy 拒绝策略，
+ * 在负载过高时通过调用线程执行任务实现背压，防止 OOM。</p>
  */
 public class AsyncEpubProcessor implements AutoCloseable {
+
+    /** 默认最大队列容量 */
+    public static final int DEFAULT_MAX_QUEUED_TASKS = 100;
+
+    /** 默认核心线程数 */
+    public static final int DEFAULT_CORE_POOL_SIZE = 0;
+
+    /** 默认最大线程数 */
+    public static final int DEFAULT_MAX_POOL_SIZE = 8;
+
     private final ExecutorService executor;
     private final boolean ownsExecutor;
 
@@ -45,15 +59,35 @@ public class AsyncEpubProcessor implements AutoCloseable {
     }
 
     /**
-     * Create with default executor (bounded thread pool, max 8 threads).
+     * Create with default executor (bounded thread pool, max 8 threads, bounded queue).
      * Uses daemon threads that won't prevent JVM shutdown.
+     * Queue capacity defaults to {@link #DEFAULT_MAX_QUEUED_TASKS} (100).
+     * When queue is full and all threads are busy, tasks run on the calling thread
+     * (CallerRunsPolicy) to provide natural backpressure.
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW",
+            justification = "Parameter is validated in constructor; object is effectively immutable after construction")
     public AsyncEpubProcessor() {
+        this(DEFAULT_MAX_QUEUED_TASKS);
+    }
+
+    /**
+     * Create with default executor and custom queue capacity.
+     * @param maxQueuedTasks maximum number of queued tasks before backpressure kicks in
+     * @throws IllegalArgumentException if maxQueuedTasks <= 0
+     */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW",
+            justification = "Parameter is validated in constructor; object is effectively immutable after construction")
+    public AsyncEpubProcessor(int maxQueuedTasks) {
+        if (maxQueuedTasks <= 0) {
+            throw new IllegalArgumentException("maxQueuedTasks must be positive, got: " + maxQueuedTasks);
+        }
         this.executor = new ThreadPoolExecutor(
-                0, 8,
+                DEFAULT_CORE_POOL_SIZE, DEFAULT_MAX_POOL_SIZE,
                 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(),
-                new EpubThreadFactory()
+                new LinkedBlockingQueue<>(maxQueuedTasks),
+                new EpubThreadFactory(),
+                new ThreadPoolExecutor.CallerRunsPolicy()
         );
         this.ownsExecutor = true;
     }
