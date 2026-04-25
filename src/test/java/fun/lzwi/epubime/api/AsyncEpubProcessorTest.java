@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -146,7 +148,6 @@ public class AsyncEpubProcessorTest {
                     count.incrementAndGet();
                 }).get(5, TimeUnit.SECONDS);
             } catch (Exception e) {
-                // 某些 EPUB 文件可能不支持流式处理，不崩溃即可
                 System.out.println("processChaptersAsync skipped (acceptable): " + e.getMessage());
                 return;
             }
@@ -156,7 +157,6 @@ public class AsyncEpubProcessorTest {
     @Test
     public void testProcessChapterAsync() throws Exception {
         try (AsyncEpubProcessor processor = new AsyncEpubProcessor()) {
-            // 先解析获取章节 ID（streamChapter 通过 ID 查找）
             EpubBook book = processor.parseBookAsync(testEpubFile).get(5, TimeUnit.SECONDS);
             if (book.getChapters().isEmpty()) {
                 return;
@@ -226,7 +226,7 @@ public class AsyncEpubProcessorTest {
     @Test
     public void testProcessMultipleBooksAsync() throws Exception {
         try (AsyncEpubProcessor processor = new AsyncEpubProcessor()) {
-            List<File> files = List.of(testEpubFile, testEpubFile);
+            List<File> files = Arrays.asList(testEpubFile, testEpubFile);
             List<EpubBook> books = processor.processMultipleBooksAsync(files, book -> book).get(10, TimeUnit.SECONDS);
             assertNotNull(books);
             assertEquals(2, books.size());
@@ -236,7 +236,7 @@ public class AsyncEpubProcessorTest {
     @Test
     public void testProcessMultipleBooksAsyncEmpty() throws Exception {
         try (AsyncEpubProcessor processor = new AsyncEpubProcessor()) {
-            List<EpubBook> books = processor.processMultipleBooksAsync(List.of(), book -> book).get(5, TimeUnit.SECONDS);
+            List<EpubBook> books = processor.processMultipleBooksAsync(new ArrayList<File>(), book -> book).get(5, TimeUnit.SECONDS);
             assertNotNull(books);
             assertTrue(books.isEmpty());
         }
@@ -290,7 +290,7 @@ public class AsyncEpubProcessorTest {
     public void testShutdown() {
         AsyncEpubProcessor processor = new AsyncEpubProcessor();
         processor.shutdown();
-        processor.shutdown(); // 二次关闭不抛异常
+        processor.shutdown();
         processor.close();
     }
 
@@ -307,8 +307,6 @@ public class AsyncEpubProcessorTest {
         processor.validateAsync(testEpubFile).get(5, TimeUnit.SECONDS);
         processor.shutdown();
 
-        // shutdown 后 CallerRunsPolicy 检测到 isShutdown() 不会运行任务，
-        // 因此 CompletableFuture 永远不会完成，.get() 应超时
         assertThrows(TimeoutException.class, () ->
                 processor.validateAsync(testEpubFile).get(2, TimeUnit.SECONDS)
         );
