@@ -123,17 +123,46 @@ public class EpubParser {
      * @throws BaseEpubException 解析异常
      */
     public EpubBook parse() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
+        return parseInternal(true);
+    }
+
+    /**
+     * 解析EPUB文件并返回EpubBook对象，但不使用缓存
+     * <p>
+     * 与原 {@link #parse()} 的区别：
+     * <ul>
+     *   <li>不检查缓存，每次都完整解析</li>
+     *   <li>不将解析结果存入缓存</li>
+     * </ul>
+     * 此方法不影响全局 ZipFile 句柄池，可由多个线程安全调用。
+     *
+     * @return 解析后的EpubBook对象
+     * @throws BaseEpubException 解析异常
+     */
+    public EpubBook parseWithoutCache() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
+        return parseInternal(false);
+    }
+
+    /**
+     * 内部解析方法，通过 useCache 参数控制是否使用缓存
+     *
+     * @param useCache 是否使用缓存
+     * @return 解析后的EpubBook对象
+     */
+    private EpubBook parseInternal(boolean useCache) throws BaseEpubException, java.io.IOException, EpubPathValidationException {
         EpubBook book = new EpubBook();
 
         // 获取当前EPUB文件的缓存
         EpubCacheManager.EpubFileCache cache = EpubCacheManager.getInstance().getFileCache(epubFile);
         String cacheKey = "fullParse:" + epubFile.getAbsolutePath();
 
-        // 尝试从缓存获取完整解析结果
-        EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
-        if (cachedBook != null) {
-            // 使用浅拷贝，共享不可变数据，减少内存占用
-            return new EpubBook(cachedBook);
+        // 检查缓存（仅在 useCache=true 时）
+        if (useCache) {
+            EpubBook cachedBook = (EpubBook) cache.getParsedResult(cacheKey);
+            if (cachedBook != null) {
+                // 使用浅拷贝，共享不可变数据，减少内存占用
+                return new EpubBook(cachedBook);
+            }
         }
 
         // ZIP Bomb 防护：验证 EPUB 文件安全性
@@ -218,28 +247,12 @@ public class EpubParser {
             }
         }
 
-        // 缓存完整解析结果（使用浅拷贝，减少内存占用）
-        cache.setParsedResult(cacheKey, new EpubBook(book));
+        // 缓存完整解析结果（仅在 useCache=true 时）
+        if (useCache) {
+            cache.setParsedResult(cacheKey, new EpubBook(book));
+        }
 
         return book;
-    }
-
-    /**
-     * 解析EPUB文件并返回EpubBook对象，但不使用缓存
-     *
-     * @return 解析后的EpubBook对象
-     * @throws BaseEpubException 解析异常
-     */
-    public EpubBook parseWithoutCache() throws BaseEpubException, java.io.IOException, EpubPathValidationException {
-        // 清理当前线程的ZIP文件句柄
-        ZipFileManager.getInstance().cleanup();
-
-        try {
-            return parse();
-        } finally {
-            // 确保清理
-            ZipFileManager.getInstance().cleanup();
-        }
     }
 
     /**
@@ -444,7 +457,5 @@ public class EpubParser {
 
         return resources;
     }
-
-
 
 }
